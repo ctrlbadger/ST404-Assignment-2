@@ -1,0 +1,84 @@
+---
+title: "ST404 Assignment 2"
+author: "Frank Or, Remos Gong, Sam Glanfield, Thomas Broadbent"
+date: "`r Sys.Date()`"
+output:
+  bookdown::pdf_document2: default
+  pdf_document: 
+    number_sections: true
+fontsize: 11pt
+bibliography: references.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(bookdown)
+library(knitr)
+```
+
+```{r libraries, include=FALSE}
+library(dplyr)
+
+```
+
+\pagebreak 
+
+# Findings
+
+# Statistical Methodology
+
+```{r loadData, include=FALSE}
+## Included Libraries
+# For pipe operator and general mutation
+load('cancer.rdata')
+
+```
+
+We first combined our results and findings from our preliminary EDA which is mainly discussed in [Outliers](#outliers) and [Transformations](#transformations).
+
+## Outliers {#outliers}
+
+Counties with high Incidence Rates, namely 'Union County, Florida' and 'Williamsburg City, Virginia' were removed from the model building process as they had high influence over the model and were not reflective of the rest of the data.
+
+```{r incidenceRateRemoval, include=FALSE}
+# Removing outlier incidence rates 'Union County, Florida' and 'Williamsburg City, Virginia'
+cancer <- filter(cancer, incidenceRate <= 700)
+
+```
+
+For counties with Average Household Size less than one we took the decision to scale the transformations by 100 and keep them in the dataset. 
+
+```{r averageHouseholdSize, include=FALSE}
+# Scale average household sizes that are less than 1 by 100
+cancer[which(cancer$AvgHouseholdSize < 1), ]$AvgHouseholdSize <- 
+  100*cancer[which(cancer$AvgHouseholdSize < 1), ]$AvgHouseholdSize
+
+```
+
+
+
+
+## Transformations {#transformations}
+
+## Modelling Approach and Variable Selection
+
+### AIC Forward and Backward Variable Selection
+
+### RIDGE Regression
+
+## Statistical Interpretation and Validation
+
+# References 
+
+<div id="refs"></div>
+
+# Appendix
+
+```{r get-labels, echo = FALSE}
+labs = all_labels()
+labs = setdiff(labs, c("setup", "get-labels"))
+```
+
+```{r all-code, ref.label=labs, eval=FALSE}
+```
+  
