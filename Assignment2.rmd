@@ -18,6 +18,7 @@ library(knitr)
 
 ```{r libraries, include=FALSE}
 library(dplyr)
+library(car)
 
 ```
 
