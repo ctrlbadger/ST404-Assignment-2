@@ -98,6 +98,38 @@ hybridoptimalBIC = step(c0,direction="both",scope=list("lower"=c0,"upper"=cmax),
 
 ```
 
+From the summary output we see that for the AIC model all coefficients have strong evidence that they are different from zero other than Percent Unemployed 16 and Over and Percent Public Coverage. For the BIC model these variables are not in the model and further from the summary output we see with strong evidence that all the coefficients are different from zero. From observing the output we see that we would expect there to be multicollinearity in these models due to variables that measure similar or opposite quantities, for example Percent Married and Percent Married Households.
+
+```{r summaryAICBIC, include=FALSE}
+# We compute the summaries of the stepwise models
+summary(hybridoptimalAIC)
+summary(hybridoptimalBIC)
+
+```
+
+We compute the Variance Inflation Factors (VIF) for the BIC model and see that there are numerous values that are at least 5 indicating that we have multicollinearity. Specifically, we see a VIF of at least 10 in Percent Married and a VIF of 8 in Percent Married Households. As well as in log(Median Income), Percent Employed 16 and Over, Percent Employers Private Coverage and Percent Private Coverage.
+
+```{r StepwiseVIF, include=FALSE}
+# Computing the VIF of the BIC stepwise regression model
+vif(hybridoptimalBIC)
+
+```
+
+Thus we remove the variables with the highest VIF out of the model, namely Percent Married and Percent Private Coverage. From the summary of this updated model Percent Married Households is no longer significant, so we remove it from the model and see in this further updated model that all coefficients are significant and have VIF less than 5.
+
+```{r updatestepwise, include=FALSE}
+# Update the BIC model removing high VIF predictors
+updateBIC = lm(deathRate~logmedincome+incidenceRate+PctEmpPrivCoverage+PctEmployed16_Over+Edu18_24+logpctblack+PctMarriedHouseholds+MedianAgeFemale,cancermodel)
+summary(updateBIC)
+
+# Update further BIC model removing insignificant variable
+updateBIC2 = lm(deathRate~logmedincome+incidenceRate+PctEmpPrivCoverage+PctEmployed16_Over+Edu18_24+logpctblack+MedianAgeFemale,cancermodel)
+summary(updateBIC2)
+vif(updateBIC2)
+
+```
+
+
 ### RIDGE Regression
 
 ## Statistical Interpretation and Validation
