@@ -55,10 +55,28 @@ cancer[which(cancer$AvgHouseholdSize < 1), ]$AvgHouseholdSize <-
 
 ```
 
+We also see counties with missing values in Percentage Employed 16 and Over and we conclude that the data is Missing Completely at Random. In order to rectify this we impute this data by fitting a linear regression model of Percentage Employed 16 and Over on the remaining variables to estimate what these values would be.
 
+```{r impute, include=FALSE}
+# Impute the missing data seen in the dataset
+mod1=lm(PctEmployed16_Over~+deathRate+incidenceRate+medIncome+binnedInc+povertyPercent+MedianAgeMale+MedianAgeFemale+AvgHouseholdSize+PercentMarried+PctUnemployed16_Over+PctPrivateCoverage+PctEmpPrivCoverage+PctPublicCoverage+PctBlack+PctMarriedHouseholds+Edu18_24,cancer)
+missdf = cancer[which(is.na(cancer$PctEmployed16_Over)==TRUE),]
+imputed = predict(mod1,missdf)
+cancer[which(is.na(cancer$PctEmployed16_Over)==TRUE),"PctEmployed16_Over"] = imputed
+
+```
 
 
 ## Transformations {#transformations}
+
+We transform Percent Black by first shifting the values upwards by 0.05, to ensure we have no zero values, then take a log transform. We also transform the Median Income by again taking a log trasformation. We do these transformations to ensure the data is not heavily skewed and allow for a more accurate model.
+
+```{r transformations, include=FALSE}
+# Log transforming the heavily skewed distributions of PctBlack and medIncome
+cancer$logpctblack = log(cancer$PctBlack+0.05)
+cancer$logmedincome = log(cancer$medIncome)
+
+```
 
 ## Modelling Approach and Variable Selection
 
