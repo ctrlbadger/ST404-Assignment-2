@@ -82,6 +82,22 @@ cancer$logmedincome = log(cancer$medIncome)
 
 ### AIC Forward and Backward Variable Selection
 
+We perform forward, backward and hybrid stepwise regression according to both AIC and BIC. We see that the models generated for AIC are all the same and ones generated for BIC are al the same. In the AIC case we have the model has 14 parameters, whereas the BIC model has 11 variables. 
+
+```{r stepwise}
+# Below we perform stepwise regression for both AIC and BIC
+cancermodel = cancer[,-c(1,2,4,16)]
+c0=lm(deathRate~1)
+cmax=lm(deathRate~.,cancermodel)
+forwardoptimalAIC = step(c0,direction="forward",scope=list("lower"=c0,"upper"=cmax),trace=0)
+backwardoptimalAIC = step(cmax,direction="backward",scope=list("lower"=c0,"upper"=cmax),trace=0)
+hybridoptimalAIC = step(c0,direction="both",scope=list("lower"=c0,"upper"=cmax),trace=0)
+forwardoptimalBIC = step(c0,direction="forward",scope=list("lower"=c0,"upper"=cmax),trace=0,k=log(3044))
+backwardoptimalBIC = step(cmax,direction="backward",scope=list("lower"=c0,"upper"=cmax),trace=0,k=log(3044))
+hybridoptimalBIC = step(c0,direction="both",scope=list("lower"=c0,"upper"=cmax),trace=0,k=log(3044))
+
+```
+
 ### RIDGE Regression
 
 ## Statistical Interpretation and Validation
