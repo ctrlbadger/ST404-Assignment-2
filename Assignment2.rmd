@@ -136,6 +136,20 @@ vif(updateBIC2)
 
 ```
 
+For this updated model as all the coefficients are significant and the VIF for all variables are less than 5 we produce residual plots, as can be seen below, in Figure XXX. From the plots we can see that this model satisfies the assumptions of homeoscedasticity and normality. In the left plot we see a horizontal line about zero indicating the errors have zero mean and a constant variance and spread of points giving us constant variance in the errors. This is also supported through the non-constant variance test function from the car package which gives a p-value of 0.29215, hence we accept the null hypothesis that the errors have a constant variance. In the right plot we see a QQ plot and see that the majority of points appear to be either on or close to the dotted reference line. Thus, suggesting that the errors are normally distributed.
+
+```{r ncvtest,include=FALSE}
+# Performing non-constant variance test
+ncvTest(updateBIC2)
+
+```
+
+```{r updateBIC Plots, echo=FALSE}
+# Producing residual plots for updateBIC2 model
+par(mfrow=c(1,2))
+plot(updateBIC2,which=c(1,2))
+
+```
 
 ### RIDGE Regression
 
