@@ -177,7 +177,7 @@ From analysing the coefficients and comparing with our stepwise BIC model from t
 # Produce the residuals vs fitted plot
 ridgefitted = predict(ridgemod,newx=model.matrix(hybridoptimalBIC))
 ridgeresid = cancermodel$deathRate-ridgefitted
-plot(ridgeresid~ridgefitted)
+plot(ridgeresid~ridgefitted, xlab="Fitted Values", ylab="Residuals")
 abline(h=0,col="red")
 
 ```
