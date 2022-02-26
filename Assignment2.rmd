@@ -20,6 +20,7 @@ library(knitr)
 ```{r libraries, include=FALSE}
 library(dplyr)
 library(car)
+library(glmnet)
 
 ```
 
@@ -157,6 +158,29 @@ plot(updateBIC2,which=c(1,2))
 ```
 
 ### RIDGE Regression
+
+In order to reduce the effects of multicollinearity in our model found by BIC stepwise regression we perform ridge regression. This will help in the interpretation of our model and also ensuring stability in the model and a better accuracy of the models powers. We use the minimum lambda found by 10-fold cross validation in order to reduce the mean squared error of the model and provide us with the best estimate of the coefficients.
+
+```{r ridge, include=FALSE}
+# Produce ridge regression model
+set.seed(153)
+ridgecv = cv.glmnet(model.matrix(hybridoptimalBIC),cancermodel$deathRate,alpha=0)
+optimallambda = ridgecv$lambda.min
+ridgemod = glmnet(model.matrix(hybridoptimalBIC),cancermodel$deathRate,alpha=0,lambda=optimallambda)
+coef(ridgemod)
+
+```
+
+From analysing the coefficients and comparing with our stepwise BIC model from the section above we note the values have changed supporting our evidence we found in the VIF that there is evidence of multicolllinearity and through the ridge regression we performed this should have been reduced. Below we produce the residuals vs fitted plot to check if we have homeoscedasticity (constant variance) in the model as well as zero mean. From the plot seen in Figure XXX we see the spread of the points appears to be symmetrical about the red horizontal line we see suggesting that we do indeed satisfy homeoscedasticity as well as zero mean in the residuals.
+
+```{r ridgeplots, echo=FALSE}
+# Produce the residuals vs fitted plot
+ridgefitted = predict(ridgemod,newx=model.matrix(hybridoptimalBIC))
+ridgeresid = cancermodel$deathRate-ridgefitted
+plot(ridgeresid~ridgefitted)
+abline(h=0,col="red")
+
+```
 
 ## Statistical Interpretation and Validation
 
