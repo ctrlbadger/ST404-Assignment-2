@@ -38,21 +38,24 @@ We first combined our results and findings from our preliminary EDA which is mai
 
 ## Outliers {#outliers}
 
-Counties with high Incidence Rates, namely 'Union County, Florida' and 'Williamsburg City, Virginia' were removed from the model building process as they had high influence over the model and were not reflective of the rest of the data.
+Counties with high Incidence Rates, namely 'Union County, Florida' and 'Williamsburg City, Virginia'. We looked into the cook's distance plots and noticed only 'Williamsburg City, Virginia' has large cook's distance and hence influential. The first cook's distance plot used a linear model with only incidenceRate as the predictor variable. The second used all the numerical variables. We concluded although 'Union County, Florida' has high leverage, it is not influential and hence should be kept in our data set.
 
-```{r incidenceRateRemoval, include=FALSE}
-# Removing outlier incidence rates 'Union County, Florida' and 'Williamsburg City, Virginia'
-cancer <- filter(cancer, incidenceRate <= 700)
-
+```{r incidenceRateRemoval, echo=FALSE}
+# Cook's distance Plot
+par(mfrow=c(1,2))
+plot(lm(deathRate ~ incidenceRate,data=cancer),4)
+plot(lm(deathRate ~ .,data=cancer[-c(1,4)]),4)
+# Removing outlier incidence rates 'Williamsburg City, Virginia'
+cancer <- filter(cancer, incidenceRate <= 1100)
 ```
 
-For counties with Average Household Size less than one we took the decision to scale the transformations by 100 and keep them in the dataset. 
+For counties with Average Household Size less than one we took the decision to scale the transformations by 100 and keep them in the dataset. This fixed the normality of AvgHouseholdSize as shown in the histogram.
 
 ```{r averageHouseholdSize, include=FALSE}
 # Scale average household sizes that are less than 1 by 100
 cancer[which(cancer$AvgHouseholdSize < 1), ]$AvgHouseholdSize <- 
   100*cancer[which(cancer$AvgHouseholdSize < 1), ]$AvgHouseholdSize
-
+hist(cancer$AvgHouseholdSize, breaks=30, xlab="AvgHouseholdSize", main="Histogram of AvgHouseholdSize")
 ```
 
 We also see counties with missing values in Percentage Employed 16 and Over and we conclude that the data is Missing Completely at Random. In order to rectify this we impute this data by fitting a linear regression model of Percentage Employed 16 and Over on the remaining variables to estimate what these values would be.
