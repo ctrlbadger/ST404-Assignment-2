@@ -18,7 +18,7 @@ library(knitr)
 
 ```{r libraries, include=FALSE}
 library(dplyr)
-
+library(car)
 ```
 
 \pagebreak 
@@ -78,8 +78,33 @@ We transform Percent Black by first shifting the values upwards by 0.05, to ensu
 # Log transforming the heavily skewed distributions of PctBlack and medIncome
 cancer$logpctblack = log(cancer$PctBlack+0.05)
 cancer$logmedincome = log(cancer$medIncome)
-
 ```
+
+The following residual plots show the improvements in homoscedasticity in PctBlack and medIncome after log-transform respectively.
+
+```{r heteroscedasticity1,echo=FALSE}
+# Showing improvements in homoscedasticity in PctBlack and medIncome
+par(mfrow=c(1,2))
+plot(lm(deathRate~PctBlack,data=cancer),1)
+plot(lm(deathRate~logpctblack,data=cancer),1)
+plot(lm(deathRate~medIncome,data=cancer),1)
+plot(lm(deathRate~logmedincome,data=cancer),1)
+```
+
+We also notice slight evidence of heteroscedasticity in PctEmpPrivCoverage as shown in the residual plot below.
+However, since it is not severe and the suggested power transformation using spread level plot makes it more heteroscedastic, we decided not to perform transformation on PctEmpPrivCoverage.
+
+```{r Spreadlevelplot, fig.show='hide'}
+# Finding power transformation for PctEmpPrivCoverage
+spreadLevelPlot(lm(deathRate~PctEmpPrivCoverage, data=cancer))
+```
+
+
+```{r heteroscedasticity2,echo=FALSE}
+plot(lm(deathRate~PctEmpPrivCoverage,data=cancer),1)
+```
+
+
 
 ## Modelling Approach and Variable Selection
 
