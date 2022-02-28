@@ -7,6 +7,7 @@ output:
   pdf_document: 
     number_sections: true
 fontsize: 11pt
+linestretch: 1.5
 bibliography: references.bib
 ---
 
@@ -19,11 +20,16 @@ library(knitr)
 ```{r libraries, include=FALSE}
 library(dplyr)
 library(car)
+
 ```
 
 \pagebreak 
 
 # Findings
+
+From the modelling approach taken in this report and our preliminary EDA we have determined that the major determinants in of high mortality rates in the US, as well as key predictors in modelling the mortality rate are: incidence rate, log of median income, poverty percent, percent employed and unemployed 16 and over, percent private, publci and employee provided private coverage, log of percent black, education levels and percent married households and percent married. From the list above we see that there are variables that measure similar or opposite quantities such as percent employed and percent unemployed 16 and over. Thus during the modelling process we will take caution with similar variables to ensure we keep the explanatory power of the model.
+
+We do see examples of counties that do not conform to the general pattern with unusually high or low mortality rates. One example we have is 'Williamsburg City, Virginia' where we see a high incidence rate of 1014 yet a comparatively small death rate of 162, however we see that it's percent private coverage is 19% above the US average and the median male and female ages of 26 and 24 respectively are considerably lower than the median US ages, potentially being causes for this low death rate. Another county with an unsusually high mortality rate is 'Union County, Florida' where we see a death rate of 363 which is 168 above the upper quartile (75% of data points). Here we see a higher than average poverty percent and a lower than average education level being possible causes but not fully explaining the drastically high death rate level and similarly high incidence rate of 1207. We also see a slighlty less but still unusual value for 'Charlottseville City, Virginia' with a high incidence rate of 719, but again a comparatively low death rate of 178. In the other case we saw this was also in Virginia and again we see a higher than average percent private coverage, 4% higher than the upper quartile, again potentially being the cause for a high incidence rate but low death rate. Conversely, we see an unsuaully low death rate of 60 in 'Pitkin County, Colorado', however this can be explained by a high median income and percent private coverage.
 
 # Statistical Methodology
 
@@ -109,6 +115,74 @@ plot(lm(deathRate~PctEmpPrivCoverage,data=cancer),1)
 ## Modelling Approach and Variable Selection
 
 ### AIC Forward and Backward Variable Selection
+
+We perform forward, backward and hybrid stepwise regression according to both AIC and BIC. We see that the models generated for AIC are all the same and ones generated for BIC are al the same. In the AIC case we have the model has 14 parameters, whereas the BIC model has 11 variables. 
+
+```{r stepwise, include=FALSE}
+# Below we perform stepwise regression for both AIC and BIC
+cancermodel = cancer[,-c(1,3,15)]
+c0=lm(deathRate~1,cancermodel)
+cmax=lm(deathRate~.,cancermodel)
+forwardoptimalAIC = step(c0,direction="forward",
+scope=list("lower"=c0,"upper"=cmax),trace=0)
+backwardoptimalAIC = step(cmax,direction="backward",
+scope=list("lower"=c0,"upper"=cmax),trace=0)
+hybridoptimalAIC = step(c0,direction="both",
+scope=list("lower"=c0,"upper"=cmax),trace=0)
+forwardoptimalBIC = step(c0,direction="forward",
+scope=list("lower"=c0,"upper"=cmax),trace=0,k=log(3044))
+backwardoptimalBIC = step(cmax,direction="backward",
+scope=list("lower"=c0,"upper"=cmax),trace=0,k=log(3044))
+hybridoptimalBIC = step(c0,direction="both",
+scope=list("lower"=c0,"upper"=cmax),trace=0,k=log(3044))
+
+```
+
+From the summary output we see that for the AIC model all coefficients have strong evidence that they are different from zero other than Percent Unemployed 16 and Over and Percent Public Coverage. For the BIC model these variables are not in the model and further from the summary output we see with strong evidence that all the coefficients are different from zero. From observing the output we see that we would expect there to be multicollinearity in these models due to variables that measure similar or opposite quantities, for example Percent Married and Percent Married Households.
+
+```{r summaryAICBIC, include=FALSE}
+# We compute the summaries of the stepwise models
+summary(hybridoptimalAIC)
+summary(hybridoptimalBIC)
+
+```
+
+We compute the Variance Inflation Factors (VIF) for the BIC model and see that there are numerous values that are at least 5 indicating that we have multicollinearity. Specifically, we see a VIF of at least 10 in Percent Married and a VIF of 8 in Percent Married Households. As well as in log(Median Income), Percent Employed 16 and Over, Percent Employers Private Coverage and Percent Private Coverage.
+
+```{r StepwiseVIF, include=FALSE}
+# Computing the VIF of the BIC stepwise regression model
+vif(hybridoptimalBIC)
+
+```
+
+Thus we remove the variables with the highest VIF out of the model, namely Percent Married and Percent Private Coverage. From the summary of this updated model Percent Married Households is no longer significant, so we remove it from the model and see in this further updated model that all coefficients are significant and have VIF less than 5.
+
+```{r updatestepwise, include=FALSE}
+# Update the BIC model removing high VIF predictors
+updateBIC = lm(deathRate~logmedincome+incidenceRate+PctEmpPrivCoverage+PctEmployed16_Over+Edu18_24+logpctblack+PctMarriedHouseholds+MedianAgeFemale,cancermodel)
+summary(updateBIC)
+
+# Update further BIC model removing insignificant variable
+updateBIC2 = lm(deathRate~logmedincome+incidenceRate+PctEmpPrivCoverage+PctEmployed16_Over+Edu18_24+logpctblack+MedianAgeFemale,cancermodel)
+summary(updateBIC2)
+vif(updateBIC2)
+
+```
+
+For this updated model as all the coefficients are significant and the VIF for all variables are less than 5 we produce residual plots, as can be seen below, in Figure XXX. From the plots we can see that this model satisfies the assumptions of homeoscedasticity and normality. In the left plot we see a horizontal line about zero indicating the errors have zero mean and a constant variance and spread of points giving us constant variance in the errors. This is also supported through the non-constant variance test function from the car package which gives a p-value of 0.29215, hence we accept the null hypothesis that the errors have a constant variance. In the right plot we see a QQ plot and see that the majority of points appear to be either on or close to the dotted reference line. Thus, suggesting that the errors are normally distributed.
+
+```{r ncvtest,include=FALSE}
+# Performing non-constant variance test
+ncvTest(updateBIC2)
+
+```
+
+```{r updateBIC Plots, echo=FALSE}
+# Producing residual plots for updateBIC2 model
+par(mfrow=c(1,2))
+plot(updateBIC2,which=c(1,2))
+
+```
 
 ### RIDGE Regression
 
