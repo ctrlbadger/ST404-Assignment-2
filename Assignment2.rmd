@@ -184,6 +184,48 @@ plot(updateBIC2,which=c(1,2))
 
 ```
 
+Now we perform stepwise with states included as a factor and as can be seen in both the AIC and BIC case the factor State is kept in the model and otherwise the other variables included are similar with the main different exclusion being log(Percent Black) which was included in the model without the addition of the states.
+
+```{r statestepwise, include=FALSE}
+# Create stepwise regression models including the states
+cancermodel2 = separate(cancer,"Geography", into=c("County","State"),sep=",")[-c(1,4,5,16)]
+c0=lm(deathRate~1,cancermodel2)
+cmax=lm(deathRate~.,cancermodel2)
+hybridoptimalAIC2 = step(c0,direction="both",
+scope=list("lower"=c0,"upper"=cmax),trace=0)
+hybridoptimalBIC2 = step(c0,direction="both",
+scope=list("lower"=c0,"upper"=cmax),trace=0,k=log(3044))
+
+```
+
+We see from the summary output that the majority of the coefficients are significant with the departures from this coming from the State factor variable for certain states. In the AIC model we see that Poverty Percent is not significant with a p value of 0.0628, however we see in the BIC model this variable is dropped and as Poverty Percent will have a high correlation with Percent Unemployed 16 and Over we adopt the BIC model.
+
+```{r statestepwise 2, include=FALSE}
+# Produce summary and coefficients of state stepwise regression models
+coef(hybridoptimalAIC2)
+coef(hybridoptimalBIC2)
+summary(hybridoptimalAIC2)
+summary(hybridoptimalBIC2)
+
+```
+
+Below in Figure XXX we can see the residual and QQplot for the BIC model. In the residual plot on the left hand side we see constant variance and a mean of zero with the majority of points near the horizontal red line. This is similar to what we saw when we didn't include the states in the selection process. Similarly, we see in the QQplot the majority of points on or near the reference line suggesting that the errors are indeed normally distributed, again as we see in the above case of not including states in the selection process.
+
+```{r statestepwise 3, echo=FALSE}
+# Residual plots of state stepwise regression
+par(mfrow=c(1,2))
+plot(hybridoptimalBIC2, which=c(1,2))
+
+```
+
+In order to test whether the addition of states in the model makes a significant difference on the model in the stepwise selection process we perform an F-Test using the anova function. Computing this we get a p-value of less than 2.2x10^-16, thus giving us strong evidence that we should reject the null hypothesis that the model not including states is better. Hence, the BIC model including the states as a factor variable is a better fit of the data according to the anova function.
+
+```{r statestepwise 4, include=FALSE}
+# Perform F-Test on the BIC models above
+anova(updateBIC2,hybridoptimalBIC2)
+
+```
+
 ### RIDGE Regression
 
 ## Statistical Interpretation and Validation
