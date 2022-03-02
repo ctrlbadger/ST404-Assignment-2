@@ -1,9 +1,18 @@
 
-
 ```{r, include=FALSE}
 library(dplyr)
 library(ggplot2)
 library(maps)
+load('cancer.rdata')
+cancer <- filter(cancer, incidenceRate <= 1100)
+cancermodel2 = separate(cancer,"Geography", into=c("County","State"),sep=",")[-c(1,4,5,16)]
+
+```
+
+
+
+
+```{r, include=FALSE}
 #average for each state
 averagedeathrate=round(tapply(cancermodel2$deathRate,cancermodel2$State,mean)[-c(2,12)],0)
 
