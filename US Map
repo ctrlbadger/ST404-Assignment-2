@@ -2,6 +2,7 @@
 ```{r, include=FALSE}
 library(dplyr)
 library(ggplot2)
+library(tidyr)
 library(maps)
 load('cancer.rdata')
 cancer <- filter(cancer, incidenceRate <= 1100)
