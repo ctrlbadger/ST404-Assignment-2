@@ -1,4 +1,5 @@
 library(dplyr)
+library(glmnet)
 load("cancer.RData")
 cancer <- filter(cancer, incidenceRate <= 1100)
 cancer[which(cancer$AvgHouseholdSize < 1), ]$AvgHouseholdSize <- 
@@ -6,7 +7,8 @@ cancer[which(cancer$AvgHouseholdSize < 1), ]$AvgHouseholdSize <-
 
 #Impute
 
-mod1=lm(PctEmployed16_Over~+deathRate+incidenceRate+medIncome+binnedInc+povertyPercent+MedianAgeMale+MedianAgeFemale+AvgHouseholdSize+PercentMarried+PctUnemployed16_Over+PctPrivateCoverage+PctEmpPrivCoverage+PctPublicCoverage+PctBlack+PctMarriedHouseholds+Edu18_24,cancer)
+## Changed so we're not imputing with deathrate anymore
+mod1=lm(PctEmployed16_Over~incidenceRate+medIncome+binnedInc+povertyPercent+MedianAgeMale+MedianAgeFemale+AvgHouseholdSize+PercentMarried+PctUnemployed16_Over+PctPrivateCoverage+PctEmpPrivCoverage+PctPublicCoverage+PctBlack+PctMarriedHouseholds+Edu18_24,cancer)
 missdf = cancer[which(is.na(cancer$PctEmployed16_Over)==TRUE),]
 imputed = predict(mod1,missdf)
 cancer[which(is.na(cancer$PctEmployed16_Over)==TRUE),"PctEmployed16_Over"] = imputed
@@ -29,10 +31,11 @@ coef(cvfit1, s = "lambda.min")
 coef(cvfit1, s = "lambda.1se")
 #Ridge
 library(glmnet)
+
 fit1<-glmnet(model.matrix(cmax),cancermodel2$deathRate,alpha = 0,lambda=cvfit1$lambda.min)
 
 #Plot
-ridgefitted1 = predict(fit1,newx=model.matrix(fit1))
+ridgefitted1 = predict(fit1,newx=model.matrix(cmax))
 ridgeresid1 = cancermodel2$deathRate-ridgefitted1
 plot(ridgeresid1~ridgefitted1)
 abline(h=0,col="red")

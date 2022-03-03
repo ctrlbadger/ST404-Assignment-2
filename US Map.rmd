@@ -1,0 +1,146 @@
+
+```{r, include=FALSE}
+library(dplyr)
+library(ggplot2)
+library(tidyr)
+library(maps)
+load('cancer.rdata')
+cancer <- filter(cancer, incidenceRate <= 1100)
+cancermodel2 = separate(cancer,"Geography", into=c("County","State"),sep=",")[-c(1,4,5,16)]
+
+```
+
+
+
+
+```{r, include=FALSE}
+#average for each state
+averagedeathrate=round(tapply(cancermodel2$deathRate,cancermodel2$State,mean)[-c(2,12)],0)
+
+states <- map_data("state")
+
+averagedf <- data.frame(region=unique(states$region), averagedeathrate)
+
+mergedf <- merge(states, averagedf, by="region")
+
+statenames <- data.frame(region=tolower(state.name), clong=state.center$x, clat=state.center$y)
+
+statenames <- merge(statenames, averagedf, by="region")
+statenames$lab <- paste(statenames$region, '\n', statenames$averagedeathrate, sep="")
+```
+
+
+
+```{R USMAP, echo=FALSE}
+qplot(long, lat, data=mergedf, geom="polygon", fill=averagedeathrate, group=region) + 
+  scale_fill_gradient(averagedeathrate,low="yellow",high="red") +
+  geom_text(data=statenames,aes(clong,clat,label=lab,inherit.aes = FALSE,label.size=0.01)) +
+  theme(axis.line=element_blank(),axis.text.x=element_blank(),
+        axis.text.y=element_blank(),axis.ticks=element_blank(),
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank(), legend.title = element_blank(),
+        panel.background=element_blank(),panel.border=element_blank(),panel.grid.major=element_blank(),
+        panel.grid.minor=element_blank(),plot.background=element_blank(),plot.title =element_text(hjust=0.5) ) +
+    ggtitle("Heatmap of Death Rates of US States") 
+
+```
+
+
+```{r TomsCountyMapBoilerPlate}
+library(stringr)
+
+create_cancer_map_df <- function(us_state_county, cancer) {
+  cancer.map <- cancer
+  
+  # MAKE ALL DATA THAT HAS COUNTIES IN FRONT BE COUNTIES
+  cancer.map$states <- NA
+  cancer.map$county <- NA
+  
+  cancer.map$Geography <- tolower(cancer.map$Geography)
+  
+  # First deal with Geography counties that have county in the name
+  # Anything after "county," extract
+  cancer.map$states <- str_extract(cancer.map$Geography, '(?<=county,\\s).+')
+  # Anything before " county" extract
+  cancer.map$county <- str_extract(cancer.map$Geography, '.+(?=\\scounty)')
+  # FOR LOUISIANA AS LOUISIANA HAS PARISHES
+  
+  # Deal with louisiana who has parishes in similar way
+  cancer.map$states[is.na(cancer.map$states)] <- 
+    str_extract(cancer.map$Geography[is.na(cancer.map$states)], '(?<=parish,\\s).+')
+  cancer.map$county[is.na(cancer.map$county)] <- 
+    str_extract(cancer.map$Geography[is.na(cancer.map$county)], '.+(?=\\sparish)')
+  
+  #Cases where no "County" but only city
+  cancer.map$states[is.na(cancer.map$states)] <- 
+    str_extract(cancer.map$Geography[is.na(cancer.map$states)], '(?<=city,\\s).+')
+  cancer.map$county[is.na(cancer.map$county)] <- 
+    str_extract(cancer.map$Geography[is.na(cancer.map$county)], '.+(?=\\scity)')
+  
+  # Edge cases
+  cancer.map$states[cancer.map$Geography=="district of columbia, district of columbia"] <- "district of columbia"
+  cancer.map$county[cancer.map$Geography=="district of columbia, district of columbia"] <- "washington"
+  
+  cancer.map$states[cancer.map$Geography=="dekalb county, alabama"] <- "alabama"
+  cancer.map$county[cancer.map$Geography=="dekalb county, alabama"] <- "de kalb"
+  
+  # Cases where county has a st. in the county section
+  stIndexes <- (1:length(cancer.map$Geography))[str_detect(cancer.map$Geography, "st\\..+(?=\\s\\w+,)")]
+  for(i in stIndexes) {
+    cancer.map$states[i] <- str_extract(cancer.map$Geography[i], "(?<=,\\s).+")
+    countyWithDot <- str_extract(cancer.map$Geography[i], "st\\..+(?=\\s\\w+,)")
+    countyWithDot <- str_replace(countyWithDot, "\\.", "")
+    cancer.map$county[i] <- countyWithDot
+    
+  }
+  
+  # Use `dyplr` package to join the two data frames together joining on counties and states
+  us_state_county <- us_state_county %>% 
+    full_join(cancer.map, by=c("region"="states", "subregion"="county"))
+  
+  unmatched <- cancer.map[is.na(cancer.map$county), ]
+  return(us_state_county)
+}
+
+map_plot <- function(data=us_state_county, 
+                     fill, fill_lab="fill", showStateLines = TRUE) {
+  p <- NULL
+    p <- ggplot(data = data) +
+  geom_polygon(
+    aes(x = long, y = lat, group = group, fill = fill, subregion=subregion, region=region), 
+    color = "darkgrey", size=0.1, na.rm=TRUE)
+
+  
+  if (showStateLines) p <- p + 
+      geom_path(aes(x = long1, y = lat1, group = group, visible=FALSE, hoverinfo='skip'), 
+                color = "gray90", size=0.4, na.rm=TRUE)
+
+  p <- p + coord_map(projection = "albers", lat0 = 45, lat1 = 55) +
+    scale_fill_continuous(type = "viridis")+
+    labs(fill=fill_lab) + 
+    theme(legend.position="right",
+          axis.line=element_blank(),
+          axis.text=element_blank(),
+          axis.ticks=element_blank(),
+          axis.title=element_blank(),
+          panel.background=element_blank(),
+          panel.border=element_blank(),
+          panel.grid=element_blank())
+  return(p)
+}
+
+us_county <- map_data("county")
+# Load in state data and transmute, this is in order to display state boundaries on map
+us_state <- map_data("state")  %>% 
+  transmute(long1 = long, lat1 = lat, group = group + max(us_county$group), 
+            region1 = region, group1=group)
+us_state_county <- us_county %>% full_join(us_state) %>% create_cancer_map_df(cancer)
+
+```
+
+```{r DeathRateMap}
+death_rate_map <- map_plot(data=us_state_county, 
+                           fill=us_state_county$deathRate, fill_lab="Death Rate")
+death_rate_map
+
+```
