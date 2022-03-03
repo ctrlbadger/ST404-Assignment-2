@@ -21,7 +21,7 @@ library(knitr)
 library(dplyr)
 library(car)
 library(tidyr)
-
+library(glmnet)
 ```
 
 \pagebreak 
@@ -69,7 +69,7 @@ We also see counties with missing values in Percentage Employed 16 and Over and 
 
 ```{r impute, include=FALSE}
 # Impute the missing data seen in the dataset
-mod1=lm(PctEmployed16_Over~+deathRate+incidenceRate+medIncome+binnedInc+povertyPercent+MedianAgeMale+MedianAgeFemale+AvgHouseholdSize+PercentMarried+PctUnemployed16_Over+PctPrivateCoverage+PctEmpPrivCoverage+PctPublicCoverage+PctBlack+PctMarriedHouseholds+Edu18_24,cancer)
+mod1=lm(PctEmployed16_Over~+incidenceRate+medIncome+binnedInc+povertyPercent+MedianAgeMale+MedianAgeFemale+AvgHouseholdSize+PercentMarried+PctUnemployed16_Over+PctPrivateCoverage+PctEmpPrivCoverage+PctPublicCoverage+PctBlack+PctMarriedHouseholds+Edu18_24,cancer)
 missdf = cancer[which(is.na(cancer$PctEmployed16_Over)==TRUE),]
 imputed = predict(mod1,missdf)
 cancer[which(is.na(cancer$PctEmployed16_Over)==TRUE),"PctEmployed16_Over"] = imputed
@@ -318,6 +318,47 @@ kable(a)
 Performing a leave one out cross validation gives an $R^2$ statistic of $0.436$. Which is similar to the previous step wise regression method and is harder to diagnose therefore we conclude that it it is not a suitable model.
 
 ## Lasso Regression 
+
+First we removed Geography because it is an id variable. We also removed binnedInc because it is measuring the same thing as medIncome. We also removed PctMarriedHouseholds and MedianAgeFemale for similar reasons. This should reduce the problem of multicollinearity.
+We used the log-transformed PctBlack and medIncome to improve homoscedasticity and normality.
+
+```{r Lasso data cleaning,echo=FALSE}
+cancer.lasso.dm <- cancer %>% 
+  select(!c("Geography", "medIncome", "binnedInc", "PctBlack", "deathRate","MedianAgeFemale","PctMarriedHouseholds")) %>%
+  data.matrix()
+```
+
+We used cross-validation from the glmnet library which leaves out a 10th of the data every time.
+We produced the following plot of mean-squared error against log(lambda). We decided to use the 1-standard-error-lambda because this likely to shrink some predictor variables to zero, performing variable selection. We prefer a simpler model.
+
+```{r Lasso cv, echo=FALSE}
+set.seed((934))
+lm.lasso <-glmnet(cancer.lasso.dm,cancer$deathRate,alpha=1)
+lm.lasso.cv <- cv.glmnet(cancer.lasso.dm,cancer$deathRate,alpha=1)
+plot(lm.lasso.cv)
+abline(v=log(lm.lasso.cv$lambda.1se),col="red")
+abline(v=log(lm.lasso.cv$lambda.min),col="blue")
+legend("topright",legend=c("Minimum lambda", "1 standard error larger lambda"),lty=c(1,1),col=c("blue","red"), ins=0.1)
+lm.lasso.cv$lambda.1se
+lm.lasso.1se <- glmnet(cancer.lasso.dm,cancer$deathRate,lambda = lm.lasso.cv$lambda.1se,alpha=1)
+```
+We produced a plot that shows a trace of each parameter estimate for different values of log(lambda).
+We scaled the model for a better visual interpretation.
+
+```{r Lasso trace, echo=FALSE}
+lm.lasso.scaled<-glmnet(scale(cancer.lasso.dm),cancer$deathRate,alpha=1)
+traceLogLambda(lm.lasso.scaled,lm.lasso.cv,ylim=c(-10,10))
+```
+The Lasso regression using 1-standard-error-lambda produces the following parameter estimates.
+
+```{r Lasso estimates,echo=FALSE}
+b <- data.frame(sapply(round(coef(lm.lasso.1se), 3), FUN=identity))
+colnames(b) <- "Parameter Estimates"
+rownames(b) <- rownames(round(coef(lm.lasso.1se), 3))
+kable(b)
+```
+
+
 
 ## Statistical Interpretation and Validation
 
