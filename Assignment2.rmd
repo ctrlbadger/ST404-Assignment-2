@@ -232,6 +232,8 @@ summary(updateBIC2)
 ### RIDGE Regression
 
 To address the multi-collinearity present in the data we assess the viability of a RIDGE Regression Model. For this we fit all continuous variables as predictors using the `glmnet` library. 
+
+The trace shows that the ridge penalisation method
 ```{r, include=FALSE}
 library(glmnet)
 
@@ -249,7 +251,7 @@ traceLogLambda <- function(lm1, lm1.cv, ylim=NULL) {
   abline(v=log(lm1.cv$lambda.1se),col="red")
   abline(v=log(lm1.cv$lambda.min),col="blue")
   legend("bottomright",legend=c("Minimum lambda", "1 standard error larger lambda"),lty=c(1,1),col=c("blue","red"), ins=0.05)
-  title(main="LASSO trace against log(lambda)")
+  title(main="RIDGE trace against log(lambda)")
   
 }
 
