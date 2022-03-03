@@ -52,8 +52,8 @@ Counties with high Incidence Rates, namely 'Union County, Florida' and 'Williams
 par(mfrow=c(1,2))
 plot(lm(deathRate ~ incidenceRate,data=cancer),4)
 plot(lm(deathRate ~ .,data=cancer[-c(1,4)]),4)
-# Removing outlier incidence rates 'Williamsburg City, Virginia'
-cancer <- filter(cancer, incidenceRate <= 1100)
+# Removing outlier incidence rates 'Williamsburg City, Virgin850ia'
+cancer <- filter(cancer, incidenceRate <= 850)
 ```
 
 For counties with Average Household Size less than one we took the decision to scale the transformations by 100 and keep them in the dataset. This fixed the normality of AvgHouseholdSize as shown in the histogram.
@@ -225,9 +225,99 @@ In order to test whether the addition of states in the model makes a significant
 # Perform F-Test on the BIC models above
 anova(updateBIC2,hybridoptimalBIC2)
 
+summary(updateBIC2)
+
 ```
 
 ### RIDGE Regression
+
+To address the multi-collinearity present in the data we assess the viability of a RIDGE Regression Model. For this we fit all continuous variables as predictors using the `glmnet` library. 
+```{r, include=FALSE}
+library(glmnet)
+
+# Create Data Matrix
+cancer.dm <- cancer %>% 
+  select(!c("Geography", "medIncome", "binnedInc", "PctBlack", "deathRate")) %>%
+  data.matrix()
+
+lm.ridge <- glmnet(cancer.dm, cancer$deathRate, alpha=0)
+lm.ridge.cv <- cv.glmnet(cancer.dm, cancer$deathRate, alpha=0)
+
+# Create Model Plot Func
+traceLogLambda <- function(lm1, lm1.cv, ylim=NULL) {
+  plot(lm1,"lambda",label = T, ylim=ylim)
+  abline(v=log(lm1.cv$lambda.1se),col="red")
+  abline(v=log(lm1.cv$lambda.min),col="blue")
+  legend("bottomright",legend=c("Minimum lambda", "1 standard error larger lambda"),lty=c(1,1),col=c("blue","red"), ins=0.05)
+  title(main="LASSO trace against log(lambda)")
+  
+}
+
+traceLogLambda(lm.ridge, lm.ridge.cv, ylim=c(-20, 1))
+
+lm.ridge.1se <- glmnet(cancer.dm, cancer$deathRate, alpha = 0, 
+               lambda = lm.ridge.cv$lambda.1se)
+
+
+lm.ridgefitted <- predict(lm.ridge.1se, newx=cancer.dm)
+scatter.smooth(cancer$deathRate - lm.ridgefitted, x=lm.ridgefitted,
+               xlab="Fitted", ylab="Residuals", 
+               main="Residuals vs Fitted for RIDGE Model")
+
+```
+Fitting a ridge model and using the value of $\lambda$ one standard error further away from the minimum does not remove any of the terms from the model and gives the following coefficients. We also include the parameter estimates when the parameters are scaled to highlight how significant the parameter is.
+
+
+```{r, include=FALSE, cache=TRUE}
+library(parallel)
+library(foreach)
+library(doParallel)
+numCores <- detectCores()
+registerDoParallel(numCores) 
+
+n <- dim(cancer)[1]
+dev.ratios <- rep(NA, n)
+dev.ratios1 <- rep(NA, n)
+lm.ridge.cv <- cv.glmnet(cancer.dm, cancer$deathRate, alpha=0, nfolds=n, parallel=TRUE)
+
+lm.ridge.cv$lambda.1se
+
+for (i in 1:n) {
+  lm.ridge.1se <- glmnet(cancer.dm[-i,], cancer$deathRate[-i], alpha = 0, 
+               lambda = lm.ridge.cv$lambda.1se)
+  
+  
+  dev.ratios1[i] <- lm.ridge.1se$dev.ratio
+  # lm.residuals <- predict(lm.ridge.1se, newx=cancer.dm[-i, ]) - cancer$deathRate[-i]
+  # dev.ratios[i] <- 1 - sum(lm.residuals^2)/sum((cancer$deathRate[-i] -mean(cancer$deathRate[-i]))^2) 
+  
+}
+mean(dev.ratios1)
+
+```
+
+```{r, echo=FALSE}
+library(knitr)
+
+
+a <- data.frame(sapply(round(coef(lm.ridge.1se), 3), FUN=identity))
+colnames(a) <- "Parameter Estimates"
+
+# cancer.dm.scale <- cancer %>%
+#   select(!c("Geography", "medIncome", "binnedInc", "PctBlack", "deathRate")) %>%
+#   scale %>%
+#   data.matrix()
+# lm.ridge.scale.cv <- cv.glmnet(cancer.dm.scale, scale(cancer$deathRate), alpha = 0)
+# lm.ridge.1se.scale <- glmnet(cancer.dm.scale, scale(cancer$deathRate), alpha = 0, lambda = lm.ridge.scale.cv$lambda.1se)
+# a$"Scaled Parameter Estimates" <-sapply(round(coef(lm.ridge.1se.scale), 3), FUN=identity)
+
+rownames(a) <- rownames(round(coef(lm.ridge.1se), 3))
+kable(a)
+```
+
+Performing a leave one out cross validation gives an $R^2$ statistic of $0.436$. Which is similar to the previous step wise regression method and is harder to diagnose therefore we conclude that it it is not a suitable model.
+
+## Lasso Regression 
 
 ## Statistical Interpretation and Validation
 

@@ -57,4 +57,6 @@ ridgeresid = cancermodel$deathRate-ridgefitted
 plot(ridgeresid~ridgefitted)
 abline(h=0,col="red")
 
+
+
 # Plot satisfies assumptions
