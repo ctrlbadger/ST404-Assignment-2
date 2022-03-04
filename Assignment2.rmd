@@ -121,7 +121,11 @@ We perform forward, backward and hybrid stepwise regression according to both AI
 
 ```{r stepwise, include=FALSE}
 # Below we perform stepwise regression for both AIC and BIC
-cancermodel = cancer[,-c(1,3,15)]
+
+# cancermodel = cancer[,-c(1,3,15)]
+cancermodel <- cancer %>% select(
+  !c("Geography", "medIncome", "binnedInc", "PctBlack"))
+
 c0=lm(deathRate~1,cancermodel)
 cmax=lm(deathRate~.,cancermodel)
 forwardoptimalAIC = step(c0,direction="forward",
@@ -229,11 +233,32 @@ summary(updateBIC2)
 
 ```
 
+```{r LOOCVforStepwise, cache=TRUE, include=FALSE}
+
+library(caret)
+
+#specify the cross-validation method
+
+
+#fit a regression model and use LOOCV to evaluate performance
+loocv <- function(lm1, data=cancer) {
+  ctrl <- trainControl(method = "LOOCV")
+  xnam <- names(lm1$coefficients)[-1]
+  fmla <- as.formula(paste("deathRate ~ ", paste(xnam, collapse= "+")))
+  model <- train(fmla, data = data, method = "lm", trControl = ctrl)
+  return(model)
+}
+
+hybridoptimalAIC.loocv <- loocv(hybridoptimalAIC, data=cancermodel)
+
+```
+
+
 ### RIDGE Regression
 
 To address the multi-collinearity present in the data we assess the viability of a RIDGE Regression Model. For this we fit all continuous variables as predictors using the `glmnet` library. 
 
-The trace shows that the ridge penalisation method
+The trace shows that the ridge penalisation method reduces many variables close to 0 but does not remove any variables from the model itself.
 ```{r, include=FALSE}
 library(glmnet)
 
@@ -246,16 +271,16 @@ lm.ridge <- glmnet(cancer.dm, cancer$deathRate, alpha=0)
 lm.ridge.cv <- cv.glmnet(cancer.dm, cancer$deathRate, alpha=0)
 
 # Create Model Plot Func
-traceLogLambda <- function(lm1, lm1.cv, ylim=NULL) {
+traceLogLambda <- function(lm1, lm1.cv, ylim=NULL, sub=NULL) {
   plot(lm1,"lambda",label = T, ylim=ylim)
   abline(v=log(lm1.cv$lambda.1se),col="red")
   abline(v=log(lm1.cv$lambda.min),col="blue")
   legend("bottomright",legend=c("Minimum lambda", "1 standard error larger lambda"),lty=c(1,1),col=c("blue","red"), ins=0.05)
-  title(main="RIDGE trace against log(lambda)")
+  title(sub=sub)
   
 }
 
-traceLogLambda(lm.ridge, lm.ridge.cv, ylim=c(-20, 1))
+traceLogLambda(lm.ridge, lm.ridge.cv, ylim=c(-20, 1), sub="RIDGE trace against log(lambda)")
 
 lm.ridge.1se <- glmnet(cancer.dm, cancer$deathRate, alpha = 0, 
                lambda = lm.ridge.cv$lambda.1se)
@@ -264,7 +289,7 @@ lm.ridge.1se <- glmnet(cancer.dm, cancer$deathRate, alpha = 0,
 lm.ridgefitted <- predict(lm.ridge.1se, newx=cancer.dm)
 scatter.smooth(cancer$deathRate - lm.ridgefitted, x=lm.ridgefitted,
                xlab="Fitted", ylab="Residuals", 
-               main="Residuals vs Fitted for RIDGE Model")
+               sub="Residuals vs Fitted for RIDGE Model")
 
 ```
 Fitting a ridge model and using the value of $\lambda$ one standard error further away from the minimum does not remove any of the terms from the model and gives the following coefficients. We also include the parameter estimates when the parameters are scaled to highlight how significant the parameter is.
@@ -325,8 +350,11 @@ First we removed Geography because it is an id variable. We also removed binnedI
 We used the log-transformed PctBlack and medIncome to improve homoscedasticity and normality.
 
 ```{r Lasso data cleaning,echo=FALSE}
-cancer.lasso.dm <- cancer %>% 
-  select(!c("Geography", "medIncome", "binnedInc", "PctBlack", "deathRate","MedianAgeFemale","PctMarriedHouseholds")) %>%
+# cancer.lasso.dm <- cancer %>%
+#   select(!c("Geography", "medIncome", "binnedInc", "PctBlack", "deathRate","MedianAgeFemale","PctMarriedHouseholds")) %>%
+#   data.matrix()
+cancer.lasso.dm <- cancer %>%
+  select(!c("Geography", "medIncome", "binnedInc", "PctBlack", "deathRate")) %>%
   data.matrix()
 ```
 
@@ -343,13 +371,14 @@ abline(v=log(lm.lasso.cv$lambda.min),col="blue")
 legend("topright",legend=c("Minimum lambda", "1 standard error larger lambda"),lty=c(1,1),col=c("blue","red"), ins=0.1)
 lm.lasso.cv$lambda.1se
 lm.lasso.1se <- glmnet(cancer.lasso.dm,cancer$deathRate,lambda = lm.lasso.cv$lambda.1se,alpha=1)
+
 ```
 We produced a plot that shows a trace of each parameter estimate for different values of log(lambda).
 We scaled the model for a better visual interpretation.
 
 ```{r Lasso trace, echo=FALSE}
 lm.lasso.scaled<-glmnet(scale(cancer.lasso.dm),cancer$deathRate,alpha=1)
-traceLogLambda(lm.lasso.scaled,lm.lasso.cv,ylim=c(-10,10))
+traceLogLambda(lm.lasso.scaled,lm.lasso.cv,ylim=c(-10,10), sub="LASSO trace against log(lambda)")
 ```
 The Lasso regression using 1-standard-error-lambda produces the following parameter estimates.
 
@@ -360,9 +389,95 @@ rownames(b) <- rownames(round(coef(lm.lasso.1se), 3))
 kable(b)
 ```
 
+```{r LASSO_RMSE, include=FALSE, cache=TRUE}
+numCores <- detectCores()
+registerDoParallel(numCores) 
+
+n <- dim(cancer)[1]
+lasso.dev.ratios <- rep(NA, n)
+lasso.dev.ratios1 <- rep(NA, n)
+lm.lasso.cv <- cv.glmnet(cancer.lasso.dm, cancer$deathRate, alpha=0, nfolds=n, parallel=TRUE)
+
+lm.lasso.cv$lambda.1se
+
+for (i in 1:n) {
+  lm.lasso.1se <- glmnet(cancer.dm[-i,], cancer$deathRate[-i], alpha = 0, 
+               lambda = lm.lasso.cv$lambda.1se)
+  
+  
+  lasso.dev.ratios1[i] <- lm.ridge.1se$dev.ratio
+  # lm.residuals <- predict(lm.ridge.1se, newx=cancer.dm[-i, ]) - cancer$deathRate[-i]
+  # dev.ratios[i] <- 1 - sum(lm.residuals^2)/sum((cancer$deathRate[-i] -mean(cancer$deathRate[-i]))^2) 
+  
+}
+mean(lasso.dev.ratios1)
+
+for (i in 1:n) {
+  lm.lasso.min <- glmnet(cancer.dm[-i,], cancer$deathRate[-i], alpha = 0, 
+               lambda = lm.lasso.cv$lambda.min)
+  
+  
+  lasso.dev.ratios1[i] <- lm.ridge.1se$dev.ratio
+  # lm.residuals <- predict(lm.ridge.1se, newx=cancer.dm[-i, ]) - cancer$deathRate[-i]
+  # dev.ratios[i] <- 1 - sum(lm.residuals^2)/sum((cancer$deathRate[-i] -mean(cancer$deathRate[-i]))^2) 
+  
+}
+mean(lasso.dev.ratios1)
+
+```
 
 
 ## Statistical Interpretation and Validation
+
+```{r ResidualPlot}
+
+# So wanna make a plot of residuals vs fitteds
+library(ggplot2)
+
+multResidualPlot <- function(residual.list, fitted.list) {
+  
+  colors <- c("blue", "red", "green")
+  
+  # a <- data.frame(x=fitted.list[[1]], y=residual.list[[1]], col=rep('blue', times=length(fitted.list[[1]])))
+  a <- data.frame()
+  for (i in 1:3) {
+    x <- fitted.list[[i]] 
+    y <- residual.list[[i]]
+    col <- rep(colors[i], times=length(x))
+    #, inherit.aes = FALSE)
+    length(a)
+    print(dim(a)[1])
+    df.temp <- data.frame(x, y, col)
+    colnames(df.temp) <- c("x", "y", "col")
+    a <- rbind(a, df.temp)
+    print(dim(a)[1])
+    print("we got here")
+  }
+  
+  mrp <- ggplot(a, aes(x=x, y=y, colour=col)) + geom_point(alpha=0.3, size=0.75) + geom_smooth()
+  return(mrp)
+}
+
+lm.ridge.residuals <- cancer$deathRate - lm.ridgefitted
+residual.list <- list(
+  hybridoptimalAIC$residuals,
+  hybridoptimalBIC$residuals,
+  lm.ridge.residuals
+)
+
+
+fitted.list <- list(
+  hybridoptimalAIC$fitted.values,
+  hybridoptimalBIC$fitted.values,
+  lm.ridgefitted
+)
+multResidualPlot(residual.list, fitted.list)
+
+i<-1
+plot(y=residual.list[[i]], x=fitted.list[[i]] , col=colors[i])
+
+```
+
 
 # References 
 
