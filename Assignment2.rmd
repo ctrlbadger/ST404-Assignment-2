@@ -372,6 +372,9 @@ legend("topright",legend=c("Minimum lambda", "1 standard error larger lambda"),l
 lm.lasso.cv$lambda.1se
 lm.lasso.1se <- glmnet(cancer.lasso.dm,cancer$deathRate,lambda = lm.lasso.cv$lambda.1se,alpha=1)
 
+lm.lasso.1se.fitted <- predict(lm.lasso.1se, newx=cancer.dm)
+lm.lasso.1se.residuals <- cancer$deathRate - lm.lasso.1se.fitted
+
 ```
 We produced a plot that shows a trace of each parameter estimate for different values of log(lambda).
 We scaled the model for a better visual interpretation.
@@ -424,6 +427,8 @@ for (i in 1:n) {
 }
 mean(lasso.dev.ratios1)
 
+
+
 ```
 
 
@@ -434,27 +439,23 @@ mean(lasso.dev.ratios1)
 # So wanna make a plot of residuals vs fitteds
 library(ggplot2)
 
-multResidualPlot <- function(residual.list, fitted.list) {
+multResidualPlot <- function(residual.list, fitted.list, models) {
   
-  colors <- c("blue", "red", "green")
   
   # a <- data.frame(x=fitted.list[[1]], y=residual.list[[1]], col=rep('blue', times=length(fitted.list[[1]])))
   a <- data.frame()
-  for (i in 1:3) {
+  for (i in 1:length(models)) {
     x <- fitted.list[[i]] 
     y <- residual.list[[i]]
-    col <- rep(colors[i], times=length(x))
-    #, inherit.aes = FALSE)
-    length(a)
-    print(dim(a)[1])
-    df.temp <- data.frame(x, y, col)
-    colnames(df.temp) <- c("x", "y", "col")
+    model <- rep(models[i], times=length(x))
+    
+    df.temp <- data.frame(x, y, model)
+    colnames(df.temp) <- c("x", "y", "model")
     a <- rbind(a, df.temp)
-    print(dim(a)[1])
-    print("we got here")
   }
-  
-  mrp <- ggplot(a, aes(x=x, y=y, colour=col)) + geom_point(alpha=0.3, size=0.75) + geom_smooth()
+  mrp <- ggplot(a, aes(x=x, y=y, colour=model)) + 
+    geom_point(alpha=0.3, size=0.75) + geom_smooth() +
+    labs(x="Fitted Values", y="Residuals", title="Residuals vs Fitted Values", model="Models")
   return(mrp)
 }
 
@@ -462,21 +463,26 @@ lm.ridge.residuals <- cancer$deathRate - lm.ridgefitted
 residual.list <- list(
   hybridoptimalAIC$residuals,
   hybridoptimalBIC$residuals,
-  lm.ridge.residuals
+  lm.ridge.residuals,
+  lm.lasso.1se.residuals
 )
-
 
 fitted.list <- list(
   hybridoptimalAIC$fitted.values,
   hybridoptimalBIC$fitted.values,
-  lm.ridgefitted
+  lm.ridgefitted,
+  lm.lasso.1se.fitted
 )
-multResidualPlot(residual.list, fitted.list)
-
-i<-1
-plot(y=residual.list[[i]], x=fitted.list[[i]] , col=colors[i])
-
+mrp <- multResidualPlot(residual.list, fitted.list,
+                 c("Hybrid Optimal AIC", "Hybrid Optimal BIC", "RIDGE", "LASSO"))
+mrp
 ```
+```{r, eval=FALSE, include=FALSE}
+library(plotly)
+### INTERACTIVE RESIDUAL
+ggplotly(mrp)
+```
+
 
 
 # References 
