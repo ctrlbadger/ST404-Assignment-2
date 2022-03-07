@@ -33,7 +33,7 @@ From our model building process we have identified that the major determinants i
 
 In order to ensure an accurate model we transformed the variables Median Income and Percent Black to obtain symmetrical distributions for these variables. We log transformed Median Income which when comparing 2 different incomes instead of having the difference of these we have the percentage change. For Percent Black we shifted all values up by 0.05 which can be seen as taking into account any rounding errors then again taking a log transform to fix having the majority of data points in the 0-5% range. We also had some missing data in Percent Employed 16 and Over which we found there to be no pattern to the missing data and thus we calculated what we would expect these values to be based off of the values we see in the other complete data entries.
 
-We do see examples of counties that do not conform to the general pattern with unusually high or low mortality rates. One example we have is 'Williamsburg City, Virginia' where we see a high incidence rate of 1014 yet a comparatively small death rate of 162, however we see that it's percent private coverage is 19% above the US average and the median male and female ages of 26 and 24 respectively are considerably lower than the median US ages, potentially being causes for this low death rate. 
+We do see examples of counties that do not conform to the general pattern with unusually high or low mortality rates. One example we have is 'Williamsburg City, Virginia' where we see a high incidence rate of 1014 yet a comparatively small death rate of 162, however we see that it's percent private coverage is 19% above the US average and the median male and female ages of 26 and 24 respectively are considerably lower than the median US ages, potentially being causes for this low death rate. Similarly, we see from the average residual map that in particular the 3 states Utah (Average of -22), Idaho (Average of -19) and Colorado (Average of -18) all have high residual averages and as they are negative this implies that the model is overfitting for these states and thus these states don't conform to the general pattern. However, as the model if overfitting and we are estimating death rate this isnt a cause for concern as we know the average death rates for these states is highly likely to be lower than what the model predicts. It is also important to note that these all lie in a similar region and in general we see that the majority of states on the west coast have an average negative residual, so the model overfits for these states, hwereas on the east coast and central we see positive average residuals, the model is underfitting these states. With the main staes of concern for overfitting with an average residual of 14 each for Oklahoma and Arkansas and an average of 13 in the District of Columbia.
 
 # Statistical Methodology
 
@@ -448,7 +448,33 @@ library(plotly)
 ggplotly(mrp)
 ```
 
+Produce map of each states average residual value for the LASSO model.
 
+```{r, include=FALSE}
+#average for each state
+averageresidual=round(tapply(lm.lasso.1se.residuals,cancermodel2$State,mean)[-c(2,12)],0)
+states <- map_data("state")
+averagedf <- data.frame(region=unique(states$region), averageresidual)
+mergedf <- merge(states, averagedf, by="region")
+statenames <- data.frame(region=tolower(state.name), clong=state.center$x, clat=state.center$y)
+statenames <- merge(statenames, averagedf, by="region")
+statenames$lab <- paste(statenames$region, '\n', statenames$averageresidual, sep="")
+```
+
+
+
+```{R USMAP, echo=FALSE, cache=TRUE}
+qplot(long, lat, data=mergedf, geom="polygon", fill=averageresidual, group=region) + 
+  scale_fill_gradient(averageresidual,low="yellow",high="red") +
+  geom_text(data=statenames,aes(clong,clat,label=averageresidual,inherit.aes = FALSE,label.size=0.001)) +
+  theme(axis.line=element_blank(),axis.text.x=element_blank(),
+        axis.text.y=element_blank(),axis.ticks=element_blank(),
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank(), legend.title = element_blank(),
+        panel.background=element_blank(),panel.border=element_blank(),panel.grid.major=element_blank(),
+        panel.grid.minor=element_blank(),plot.background=element_blank(),plot.title =element_text(hjust=0.5) ) +
+    ggtitle("Heatmap of Average Residuals of US States") 
+```
 
 # References 
 
