@@ -12,7 +12,10 @@ bibliography: references.bib
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(
+  fig.align = "center",
+	fig.width = 7,
+  echo = TRUE)
 library(bookdown)
 library(knitr)
 ```
@@ -28,10 +31,27 @@ library(glmnet)
 
 # Findings
 
+## Summary of EDA
+In the previous EDA report we have explored the data set and we will perform data cleaning and variable transformations before constructing a linear model. 
 
-From our model building process we have identified that the major determinants in increasing mortality rates of cancer in the US are: __Incidence Rate, Percent Unemployed 16 and Over, Percent Employer Provided Private Coverage and Percent Black__. Whereas, the major determinants in decreasing mortality rates in US states are: __Percent Employed 16 and Over, Percent Private Coverage, Education Levels and Median Income__.
+### Missing/Incorrect Values and Outliers
 
-In order to ensure an accurate model we transformed the variables Median Income and Percent Black to obtain symmetrical distributions for these variables. We log transformed Median Income which when comparing 2 different incomes instead of having the difference of these we have the percentage change. For Percent Black we shifted all values up by 0.05 which can be seen as taking into account any rounding errors then again taking a log transform to fix having the majority of data points in the 0-5% range. We also had some missing data in Percent Employed 16 and Over which we found there to be no pattern to the missing data and thus we calculated what we would expect these values to be based off of the values we see in the other complete data entries.
+We identified 152 missing values in __Percent Employed 16 and Over__. Since they have no pattern, we deduced that these values are missing at random (MCAR). We used other complete data entries to calculate what we would expect these values to be and impute them back to our data set. We also identified values in __Average Household Size__ that unreasonably small. We believed this is an error in data entry and we scaled them by 100 in order to make it normal.
+As for outliers, We removed __Williamsburg City, Virginia__ because of its high __Incidence Rate__ but low __Death Rate__, hence high influence to our model. 
+
+### Transformations
+
+In order to fulfill the model assumptions, namely __Linearity__, __Homoscedasticity__, __Normality__, we performed log transforms for two variables: __Median Income__ and __Percent Black__ which suffered the most among all variables. Although the transformations did not cure the problems, they result in improvements in linearity and normality, reducing heteroscedasticity for both said variables. For other variables, we deduced that they are good enough to fulfill the model assumptions and hence did not perform any transformations for model simplicity.
+
+--Might add plots?
+
+## Major Determinants of Mortality Rates
+
+From our model building process we have identified that the major determinants in high mortality rates of cancer in the US are: __Incidence Rate, Percent Unemployed 16 and Over, Percent Employer Provided Private Coverage and Percent Black__. Whereas, the major determinants in low mortality rates are: __Percent Employed 16 and Over, Percent Private Coverage, Education Levels and Median Income__.
+
+### Modelling Approach
+
+## Areas that do not conform the general pattern
 
 We do see examples of counties that do not conform to the general pattern with unusually high or low mortality rates. One example we have is 'Williamsburg City, Virginia' where we see a high incidence rate of 1014 yet a comparatively small death rate of 162, however we see that it's percent private coverage is 19% above the US average and the median male and female ages of 26 and 24 respectively are considerably lower than the median US ages, potentially being causes for this low death rate. Similarly, we see from the average residual map that in particular the 3 states Utah (Average of -22), Idaho (Average of -19) and Colorado (Average of -18) all have high residual averages and as they are negative this implies that the model is overfitting for these states and thus these states don't conform to the general pattern. However, as the model if overfitting and we are estimating death rate this isnt a cause for concern as we know the average death rates for these states is highly likely to be lower than what the model predicts. It is also important to note that these all lie in a similar region and in general we see that the majority of states on the west coast have an average negative residual, so the model overfits for these states, hwereas on the east coast and central we see positive average residuals, the model is underfitting these states. With the main staes of concern for overfitting with an average residual of 14 each for Oklahoma and Arkansas and an average of 13 in the District of Columbia.
 
@@ -46,27 +66,9 @@ load('cancer.rdata')
 
 We first combined our results and findings from our preliminary EDA which is mainly discussed in [Outliers](#outliers) and [Transformations](#transformations).
 
-## Outliers {#outliers}
+## Outcomes of EDA
 
-Counties with high Incidence Rates, namely 'Union County, Florida' and 'Williamsburg City, Virginia'. We looked into the cook's distance plots and noticed only 'Williamsburg City, Virginia' has large cook's distance and hence influential. The first cook's distance plot used a linear model with only incidenceRate as the predictor variable. The second used all the numerical variables. We concluded although 'Union County, Florida' has high leverage, it is not influential and hence should be kept in our data set.
-
-```{r incidenceRateRemoval, echo=FALSE}
-# Cook's distance Plot
-par(mfrow=c(1,2))
-plot(lm(deathRate ~ incidenceRate,data=cancer),4)
-plot(lm(deathRate ~ .,data=cancer[-c(1,4)]),4)
-# Removing outlier incidence rates 'Williamsburg City, Virgin850ia'
-cancer <- filter(cancer, incidenceRate <= 850)
-```
-
-For counties with Average Household Size less than one we took the decision to scale the transformations by 100 and keep them in the dataset. This fixed the normality of AvgHouseholdSize as shown in the histogram.
-
-```{r averageHouseholdSize, include=FALSE}
-# Scale average household sizes that are less than 1 by 100
-cancer[which(cancer$AvgHouseholdSize < 1), ]$AvgHouseholdSize <- 
-  100*cancer[which(cancer$AvgHouseholdSize < 1), ]$AvgHouseholdSize
-hist(cancer$AvgHouseholdSize, breaks=30, xlab="AvgHouseholdSize", main="Histogram of AvgHouseholdSize")
-```
+### Missing Or Incorrect Values
 
 We also see counties with missing values in Percentage Employed 16 and Over and we conclude that the data is Missing Completely at Random. In order to rectify this we impute this data by fitting a linear regression model of Percentage Employed 16 and Over on the remaining variables to estimate what these values would be.
 
@@ -79,10 +81,31 @@ cancer[which(is.na(cancer$PctEmployed16_Over)==TRUE),"PctEmployed16_Over"] = imp
 
 ```
 
+For counties with Average Household Size less than one we took the decision to scale the transformations by 100 and keep them in the dataset. This fixed the normality of AvgHouseholdSize as shown in the histogram.
 
-## Transformations {#transformations}
+```{r averageHouseholdSize, include=FALSE}
+# Scale average household sizes that are less than 1 by 100
+cancer[which(cancer$AvgHouseholdSize < 1), ]$AvgHouseholdSize <- 
+  100*cancer[which(cancer$AvgHouseholdSize < 1), ]$AvgHouseholdSize
+hist(cancer$AvgHouseholdSize, breaks=30, xlab="AvgHouseholdSize", main="Histogram of AvgHouseholdSize")
+```
 
-We transform Percent Black by first shifting the values upwards by 0.05, to ensure we have no zero values, then take a log transform. We also transform the Median Income by again taking a log trasformation. We do these transformations to ensure the data is not heavily skewed and allow for a more accurate model.
+### Outliers {#outliers}
+
+Counties with high Incidence Rates, namely 'Union County, Florida' and 'Williamsburg City, Virginia'. We looked into the cook's distance plots and noticed only 'Williamsburg City, Virginia' has large cook's distance and hence influential. The first cook's distance plot used a linear model with only incidenceRate as the predictor variable. The second used all the numerical variables. We concluded although 'Union County, Florida' has high leverage, it is not influential and hence should be kept in our data set.
+
+```{r incidenceRateRemoval, echo=FALSE, fig.asp=0.5}
+# Cook's distance Plot
+par(mfrow=c(1,2))
+plot(lm(deathRate ~ incidenceRate,data=cancer),4)
+plot(lm(deathRate ~ .,data=cancer[-c(1,4)]),4)
+# Removing outlier incidence rates 'Williamsburg City, Virginia'
+cancer <- filter(cancer, incidenceRate <= 850)
+```
+
+### Transformations {#transformations}
+
+We transform Percent Black by first shifting the values upwards by 0.05, to ensure we have no zero values, then take a log transform. We also transform the Median Income by again taking a log transformation. We do these transformations to ensure the data is not heavily skewed and allow for a more accurate model.
 
 ```{r transformations, include=FALSE}
 # Log transforming the heavily skewed distributions of PctBlack and medIncome
@@ -92,7 +115,7 @@ cancer$logmedincome = log(cancer$medIncome)
 
 The following residual plots show the improvements in homoscedasticity in PctBlack and medIncome after log-transform respectively.
 
-```{r heteroscedasticity1,echo=FALSE}
+```{r heteroscedasticity1,echo=FALSE, fig.asp=0.5}
 # Showing improvements in homoscedasticity in PctBlack and medIncome
 par(mfrow=c(1,2))
 plot(lm(deathRate~PctBlack,data=cancer),1)
@@ -100,21 +123,7 @@ plot(lm(deathRate~logpctblack,data=cancer),1)
 plot(lm(deathRate~medIncome,data=cancer),1)
 plot(lm(deathRate~logmedincome,data=cancer),1)
 ```
-
-We also notice slight evidence of heteroscedasticity in PctEmpPrivCoverage as shown in the residual plot below.
-However, since it is not severe and the suggested power transformation using spread level plot makes it more heteroscedastic, we decided not to perform transformation on PctEmpPrivCoverage.
-
-```{r Spreadlevelplot, fig.show='hide'}
-# Finding power transformation for PctEmpPrivCoverage
-spreadLevelPlot(lm(deathRate~PctEmpPrivCoverage, data=cancer))
-```
-
-
-```{r heteroscedasticity2,echo=FALSE}
-plot(lm(deathRate~PctEmpPrivCoverage,data=cancer),1)
-```
-
-
+---Might add other improvements 
 
 ## Modelling Approach and Variable Selection
 
@@ -153,7 +162,7 @@ summary(hybridoptimalBIC)
 
 Below we see the residual plots for the stepwise BIC model and can see in the left plot that we appear to have constant variance and the residuals have a mean of zero satisfying these assumptions. 
 
-```{r stepwise plots,echo=FALSE}
+```{r stepwise plots,echo=FALSE,fig.asp=0.5}
 plot(hybridoptimalBIC,which=1)
 ```
 
@@ -190,7 +199,7 @@ summary(hybridoptimalBIC2)
 
 Below we can see the residual and QQplot for the BIC model. In the residual plot on the left hand side we see constant variance and a mean of zero with the majority of points near the horizontal red line. This is similar to what we saw when we didn't include the states in the selection process. Similarly, we see in the QQplot the majority of points on or near the reference line suggesting that the errors are indeed normally distributed, again as we see in the above case of not including states in the selection process.
 
-```{r statestepwise 3, echo=FALSE}
+```{r statestepwise 3, echo=FALSE, fig.asp=0.5}
 # Residual plots of state stepwise regression
 par(mfrow=c(1,2))
 plot(hybridoptimalBIC2, which=c(1,2))
