@@ -29,7 +29,7 @@ library(glmnet)
 # Findings
 
 
-From our model building process we have identified that the major determinants in high mortality rates of cancer in the US are: __Incidence Rate, Percent Unemployed 16 and Over, Percent Employer Provided Private Coverage and Percent Black__. Whereas, the major determinants in low mortality rates are: __Percent Employed 16 and Over, Percent Private Coverage, Education Levels and Median Income__.
+From our model building process we have identified that the major determinants in increasing mortality rates of cancer in the US are: __Incidence Rate, Percent Unemployed 16 and Over, Percent Employer Provided Private Coverage and Percent Black__. Whereas, the major determinants in decreasing mortality rates in US states are: __Percent Employed 16 and Over, Percent Private Coverage, Education Levels and Median Income__.
 
 In order to ensure an accurate model we transformed the variables Median Income and Percent Black to obtain symmetrical distributions for these variables. We log transformed Median Income which when comparing 2 different incomes instead of having the difference of these we have the percentage change. For Percent Black we shifted all values up by 0.05 which can be seen as taking into account any rounding errors then again taking a log transform to fix having the majority of data points in the 0-5% range. We also had some missing data in Percent Employed 16 and Over which we found there to be no pattern to the missing data and thus we calculated what we would expect these values to be based off of the values we see in the other complete data entries.
 
