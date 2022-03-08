@@ -171,7 +171,7 @@ plot(lm(deathRate~logpctblack,data=cancer),1)
 
 ### AIC and BIC Forward and Backward Variable Selection
 
-We perform forward, backward and hybrid stepwise regression according to BIC to ensure a more parsimonious model. We see that the models generated for BIC are all the same. We see that in the BIC model has 11 variables. (See Appendix 2.2.1)
+We perform forward, backward and hybrid stepwise regression according to BIC to ensure a more parsimonious model. We see that the models generated for BIC are all the same. We see that in the BIC model has 11 variables and in Table 1 we see the estimates for these variables.
 
 ```{r stepwise, include=FALSE}
 # Below we perform stepwise regression for both AIC and BIC
@@ -253,7 +253,7 @@ scatter.smooth(cancer$deathRate - lm.ridgefitted, x=lm.ridgefitted,
 
 ```
 
-Fitting a ridge model and using the value of $\lambda$ one standard error further away from the minimum does not remove any of the terms from the model and gives the following coefficients. We also include the parameter estimates when the parameters are scaled to highlight how significant the parameter is.
+Fitting a ridge model and using the value of $\lambda$ one standard error further away from the minimum does not remove any of the terms from the model and gives the coefficients as seen in Table 1. We also include the parameter estimates when the parameters are scaled to highlight how significant the parameter is.
 
 
 ```{r Ridge Loo, include=FALSE, cache=TRUE}
@@ -286,7 +286,7 @@ mean(dev.ratios1)
 
 \scriptsize
 
-```{r Ridge estimate, echo=FALSE}
+```{r Ridge estimate, include=FALSE}
 library(knitr)
 
 
@@ -302,12 +302,6 @@ colnames(a) <- "Parameter Estimates"
 # a$"Scaled Parameter Estimates" <-sapply(round(coef(lm.ridge.1se.scale), 3), FUN=identity)
 
 rownames(a) <- rownames(round(coef(lm.ridge.1se), 3))
-shortNames <- c("Intercept", "IncidRT", "PctPov", "MedMale", "MedFemale", 
-                "AvgHH", "PctMarr", "PctEmp", "PctUnemp", "PrivCov", "PubCov", 
-                "MarrHH", "lPctBlack", "lMedInc")
-colnames(a) <- colnames(shortNames)
-a
-kable(t(a))
 ```
 
 \normalsize
@@ -351,14 +345,19 @@ We scaled the model for a better visual interpretation. (See Apendix 2.2.3)
 lm.lasso.scaled<-glmnet(scale(cancer.lasso.dm),cancer$deathRate,alpha=1)
 traceLogLambda(lm.lasso.scaled,lm.lasso.cv,ylim=c(-10,10), sub="LASSO trace against log(lambda)")
 ```
-The Lasso regression using 1-standard-error-lambda produces the following parameter estimates.
+The Lasso regression using 1-standard-error-lambda produces the following parameter estimates. Alongside we see the parameter estimates for Ridge regression and stepwise regression to allow for easier comparison of the models.
 
 \scriptsize
 ```{r Lasso estimates,echo=FALSE}
 b <- data.frame(sapply(round(coef(lm.lasso.1se), 3), FUN=identity))
 colnames(b) <- "Parameter Estimates"
 rownames(b) <- rownames(round(coef(lm.lasso.1se), 3))
-kable(b)
+#Create matrix of stepwise coefficients
+c = as.data.frame(c(507.558,0.227,0.000,0.000,-0.421,0.000,1.285,-0.821,0.000,-0.685,0.899,0.000,-0.973,-11.839,1.405,-32.750))
+y=cbind(a,b,c)
+colnames(y) = c("Ridge","LASSO","Stepwise")
+kable(y, caption="Parameter Estimates of the Models")
+
 ```
 \normalsize
 
