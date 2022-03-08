@@ -304,7 +304,12 @@ colnames(a) <- "Parameter Estimates"
 # a$"Scaled Parameter Estimates" <-sapply(round(coef(lm.ridge.1se.scale), 3), FUN=identity)
 
 rownames(a) <- rownames(round(coef(lm.ridge.1se), 3))
-kable(a)
+shortNames <- c("Intercept", "IncidRT", "PctPov", "MedMale", "MedFemale", 
+                "AvgHH", "PctMarr", "PctEmp", "PctUnemp", "PrivCov", "PubCov", 
+                "MarrHH", "lPctBlack", "lMedInc")
+colnames(a) <- colnames(shortNames)
+a
+kable(t(a))
 ```
 
 Performing a leave one out cross validation gives an $R^2$ statistic of $0.436$. Which is similar to the previous step wise regression method and is harder to diagnose therefore we conclude that it it is not a suitable model.
