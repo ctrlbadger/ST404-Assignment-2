@@ -34,10 +34,12 @@ library(glmnet)
 ## Summary of EDA
 In the previous EDA report we have explored the data set and we will perform data cleaning and variable transformations before constructing a linear model. 
 
+---Might Merge in one if run out of space?
+
 ### Missing/Incorrect Values and Outliers
 
 We identified 152 missing values in __Percent Employed 16 and Over__. Since they have no pattern, we deduced that these values are missing at random (MCAR). We used other complete data entries to calculate what we would expect these values to be and impute them back to our data set. We also identified values in __Average Household Size__ that unreasonably small. We believed this is an error in data entry and we scaled them by 100 in order to make it normal.
-As for outliers, We removed __Williamsburg City, Virginia__ because of its high __Incidence Rate__ but low __Death Rate__, hence high influence to our model. 
+For outliers, We removed __Williamsburg City, Virginia__ because of its high __Incidence Rate__ but low __Death Rate__, hence high influence to our model. 
 
 ### Transformations
 
@@ -45,11 +47,36 @@ In order to fulfill the model assumptions, namely __Linearity__, __Homoscedastic
 
 --Might add plots?
 
+### Multicollinearity
+
+We have discovered a few pairs or clusters of predictor variables that are highly correlated with each other. The obvious ones are __Median Age Female__ and __Median Age Male__, __Percent Married__ and __Percent Married Households__, __Binned Income__ and __Median Income__. These variables measure the same force and hence one of the pairs can be dropped in early modelling. The others such as the employment variables and the heath coverage variables have less evidence of collinearity/ multicollinearity and are hence included in the modelling.
+
+### Correlation with Death Rate
+
+While most predictor variables have absolute correlation coefficient roughly 0.3 to 0.4 with death rate, Median Age Male, Median Age Female and Average Household Size have almost zero correlation coefficient. We expect our model to not include these uncorrelated variables.
+
 ## Major Determinants of Mortality Rates
 
 From our model building process we have identified that the major determinants in high mortality rates of cancer in the US are: __Incidence Rate, Percent Unemployed 16 and Over, Percent Employer Provided Private Coverage and Percent Black__. Whereas, the major determinants in low mortality rates are: __Percent Employed 16 and Over, Percent Private Coverage, Education Levels and Median Income__.
 
-### Modelling Approach
+## Modelling Approach
+
+We used Stepwise Regression, RIDGE Regression and LASSO Regression to build our model. We compared the outputs and the variables selections of these models. We also analyse the goodness of fits of these models using Leave-one-out cross validation, R-squared statistics and residuals analysis.
+We did not include _Geography_ and __Binned Income__ and we were using the _Log Percent Black__ and __Log Median Income__ in the following analysis.
+
+---I found the following sections very tricky to write up. Might need a better structure. NEED HELP!
+
+### Stepwise Regression
+We used both __Akaike’s Information Criteria(AIC)__ and __Bayesian Information Criteria(BIC)__ in our analysis. The latter one penalises additional parameters harder. We performed forward, backward and hybrid stepwise regression. 
+
+### RIDGE Regression
+
+### LASSO Regression
+
+The suggested model contains eight variables which is the simplest model among our approaches. Since the purpose of this report is to reveal patterns in the mortality rate, we believed it is best to choose a simple model for stronger explanatory power.
+
+### Model Choice
+
 
 ## Areas that do not conform the general pattern
 
@@ -61,7 +88,6 @@ We do see examples of counties that do not conform to the general pattern with u
 ## Included Libraries
 # For pipe operator and general mutation
 load('cancer.rdata')
-
 ```
 
 We first combined our results and findings from our preliminary EDA which is mainly discussed in [Outliers](#outliers) and [Transformations](#transformations).
@@ -129,7 +155,7 @@ plot(lm(deathRate~logmedincome,data=cancer),1)
 
 ### AIC and BIC Forward and Backward Variable Selection
 
-We perform forward, backward and hybrid stepwise regression according to both AIC and BIC. We see that the models generated for AIC are all the same and ones generated for BIC are al the same. In the AIC case we have the model has 12 parameters, whereas the BIC model has 11 variables. 
+We perform forward, backward and hybrid stepwise regression according to both AIC and BIC. We see that the models generated for AIC are all the same and the ones generated for BIC are all the same. In the AIC case we have the model has 12 parameters, whereas the BIC model has 11 variables. 
 
 ```{r stepwise, include=FALSE}
 # Below we perform stepwise regression for both AIC and BIC
@@ -233,6 +259,7 @@ hybridoptimalBIC.loocv <- loocv(hybridoptimalBIC,data=cancermodel)
 To address the multi-collinearity present in the data we assess the viability of a RIDGE Regression Model. For this we fit all continuous variables as predictors using the `glmnet` library. 
 
 The trace shows that the ridge penalisation method reduces many variables close to 0 but does not remove any variables from the model itself.
+
 ```{r, include=FALSE}
 library(glmnet)
 
@@ -266,6 +293,7 @@ scatter.smooth(cancer$deathRate - lm.ridgefitted, x=lm.ridgefitted,
                sub="Residuals vs Fitted for RIDGE Model")
 
 ```
+
 Fitting a ridge model and using the value of $\lambda$ one standard error further away from the minimum does not remove any of the terms from the model and gives the following coefficients. We also include the parameter estimates when the parameters are scaled to highlight how significant the parameter is.
 
 
@@ -297,6 +325,8 @@ mean(dev.ratios1)
 
 ```
 
+\scriptsize
+
 ```{r, echo=FALSE}
 library(knitr)
 
@@ -315,6 +345,7 @@ colnames(a) <- "Parameter Estimates"
 rownames(a) <- rownames(round(coef(lm.ridge.1se), 3))
 kable(a)
 ```
+\normalsize
 
 Performing a leave one out cross validation gives an $R^2$ statistic of $0.436$. Which is similar to the previous step wise regression method and is harder to diagnose therefore we conclude that it it is not a suitable model.
 
@@ -359,13 +390,31 @@ traceLogLambda(lm.lasso.scaled,lm.lasso.cv,ylim=c(-10,10), sub="LASSO trace agai
 ```
 The Lasso regression using 1-standard-error-lambda produces the following parameter estimates.
 
+\scriptsize
 ```{r Lasso estimates,echo=FALSE}
 b <- data.frame(sapply(round(coef(lm.lasso.1se), 3), FUN=identity))
 colnames(b) <- "Parameter Estimates"
 rownames(b) <- rownames(round(coef(lm.lasso.1se), 3))
 kable(b)
 ```
+\normalsize
 
+### Interpretation
+
+From the estimates output above, the Lasso regression eliminates a considerable number of predictor variables. The Lasso regression model has the following non-zero predictor estimates: __Incidence Rate__, __Percent Employed 16 and Over__, __Percent Private Coverage__,  __Percent Employer Provided Private Coverage__, __Education Levels__, __Log of Percent Black__,
+__Log of Median Income__.
+
+$$
+Death Rate = 470.47 + 0.23\ IncidenceRate -0.25\ Pecent Employed\_Over16 + 0.29\ PercentUnemployed\_Over16 \\- 0.32\  PercentPrivateCoverage  +0.21\ Percent Employer Provided Private Coverage \\-10.05\ Education Levels +0.90\ Log PercentBlack
+-32.39\ Log Median Income
+$$
+The two age variables and Average Household Size are removed from the model. This agrees with our EDA which showed that they have very close to zero correlation coefficient with Death Rate.
+Both employment variables and two out of three healthcare coverage variables are included in this model. We believe this is reasonable because although they showed evidence of collinearity/multicollinearity, we did not have strong arguments to remove any of them. Therefore, we agreed with the variable selection suggested by the Lasso Regression.
+
+Most predictor estimates are smaller than one. However the estimates for Education Levels and Log Median Income are -10.05 and -32.39 respectively which are exceptionally large and negative. This means that they have much larger impact on the predicted death rates than other predictor variables. It makes sense that Median Income has the largest impact because patients in counties with higher median income tend to be able to afford better treatment which reduce mortality rates.
+
+We calculated the R-squared using Leave-One-Out Cross Validation. The R-squared for this Lasso Regression model is 0.4440.
+ 
 ```{r LASSO_RMSE, include=FALSE, cache=TRUE}
 numCores <- detectCores()
 registerDoParallel(numCores) 
