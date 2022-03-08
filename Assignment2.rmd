@@ -529,7 +529,7 @@ hist(cancer$AvgHouseholdSize, breaks=30, xlab="AvgHouseholdSize", main="Histogra
 par(mfrow=c(1,2))
 plot(lm(deathRate ~ incidenceRate,data=cancer),4)
 plot(lm(deathRate ~ .,data=cancer[-c(1,4)]),4)
-# Removing outlier incidence rates 'Williamsburg City, Virginia'
+# Removing outlier incidence rate 'Williamsburg City, Virginia'
 cancer <- filter(cancer, incidenceRate <= 850)
 ```
 
@@ -543,7 +543,7 @@ cancer$logmedincome = log(cancer$medIncome)
 
 ```{r heteroscedasticity1 A,eval=FALSE, fig.asp=0.5, fig.cap="Residuals plot Percent Black and Log Percent Black"}
 # Showing improvements in homoscedasticity in PctBlack
-# Similar plots can be prduced for medIncome
+# Similar plots can be produced for medIncome
 par(mfrow=c(1,2))
 plot(lm(deathRate~PctBlack,data=cancer),1)
 plot(lm(deathRate~logpctblack,data=cancer),1)
@@ -601,7 +601,6 @@ library(glmnet)
 cancer.dm <- cancer %>% 
   select(!c("Geography", "medIncome", "binnedInc", "PctBlack", "deathRate")) %>%
   data.matrix()
-
 lm.ridge <- glmnet(cancer.dm, cancer$deathRate, alpha=0)
 lm.ridge.cv <- cv.glmnet(cancer.dm, cancer$deathRate, alpha=0)
 
@@ -612,15 +611,11 @@ traceLogLambda <- function(lm1, lm1.cv, ylim=NULL, sub=NULL) {
   abline(v=log(lm1.cv$lambda.min),col="blue")
   legend("bottomright",legend=c("Minimum lambda", "1 standard error larger lambda"),lty=c(1,1),col=c("blue","red"), ins=0.05)
   title(sub=sub)
-  
 }
-
 traceLogLambda(lm.ridge, lm.ridge.cv, ylim=c(-20, 1), sub="RIDGE trace against log(lambda)")
 
 lm.ridge.1se <- glmnet(cancer.dm, cancer$deathRate, alpha = 0, 
                lambda = lm.ridge.cv$lambda.1se)
-
-
 lm.ridgefitted <- predict(lm.ridge.1se, newx=cancer.dm)
 scatter.smooth(cancer$deathRate - lm.ridgefitted, x=lm.ridgefitted,
                xlab="Fitted", ylab="Residuals", 
@@ -642,21 +637,14 @@ n <- dim(cancer)[1]
 dev.ratios <- rep(NA, n)
 dev.ratios1 <- rep(NA, n)
 lm.ridge.cv <- cv.glmnet(cancer.dm, cancer$deathRate, alpha=0, nfolds=n, parallel=TRUE)
-
 lm.ridge.cv$lambda.1se
 
 for (i in 1:n) {
   lm.ridge.1se <- glmnet(cancer.dm[-i,], cancer$deathRate[-i], alpha = 0, 
                lambda = lm.ridge.cv$lambda.1se)
-  
-  
   dev.ratios1[i] <- lm.ridge.1se$dev.ratio
-  # lm.residuals <- predict(lm.ridge.1se, newx=cancer.dm[-i, ]) - cancer$deathRate[-i]
-  # dev.ratios[i] <- 1 - sum(lm.residuals^2)/sum((cancer$deathRate[-i] -mean(cancer$deathRate[-i]))^2) 
-  
 }
 mean(dev.ratios1)
-
 ```
 
 ```{r Ridge estimate A, eval=FALSE}
@@ -665,21 +653,11 @@ library(knitr)
 # We also produced similar table for LASSO model
 a <- data.frame(sapply(round(coef(lm.ridge.1se), 3), FUN=identity))
 colnames(a) <- "Parameter Estimates"
-
-# cancer.dm.scale <- cancer %>%
-#   select(!c("Geography", "medIncome", "binnedInc", "PctBlack", "deathRate")) %>%
-#   scale %>%
-#   data.matrix()
-# lm.ridge.scale.cv <- cv.glmnet(cancer.dm.scale, scale(cancer$deathRate), alpha = 0)
-# lm.ridge.1se.scale <- glmnet(cancer.dm.scale, scale(cancer$deathRate), alpha = 0, lambda = lm.ridge.scale.cv$lambda.1se)
-# a$"Scaled Parameter Estimates" <-sapply(round(coef(lm.ridge.1se.scale), 3), FUN=identity)
-
 rownames(a) <- rownames(round(coef(lm.ridge.1se), 3))
 shortNames <- c("Intercept", "IncidRT", "PctPov", "MedMale", "MedFemale", 
                 "AvgHH", "PctMarr", "PctEmp", "PctUnemp", "PrivCov", "PubCov", 
                 "MarrHH", "lPctBlack", "lMedInc")
 colnames(a) <- colnames(shortNames)
-a
 kable(t(a))
 ```
 
@@ -711,20 +689,15 @@ traceLogLambda(lm.lasso.scaled,lm.lasso.cv,ylim=c(-10,10), sub="LASSO trace agai
 2.4 Statistical Interpretation and Validation
 
 ```{r ResidualPlot A,eval=FALSE}
-
 # So wanna make a plot of residuals vs fitteds
 library(ggplot2)
 
 multResidualPlot <- function(residual.list, fitted.list, models) {
-  
-  
-  # a <- data.frame(x=fitted.list[[1]], y=residual.list[[1]], col=rep('blue', times=length(fitted.list[[1]])))
   a <- data.frame()
   for (i in 1:length(models)) {
     x <- fitted.list[[i]] 
     y <- residual.list[[i]]
     model <- rep(models[i], times=length(x))
-    
     df.temp <- data.frame(x, y, model)
     colnames(df.temp) <- c("x", "y", "model")
     a <- rbind(a, df.temp)
