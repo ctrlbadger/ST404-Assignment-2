@@ -479,7 +479,7 @@ averagedf <- data.frame(region=unique(states$region), averageresidual)
 mergedf <- merge(states, averagedf, by="region")
 statenames <- data.frame(region=tolower(state.name), clong=state.center$x, clat=state.center$y)
 statenames <- merge(statenames, averagedf, by="region")
-statenames$lab <- paste(statenames$region, '\n', statenames$averageresidual, sep="")
+statenames$lab <- paste(c(state.abb, 'DC')[match(statenames$region, c(tolower(state.name), 'District of Columbia'))], '\n', statenames$averageresidual, sep="")
 ```
 
 
@@ -768,7 +768,7 @@ averagedf <- data.frame(region=unique(states$region), averageresidual)
 mergedf <- merge(states, averagedf, by="region")
 statenames <- data.frame(region=tolower(state.name), clong=state.center$x, clat=state.center$y)
 statenames <- merge(statenames, averagedf, by="region")
-statenames$lab <- paste(statenames$region, '\n', statenames$averageresidual, sep="")
+statenames$lab <- paste(c(state.abb, 'DC')[match(statenames$region, c(tolower(state.name), 'District of Columbia'))], '\n', statenames$averageresidual, sep="")
 ```
 
 ```{R USMAP A, eval=FALSE, cache=TRUE}
