@@ -67,7 +67,7 @@ We did not include _Geography_ and __Binned Income__ and we were using the _Log 
 ---I found the following sections very tricky to write up. Might need a better structure. NEED HELP!
 
 ### Stepwise Regression
-We used both __Akaike’s Information Criteria(AIC)__ and __Bayesian Information Criteria(BIC)__ in our analysis. The latter one penalises additional parameters harder. We performed forward, backward and hybrid stepwise regression. 
+We used both __Akaike’s Information Criteria(AIC)__ and __Bayesian Information Criteria(BIC)__ in our analysis. The latter one penalises additional parameters harder. We performed forward, backward and hybrid stepwise regression. In all of the models that were generated we notice that we have groups of parameters that are similar and hence induce multicollinearity in the models. For example, we see both __Percent Married__ and __Percent Married Households__ in the models and as stepwise methods do not account for multicollinearity this causes increases in the variance of our coefficient estimates and makes the model sensitive to changes, thus reducing drastically the predictive power of the model. In order to address the issue of multicollinearity we apply Ridge and LASSO techniques which account for this.
 
 ### RIDGE Regression
 
@@ -76,7 +76,9 @@ We used both __Akaike’s Information Criteria(AIC)__ and __Bayesian Information
 The suggested model contains eight variables which is the simplest model among our approaches. Since the purpose of this report is to reveal patterns in the mortality rate, we believed it is best to choose a simple model for stronger explanatory power.
 
 ### Model Choice
+Thus from our analysis briefly outlined above and in the next section we recommend the following model, as seen below, due to its mix of predictive and explanatory power as well as being a simple model.
 
+$DeathRate = 470.47 + 0.23IncidenceRate - 0.25PctEmployed16\_Over + 0.029PctUnemployed16\_Over - 0.32PctPrivateCoverage + 0.21PctEmpPrivCoverage - 10.06Edu18\_24 + 0.90log(PctBlack) - 32.34log(MedianIncome)$
 
 ## Areas that do not conform the general pattern
 
