@@ -469,18 +469,6 @@ ggplotly(mrp)
 
 Produce map of each states average residual value for the LASSO model.
 
-```{r Average, include=FALSE}
-#average for each state
-averageresidual=round(tapply(lm.lasso.1se.residuals,cancermodel2$State,mean)[-c(2,12)],0)
-states <- map_data("state")
-averagedf <- data.frame(region=unique(states$region), averageresidual)
-mergedf <- merge(states, averagedf, by="region")
-statenames <- data.frame(region=tolower(state.name), clong=state.center$x, clat=state.center$y)
-statenames <- merge(statenames, averagedf, by="region")
-statenames$lab <- paste(statenames$region, '\n', statenames$averageresidual, sep="")
-```
-
-
 
 ```{R USMAP, echo=FALSE, cache=TRUE}
 qplot(long, lat, data=mergedf, geom="polygon", fill=averageresidual, group=region) + 
@@ -509,9 +497,12 @@ qplot(long, lat, data=mergedf, geom="polygon", fill=averageresidual, group=regio
 
 2.1.1 Missing Or Incorrect Values
 
+\scriptsize
 ```{r impute A, eval=FALSE}
 # Impute the missing data seen in the data set
-mod1=lm(PctEmployed16_Over~+incidenceRate+medIncome+binnedInc+povertyPercent+MedianAgeMale+MedianAgeFemale+AvgHouseholdSize+PercentMarried+PctUnemployed16_Over+PctPrivateCoverage+PctEmpPrivCoverage+PctPublicCoverage+PctBlack+PctMarriedHouseholds+Edu18_24,cancer)
+mod1=lm(PctEmployed16_Over~+incidenceRate+medIncome+binnedInc+povertyPercent+MedianAgeMale+MedianAgeFemale+AvgHouseholdSize
+        +PercentMarried+PctUnemployed16_Over+PctPrivateCoverage+PctEmpPrivCoverage+PctPublicCoverage+PctBlack
+        +PctMarriedHouseholds+Edu18_24,cancer)
 missdf = cancer[which(is.na(cancer$PctEmployed16_Over)==TRUE),]
 imputed = predict(mod1,missdf)
 cancer[which(is.na(cancer$PctEmployed16_Over)==TRUE),"PctEmployed16_Over"] = imputed
@@ -523,9 +514,11 @@ cancer[which(cancer$AvgHouseholdSize < 1), ]$AvgHouseholdSize <-
   100*cancer[which(cancer$AvgHouseholdSize < 1), ]$AvgHouseholdSize
 hist(cancer$AvgHouseholdSize, breaks=30, xlab="AvgHouseholdSize", main="Histogram of AvgHouseholdSize")
 ```
+\normalsize
 
 2.1.2 Outliers
 
+\scriptsize
 ```{r incidenceRateRemoval A, eval=FALSE, fig.asp=0.5, fig.cap="Cook's distance plots with one variable(Left) and all variables(Right)"}
 # Cook's distance Plot
 par(mfrow=c(1,2))
@@ -534,9 +527,11 @@ plot(lm(deathRate ~ .,data=cancer[-c(1,4)]),4)
 # Removing outlier incidence rate 'Williamsburg City, Virginia'
 cancer <- filter(cancer, incidenceRate <= 850)
 ```
+\normalsize
 
 2.1.3 Transformations
 
+\scriptsize
 ```{r transformations A, eval=FALSE}
 # Log transforming the heavily skewed distributions of PctBlack and medIncome
 cancer$logpctblack = log(cancer$PctBlack+0.05)
@@ -550,11 +545,13 @@ par(mfrow=c(1,2))
 plot(lm(deathRate~PctBlack,data=cancer),1)
 plot(lm(deathRate~logpctblack,data=cancer),1)
 ```
+\normalsize
 
 2.2 Modelling Approach and Variable Selection
 
 2.2.1 AIC and BIC Forward and Backward Variable Selection
 
+\scriptsize
 ```{r stepwise A, eval=FALSE}
 # We perform stepwise regression for BIC
 cancermodel <- cancer %>% select(
@@ -593,9 +590,11 @@ loocv <- function(lm1, data=cancer) {
 }
 hybridoptimalBIC.loocv <- loocv(hybridoptimalBIC,data=cancermodel)
 ```
+\normalsize
 
 2.2.2 RIDGE Regression
 
+\scriptsize
 ```{r Ridge 1 A, eval=FALSE}
 library(glmnet)
 # Producing a 1-standard-error-lambda RIDGE regression model
@@ -662,9 +661,11 @@ shortNames <- c("Intercept", "IncidRT", "PctPov", "MedMale", "MedFemale",
 colnames(a) <- colnames(shortNames)
 kable(t(a))
 ```
+\normalsize
 
 2.2.3 LASSO Regression
 
+\scriptsize
 ```{r Lasso cv A, eval=FALSE}
 # Produce a LASSO Regression model
 # Produce a plot of mean-squared error against log(lambda)
@@ -687,9 +688,11 @@ lm.lasso.1se.residuals <- cancer$deathRate - lm.lasso.1se.fitted
 lm.lasso.scaled<-glmnet(scale(cancer.lasso.dm),cancer$deathRate,alpha=1)
 traceLogLambda(lm.lasso.scaled,lm.lasso.cv,ylim=c(-10,10), sub="LASSO trace against log(lambda)")
 ```
+\normalsize
 
 2.4 Statistical Interpretation and Validation
 
+\scriptsize
 ```{r ResidualPlot A,eval=FALSE}
 # So wanna make a plot of residuals vs fitteds
 library(ggplot2)
@@ -709,22 +712,18 @@ multResidualPlot <- function(residual.list, fitted.list, models) {
     labs(x="Fitted Values", y="Residuals", title="Residuals vs Fitted Values", model="Models")
   return(mrp)
 }
-
 lm.ridge.residuals <- cancer$deathRate - lm.ridgefitted
 residual.list <- list(
   hybridoptimalBIC$residuals,
   lm.ridge.residuals,
   lm.lasso.1se.residuals
 )
-
 fitted.list <- list(
   hybridoptimalBIC$fitted.values,
   lm.ridgefitted,
   lm.lasso.1se.fitted
 )
-mrp <- multResidualPlot(residual.list, fitted.list,
-                 c("Hybrid Optimal BIC", "RIDGE", "LASSO"))
-mrp
+mrp <- multResidualPlot(residual.list, fitted.list, c("Hybrid Optimal BIC", "RIDGE", "LASSO"))
 ```
 
 ```{r ResidualPlot 2 A, eval=FALSE, include=FALSE}
@@ -732,9 +731,11 @@ library(plotly)
 ### INTERACTIVE RESIDUAL
 ggplotly(mrp)
 ```
+\normalsize
 
 Produce map of each states average residual value for the LASSO model.
 
+\scriptsize
 ```{r Average A, eval=FALSE}
 #average for each state
 averageresidual=round(tapply(lm.lasso.1se.residuals,cancermodel2$State,mean)[-c(2,12)],0)
@@ -758,8 +759,4 @@ qplot(long, lat, data=mergedf, geom="polygon", fill=averageresidual, group=regio
         panel.grid.minor=element_blank(),plot.background=element_blank(),plot.title =element_text(hjust=0.5) ) +
     ggtitle("Heatmap of Average Residuals of US States") 
 ```
-
-```{r get-labels, eval = FALSE}
-labs = all_labels()
-labs = setdiff(labs, c("setup", "get-labels"))
-```
+\normalsize
