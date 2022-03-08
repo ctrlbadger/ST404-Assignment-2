@@ -75,7 +75,23 @@ We used both __Akaike’s Information Criteria(AIC)__ and __Bayesian Information
 
 The suggested model contains eight variables which is the simplest model among our approaches. Since the purpose of this report is to reveal patterns in the mortality rate, we believed it is best to choose a simple model for stronger explanatory power.
 
-### Model Choice
+### Final Model Choice and Diagnostics
+
+We used residuals plot and QQ plot to diagnose the stepwise regression model. Both plots are satisfactory, agreeing with model assumptions.
+
+```{r statestepwise Findings, echo=FALSE, fig.asp=0.5}
+# Residual plots of state stepwise regression
+par(mfrow=c(1,2))
+plot(hybridoptimalBIC2, which=c(1,2))
+```
+
+We also performed Leave-one-out cross-validation for this stepwise model, which gives $R^2$ value of $0.4621$.
+We did the same cross-validation for our Ridge and Lasso model.
+The Ridge model gives $R^2$ value of $0.4436$.
+The Lasso model gives $R^2$ value of $0.4441$.
+
+The stepwise model fits the observed data the best among all our models. The Lasso and the Ridge model is similar in this sense.
+However, the Lasso model contains the least number of predictor variables and we believed this is the most important criterion.
 Thus from our analysis briefly outlined above and in the next section we recommend the following model, as seen below, due to its mix of predictive and explanatory power as well as being a simple model.
 
 $DeathRate = 470.47 + 0.23IncidenceRate - 0.25PctEmployed16\_Over + 0.029PctUnemployed16\_Over - 0.32PctPrivateCoverage + 0.21PctEmpPrivCoverage - 10.06Edu18\_24 + 0.90log(PctBlack) - 32.34log(MedianIncome)$
@@ -354,7 +370,7 @@ kable(t(a))
 ```
 \normalsize
 
-Performing a leave one out cross validation gives an $R^2$ statistic of $0.436$. Which is similar to the previous step wise regression method and is harder to diagnose therefore we conclude that it it is not a suitable model.
+Performing a leave one out cross validation gives an $R^2$ statistic of $0.4438$. Which is similar to the previous step wise regression method and is harder to diagnose therefore we conclude that it it is not a suitable model.
 
 ## Lasso Regression 
 
@@ -420,7 +436,7 @@ Both employment variables and two out of three healthcare coverage variables are
 
 Most predictor estimates are smaller than one. However the estimates for Education Levels and Log Median Income are -10.05 and -32.39 respectively which are exceptionally large and negative. This means that they have much larger impact on the predicted death rates than other predictor variables. It makes sense that Median Income has the largest impact because patients in counties with higher median income tend to be able to afford better treatment which reduce mortality rates.
 
-We calculated the R-squared using Leave-One-Out Cross Validation. The R-squared for this Lasso Regression model is 0.4440.
+We calculated the R-squared using Leave-One-Out Cross Validation. The R-squared for this Lasso Regression model is 0.4441.
  
 ```{r LASSO_RMSE, include=FALSE, cache=TRUE}
 numCores <- detectCores()
