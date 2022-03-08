@@ -461,6 +461,8 @@ mrp <- multResidualPlot(residual.list, fitted.list,
 mrp
 ```
 
+We see from the plot above that all three models appear to exhibit constant variance with an even spread of points as well as having a mean of zero with the distributions symmetrical about zero. Thus satisfying our key linear regression assumptions of homeoscedasticity and residuals having a mean of zero.
+
 ```{r ResidualPlot 2, eval=FALSE, include=FALSE}
 library(plotly)
 ### INTERACTIVE RESIDUAL
