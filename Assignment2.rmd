@@ -50,7 +50,7 @@ In order to fulfill the model assumptions, namely __Linearity__, __Homoscedastic
 
 ### Multicollinearity
 
-We have discovered a few pairs or clusters of predictor variables that are highly correlated with each other. The obvious ones are __Median Age Female__ and __Median Age Male__, __Percent Married__ and __Percent Married Households__, __Binned Income__ and __Median Income__. These variables measure the same force and hence one of the pairs can be dropped in early modelling. The others such as the employment variables and the heath coverage variables have less evidence of collinearity/ multicollinearity and are hence included in the modelling.
+We have discovered a few pairs or clusters of predictor variables that are highly correlated with each other. The obvious ones are __Median Age Female__ and __Median Age Male__, __Percent Married__ and __Percent Married Households__, __Binned Income__ and __Median Income__. These variables measure the same force and hence at least one in the pairs are expected to be excluded in our modelling. 
 
 ### Correlation with Death Rate
 
@@ -62,14 +62,14 @@ From our model building process we have identified that the major determinants i
 
 ## Modelling Approach
 
-We used Stepwise Regression, RIDGE Regression and LASSO Regression to build our model. We compared the outputs and the variables selections of these models. We also analyse the goodness of fits of these models using Leave-one-out cross validation, R-squared statistics and residuals analysis.
-We did not include _Geography_ and __Binned Income__ and we were using the _Log Percent Black__ and __Log Median Income__ in the following analysis.
+We used Stepwise Regression, RIDGE Regression and LASSO Regression to build our model. We compared the outputs and the variables selections of these models. We also analyse the goodness of fits of these models using Leave-one-out cross validation, $R^2$ statistics and residuals analysis.
+We did not include __Geography__ and __Binned Income__ and we were using the __Log Percent Black__ and __Log Median Income__ in the following analysis.
 
 ---I found the following sections very tricky to write up. Might need a better structure. NEED HELP!
 
 ### Stepwise Regression
 
-We used __Bayesian Information Criteria(BIC)__ in our analysis. This penalises additional parameters harder. We performed forward, backward and hybrid stepwise regression. In all of the models that were generated we notice that we have groups of parameters that are similar and hence induce multicollinearity in the models. For example, we see both __Percent Married__ and __Percent Married Households__ in the models and as stepwise methods do not account for multicollinearity this causes increases in the variance of our coefficient estimates and makes the model sensitive to changes, thus reducing drastically the predictive power of the model. In order to address the issue of multicollinearity we apply Ridge and LASSO techniques which account for this.
+We used __Bayesian Information Criteria(BIC)__ in our analysis. This penalises additional parameters harder than __Akaike information criterion(AIC)__ which agrees with parsimony in our modelling. We performed forward, backward and hybrid stepwise regression. In all of the models that were generated we notice that we have groups of parameters that are similar and hence induce multicollinearity in the models. For example, we see both __Percent Married__ and __Percent Married Households__ in the models and as stepwise methods do not account for multicollinearity this causes increases in the variance of our coefficient estimates and makes the model sensitive to changes, thus reducing drastically the predictive power of the model. In order to address the issue of multicollinearity we apply Ridge and Lasso techniques which account for this.
 
 ### RIDGE Regression
 
@@ -335,11 +335,10 @@ lm.lasso.1se <- glmnet(cancer.lasso.dm,cancer$deathRate,lambda = lm.lasso.cv$lam
 
 lm.lasso.1se.fitted <- predict(lm.lasso.1se, newx=cancer.lasso.dm)
 lm.lasso.1se.residuals <- cancer$deathRate - lm.lasso.1se.fitted
-
 ```
 
-We produced a plot that shows a trace of each parameter estimate for different values of log(lambda).
-We scaled the model for a better visual interpretation. (See Apendix 2.2.3)
+We produced a plot that shows a trace of each parameter estimate for different values of log(lambda). (See Fig. 4 and Apendix 2.2.3)
+We scaled the model for a better visual interpretation. (See Fig. 5 and Apendix 2.2.3)
 
 ```{r Lasso trace, echo=FALSE, fig.cap="Trace of parameter estimates for different lambda",fig.asp=0.5}
 lm.lasso.scaled<-glmnet(scale(cancer.lasso.dm),cancer$deathRate,alpha=1)
@@ -357,7 +356,6 @@ c = as.data.frame(c(507.558,0.227,0.000,0.000,-0.421,0.000,1.285,-0.821,0.000,-0
 y=cbind(a,b,c)
 colnames(y) = c("Ridge","LASSO","Stepwise")
 kable(y, caption="Parameter Estimates of the Models")
-
 ```
 \normalsize
 
@@ -497,10 +495,14 @@ qplot(long, lat, data=mergedf, geom="polygon", fill=averageresidual, group=regio
     ggtitle("Heatmap of Average Residuals of US States") 
 ```
 
+# Author Contributions
+
 # References 
 
 <div id="refs"></div>
 
+
+\pagebreak
 # Appendix
 
 2.1 Outcomes of EDA
