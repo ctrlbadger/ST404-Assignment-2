@@ -358,7 +358,7 @@ Performing a leave one out cross validation gives an $R^2$ statistic of $0.436$.
 
 ## Lasso Regression 
 
-First we removed Geography because it is an id variable. We also removed binnedInc because it is measuring the same thing as medIncome. We also removed PctMarriedHouseholds and MedianAgeFemale for similar reasons. This should reduce the problem of multicollinearity.
+First we removed Geography because it is an id variable. We also removed binnedInc because it is measuring the same thing as medIncome.
 We used the log-transformed PctBlack and medIncome to improve homoscedasticity and normality.
 
 ```{r Lasso data cleaning,echo=FALSE}
@@ -384,7 +384,7 @@ legend("topright",legend=c("Minimum lambda", "1 standard error larger lambda"),l
 lm.lasso.cv$lambda.1se
 lm.lasso.1se <- glmnet(cancer.lasso.dm,cancer$deathRate,lambda = lm.lasso.cv$lambda.1se,alpha=1)
 
-lm.lasso.1se.fitted <- predict(lm.lasso.1se, newx=cancer.dm)
+lm.lasso.1se.fitted <- predict(lm.lasso.1se, newx=cancer.lasso.dm)
 lm.lasso.1se.residuals <- cancer$deathRate - lm.lasso.1se.fitted
 
 ```
