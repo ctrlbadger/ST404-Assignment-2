@@ -117,12 +117,11 @@ We first combined our results and findings from our preliminary EDA which is mai
 We also see counties with missing values in Percentage Employed 16 and Over and we conclude that the data is Missing Completely at Random. In order to rectify this we impute this data by fitting a linear regression model of Percentage Employed 16 and Over on the remaining variables to estimate what these values would be.
 
 ```{r impute, include=FALSE}
-# Impute the missing data seen in the dataset
+# Impute the missing data seen in the data set
 mod1=lm(PctEmployed16_Over~+incidenceRate+medIncome+binnedInc+povertyPercent+MedianAgeMale+MedianAgeFemale+AvgHouseholdSize+PercentMarried+PctUnemployed16_Over+PctPrivateCoverage+PctEmpPrivCoverage+PctPublicCoverage+PctBlack+PctMarriedHouseholds+Edu18_24,cancer)
 missdf = cancer[which(is.na(cancer$PctEmployed16_Over)==TRUE),]
 imputed = predict(mod1,missdf)
 cancer[which(is.na(cancer$PctEmployed16_Over)==TRUE),"PctEmployed16_Over"] = imputed
-
 ```
 
 For counties with Average Household Size less than one we took the decision to scale the transformations by 100 and keep them in the dataset. This fixed the normality of AvgHouseholdSize as shown in the histogram.
@@ -138,7 +137,7 @@ hist(cancer$AvgHouseholdSize, breaks=30, xlab="AvgHouseholdSize", main="Histogra
 
 Counties with high Incidence Rates, namely 'Union County, Florida' and 'Williamsburg City, Virginia'. We looked into the cook's distance plots and noticed only 'Williamsburg City, Virginia' has large cook's distance and hence influential. The first cook's distance plot used a linear model with only incidenceRate as the predictor variable. The second used all the numerical variables. We concluded although 'Union County, Florida' has high leverage, it is not influential and hence should be kept in our data set.
 
-```{r incidenceRateRemoval, echo=FALSE, fig.asp=0.5}
+```{r incidenceRateRemoval, echo=FALSE, fig.asp=0.5, fig.cap="Cook's distance plots with one variable(Left) and all variables(Right)"}
 # Cook's distance Plot
 par(mfrow=c(1,2))
 plot(lm(deathRate ~ incidenceRate,data=cancer),4)
@@ -159,13 +158,11 @@ cancer$logmedincome = log(cancer$medIncome)
 
 The following residual plots show the improvements in homoscedasticity in PctBlack and medIncome after log-transform respectively.
 
-```{r heteroscedasticity1,echo=FALSE, fig.asp=0.5}
-# Showing improvements in homoscedasticity in PctBlack and medIncome
+```{r heteroscedasticity1,echo=FALSE, fig.asp=0.5, fig.cap="Residuals plot Percent Black and Log Percent Black"}
+# Showing improvements in homoscedasticity in PctBlack
 par(mfrow=c(1,2))
 plot(lm(deathRate~PctBlack,data=cancer),1)
 plot(lm(deathRate~logpctblack,data=cancer),1)
-plot(lm(deathRate~medIncome,data=cancer),1)
-plot(lm(deathRate~logmedincome,data=cancer),1)
 ```
 ---Might add other improvements 
 
@@ -206,7 +203,7 @@ summary(hybridoptimalBIC)
 
 Below we see the residual plots for the stepwise BIC model and can see in the left plot that we appear to have constant variance and the residuals have a mean of zero satisfying these assumptions. 
 
-```{r stepwise plots,echo=FALSE,fig.asp=0.5}
+```{r stepwise plots,echo=FALSE,fig.asp=0.5, fig.cap="Residuals plot of Hybrid Stepwise Model using BIC"}
 plot(hybridoptimalBIC,which=1)
 ```
 
@@ -243,7 +240,7 @@ summary(hybridoptimalBIC2)
 
 Below we can see the residual and QQplot for the BIC model. In the residual plot on the left hand side we see constant variance and a mean of zero with the majority of points near the horizontal red line. This is similar to what we saw when we didn't include the states in the selection process. Similarly, we see in the QQplot the majority of points on or near the reference line suggesting that the errors are indeed normally distributed, again as we see in the above case of not including states in the selection process.
 
-```{r statestepwise 3, echo=FALSE, fig.asp=0.5}
+```{r statestepwise 3, echo=FALSE, fig.asp=0.5, fig.cap="Residuals plot and QQ plot of hybrid stepwise model with states using BIC"}
 # Residual plots of state stepwise regression
 par(mfrow=c(1,2))
 plot(hybridoptimalBIC2, which=c(1,2))
