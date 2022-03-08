@@ -79,12 +79,6 @@ The suggested model contains eight variables which is the simplest model among o
 
 We used residuals plot and QQ plot to diagnose the stepwise regression model. Both plots are satisfactory, agreeing with model assumptions.
 
-```{r statestepwise Findings, echo=FALSE, fig.asp=0.5}
-# Residual plots of state stepwise regression
-par(mfrow=c(1,2))
-plot(hybridoptimalBIC2, which=c(1,2))
-```
-
 We also performed Leave-one-out cross-validation for this stepwise model, which gives $R^2$ value of $0.4621$.
 We did the same cross-validation for our Ridge and Lasso model.
 The Ridge model gives $R^2$ value of $0.4436$.
@@ -253,7 +247,7 @@ In order to test whether the addition of states in the model makes a significant
 anova(hybridoptimalBIC,hybridoptimalBIC2)
 ```
 
-To complete the section on stepwise regression we perform leave one out cross validation in order to compute the $R^2$ of the stepwise models and also the Root Mean Squared Error. This allows us to compare these models with the Ridge and Lasso models we generate in the enxt sections. Performing this we see the AIC has an $R^2$ value of 0.4629, whereas in the BIC model we have an $R^2$ value of 0.4621.
+To complete the section on stepwise regression we perform leave one out cross validation in order to compute the $R^2$ of the stepwise models and also the Root Mean Squared Error. This allows us to compare these models with the Ridge and Lasso models we generate in the enxt sections. Performing this we see the AIC has an $R^2$ value of 0.4631, whereas in the BIC model we have an $R^2$ value of 0.4623.
 
 ```{r LOOCVforStepwise, cache=TRUE, include=FALSE}
 library(caret)
@@ -269,13 +263,14 @@ loocv <- function(lm1, data=cancer) {
 hybridoptimalAIC.loocv <- loocv(hybridoptimalAIC, data=cancermodel)
 hybridoptimalBIC.loocv <- loocv(hybridoptimalBIC,data=cancermodel)
 ```
+
 ### RIDGE Regression
 
 To address the multi-collinearity present in the data we assess the viability of a RIDGE Regression Model. For this we fit all continuous variables as predictors using the `glmnet` library. 
 
 The trace shows that the ridge penalisation method reduces many variables close to 0 but does not remove any variables from the model itself.
 
-```{r, include=FALSE}
+```{r Ridge 1, include=FALSE}
 library(glmnet)
 
 # Create Data Matrix
@@ -312,7 +307,7 @@ scatter.smooth(cancer$deathRate - lm.ridgefitted, x=lm.ridgefitted,
 Fitting a ridge model and using the value of $\lambda$ one standard error further away from the minimum does not remove any of the terms from the model and gives the following coefficients. We also include the parameter estimates when the parameters are scaled to highlight how significant the parameter is.
 
 
-```{r, include=FALSE, cache=TRUE}
+```{r Ridge Loo, include=FALSE, cache=TRUE}
 library(parallel)
 library(foreach)
 library(doParallel)
@@ -342,7 +337,7 @@ mean(dev.ratios1)
 
 \scriptsize
 
-```{r, echo=FALSE}
+```{r Ridge estimate, echo=FALSE}
 library(knitr)
 
 
@@ -369,7 +364,7 @@ kable(t(a))
 
 Performing a leave one out cross validation gives an $R^2$ statistic of $0.4438$. Which is similar to the previous step wise regression method and is harder to diagnose therefore we conclude that it it is not a suitable model.
 
-## Lasso Regression 
+### LASSO Regression 
 
 First we removed Geography because it is an id variable. We also removed binnedInc because it is measuring the same thing as medIncome.
 We used the log-transformed PctBlack and medIncome to improve homoscedasticity and normality.
@@ -477,7 +472,7 @@ mean(lasso.dev.ratios1)
 
 ## Statistical Interpretation and Validation
 
-```{r ResidualPlot}
+```{r ResidualPlot,echo=FALSE}
 
 # So wanna make a plot of residuals vs fitteds
 library(ggplot2)
@@ -520,7 +515,8 @@ mrp <- multResidualPlot(residual.list, fitted.list,
                  c("Hybrid Optimal AIC", "Hybrid Optimal BIC", "RIDGE", "LASSO"))
 mrp
 ```
-```{r, eval=FALSE, include=FALSE}
+
+```{r ResidualPlot 2, eval=FALSE, include=FALSE}
 library(plotly)
 ### INTERACTIVE RESIDUAL
 ggplotly(mrp)
@@ -528,7 +524,7 @@ ggplotly(mrp)
 
 Produce map of each states average residual value for the LASSO model.
 
-```{r, include=FALSE}
+```{r Average, include=FALSE}
 #average for each state
 averageresidual=round(tapply(lm.lasso.1se.residuals,cancermodel2$State,mean)[-c(2,12)],0)
 states <- map_data("state")
@@ -560,11 +556,302 @@ qplot(long, lat, data=mergedf, geom="polygon", fill=averageresidual, group=regio
 
 # Appendix
 
-```{r get-labels, echo = FALSE}
+2.1 Outcomes of EDA
+
+2.1.1 Missing Or Incorrect Values
+
+```{r impute A, eval=FALSE}
+# Impute the missing data seen in the data set
+mod1=lm(PctEmployed16_Over~+incidenceRate+medIncome+binnedInc+povertyPercent+MedianAgeMale+MedianAgeFemale+AvgHouseholdSize+PercentMarried+PctUnemployed16_Over+PctPrivateCoverage+PctEmpPrivCoverage+PctPublicCoverage+PctBlack+PctMarriedHouseholds+Edu18_24,cancer)
+missdf = cancer[which(is.na(cancer$PctEmployed16_Over)==TRUE),]
+imputed = predict(mod1,missdf)
+cancer[which(is.na(cancer$PctEmployed16_Over)==TRUE),"PctEmployed16_Over"] = imputed
+```
+
+```{r averageHouseholdSize A, eval=FALSE}
+# Scale average household sizes that are less than 1 by 100
+cancer[which(cancer$AvgHouseholdSize < 1), ]$AvgHouseholdSize <- 
+  100*cancer[which(cancer$AvgHouseholdSize < 1), ]$AvgHouseholdSize
+hist(cancer$AvgHouseholdSize, breaks=30, xlab="AvgHouseholdSize", main="Histogram of AvgHouseholdSize")
+```
+
+2.1.2 Outliers
+
+```{r incidenceRateRemoval A, eval=FALSE, fig.asp=0.5, fig.cap="Cook's distance plots with one variable(Left) and all variables(Right)"}
+# Cook's distance Plot
+par(mfrow=c(1,2))
+plot(lm(deathRate ~ incidenceRate,data=cancer),4)
+plot(lm(deathRate ~ .,data=cancer[-c(1,4)]),4)
+# Removing outlier incidence rates 'Williamsburg City, Virginia'
+cancer <- filter(cancer, incidenceRate <= 850)
+```
+
+2.1.3 Transformations
+
+```{r transformations A, eval=FALSE}
+# Log transforming the heavily skewed distributions of PctBlack and medIncome
+cancer$logpctblack = log(cancer$PctBlack+0.05)
+cancer$logmedincome = log(cancer$medIncome)
+```
+
+```{r heteroscedasticity1 A,eval=FALSE, fig.asp=0.5, fig.cap="Residuals plot Percent Black and Log Percent Black"}
+# Showing improvements in homoscedasticity in PctBlack
+# Similar plots can be prduced for medIncome
+par(mfrow=c(1,2))
+plot(lm(deathRate~PctBlack,data=cancer),1)
+plot(lm(deathRate~logpctblack,data=cancer),1)
+```
+
+2.2 Modelling Approach and Variable Selection
+
+2.2.1 AIC and BIC Forward and Backward Variable Selection
+
+```{r stepwise A, eval=FALSE}
+# Below we perform stepwise regression for both AIC
+# We alsp performed similar regression for BIC
+cancermodel <- cancer %>% select(
+  !c("Geography", "medIncome", "binnedInc", "PctBlack"))
+c0=lm(deathRate~1,cancermodel)
+cmax=lm(deathRate~.,cancermodel)
+forwardoptimalAIC = step(c0,direction="forward",
+scope=list("lower"=c0,"upper"=cmax),trace=0)
+backwardoptimalAIC = step(cmax,direction="backward",
+scope=list("lower"=c0,"upper"=cmax),trace=0)
+hybridoptimalAIC = step(c0,direction="both",
+scope=list("lower"=c0,"upper"=cmax),trace=0)
+```
+
+```{r summaryAICBIC A, eval = FALSE }
+# An example code for summary and coefficient of models
+summary(hybridoptimalBIC)
+coef(hybridoptimalBIC)
+```
+
+```{r stepwise plots A,eval=FALSE,fig.asp=0.5, fig.cap="Residuals plot of Hybrid Stepwise Model using BIC"}
+# An example code for residuals plot
+plot(hybridoptimalBIC,which=1)
+```
+
+```{r StepwiseVIF A, include=FALSE}
+# Computing the VIF of the BIC stepwise regression model
+vif(hybridoptimalBIC)
+```
+
+```{r statestepwise 4 A, include=FALSE}
+# Perform F-Test on the BIC models above
+anova(hybridoptimalBIC,hybridoptimalBIC2)
+```
+
+```{r LOOCVforStepwise A, cache=TRUE, eval=FALSE}
+library(caret)
+#specify the cross-validation method
+#fit a regression model and use LOOCV to evaluate performance
+loocv <- function(lm1, data=cancer) {
+  ctrl <- trainControl(method = "LOOCV")
+  xnam <- names(lm1$coefficients)[-1]
+  fmla <- as.formula(paste("deathRate ~ ", paste(xnam, collapse= "+")))
+  model <- train(fmla, data = data, method = "lm", trControl = ctrl)
+  return(model)
+}
+hybridoptimalAIC.loocv <- loocv(hybridoptimalAIC, data=cancermodel)
+hybridoptimalBIC.loocv <- loocv(hybridoptimalBIC,data=cancermodel)
+```
+
+2.2.2 RIDGE Regression
+
+```{r Ridge 1 A, eval=FALSE}
+library(glmnet)
+# Producing a 1-standard-error-lambda RIDGE regression model
+# We also used similar codes for LASSO regression
+cancer.dm <- cancer %>% 
+  select(!c("Geography", "medIncome", "binnedInc", "PctBlack", "deathRate")) %>%
+  data.matrix()
+
+lm.ridge <- glmnet(cancer.dm, cancer$deathRate, alpha=0)
+lm.ridge.cv <- cv.glmnet(cancer.dm, cancer$deathRate, alpha=0)
+
+# Create Model Plot Func
+traceLogLambda <- function(lm1, lm1.cv, ylim=NULL, sub=NULL) {
+  plot(lm1,"lambda",label = T, ylim=ylim)
+  abline(v=log(lm1.cv$lambda.1se),col="red")
+  abline(v=log(lm1.cv$lambda.min),col="blue")
+  legend("bottomright",legend=c("Minimum lambda", "1 standard error larger lambda"),lty=c(1,1),col=c("blue","red"), ins=0.05)
+  title(sub=sub)
+  
+}
+
+traceLogLambda(lm.ridge, lm.ridge.cv, ylim=c(-20, 1), sub="RIDGE trace against log(lambda)")
+
+lm.ridge.1se <- glmnet(cancer.dm, cancer$deathRate, alpha = 0, 
+               lambda = lm.ridge.cv$lambda.1se)
+
+
+lm.ridgefitted <- predict(lm.ridge.1se, newx=cancer.dm)
+scatter.smooth(cancer$deathRate - lm.ridgefitted, x=lm.ridgefitted,
+               xlab="Fitted", ylab="Residuals", 
+               sub="Residuals vs Fitted for RIDGE Model")
+
+```
+
+```{r Ridge Loo A, eval=FALSE, cache=TRUE}
+# Leave-one-out cross-validation for RIDGE Regression
+# Calculate R-squared statistics
+# We also performed the same procedures for LASSO Regression
+library(parallel)
+library(foreach)
+library(doParallel)
+numCores <- detectCores()
+registerDoParallel(numCores) 
+
+n <- dim(cancer)[1]
+dev.ratios <- rep(NA, n)
+dev.ratios1 <- rep(NA, n)
+lm.ridge.cv <- cv.glmnet(cancer.dm, cancer$deathRate, alpha=0, nfolds=n, parallel=TRUE)
+
+lm.ridge.cv$lambda.1se
+
+for (i in 1:n) {
+  lm.ridge.1se <- glmnet(cancer.dm[-i,], cancer$deathRate[-i], alpha = 0, 
+               lambda = lm.ridge.cv$lambda.1se)
+  
+  
+  dev.ratios1[i] <- lm.ridge.1se$dev.ratio
+  # lm.residuals <- predict(lm.ridge.1se, newx=cancer.dm[-i, ]) - cancer$deathRate[-i]
+  # dev.ratios[i] <- 1 - sum(lm.residuals^2)/sum((cancer$deathRate[-i] -mean(cancer$deathRate[-i]))^2) 
+  
+}
+mean(dev.ratios1)
+
+```
+
+```{r Ridge estimate A, eval=FALSE}
+library(knitr)
+# This produces a table of parameter estimate for RIDGE model
+# We also produced similar table for LASSO model
+a <- data.frame(sapply(round(coef(lm.ridge.1se), 3), FUN=identity))
+colnames(a) <- "Parameter Estimates"
+
+# cancer.dm.scale <- cancer %>%
+#   select(!c("Geography", "medIncome", "binnedInc", "PctBlack", "deathRate")) %>%
+#   scale %>%
+#   data.matrix()
+# lm.ridge.scale.cv <- cv.glmnet(cancer.dm.scale, scale(cancer$deathRate), alpha = 0)
+# lm.ridge.1se.scale <- glmnet(cancer.dm.scale, scale(cancer$deathRate), alpha = 0, lambda = lm.ridge.scale.cv$lambda.1se)
+# a$"Scaled Parameter Estimates" <-sapply(round(coef(lm.ridge.1se.scale), 3), FUN=identity)
+
+rownames(a) <- rownames(round(coef(lm.ridge.1se), 3))
+shortNames <- c("Intercept", "IncidRT", "PctPov", "MedMale", "MedFemale", 
+                "AvgHH", "PctMarr", "PctEmp", "PctUnemp", "PrivCov", "PubCov", 
+                "MarrHH", "lPctBlack", "lMedInc")
+colnames(a) <- colnames(shortNames)
+a
+kable(t(a))
+```
+
+2.2.3 LASSO Regression
+
+```{r Lasso cv A, eval=FALSE}
+# Produce a LASSO Regression model
+# Produce a plot of mean-squared error against log(lambda)
+set.seed((934))
+lm.lasso <-glmnet(cancer.lasso.dm,cancer$deathRate,alpha=1)
+lm.lasso.cv <- cv.glmnet(cancer.lasso.dm,cancer$deathRate,alpha=1)
+plot(lm.lasso.cv)
+abline(v=log(lm.lasso.cv$lambda.1se),col="red")
+abline(v=log(lm.lasso.cv$lambda.min),col="blue")
+legend("topright",legend=c("Minimum lambda", "1 standard error larger lambda"),lty=c(1,1),col=c("blue","red"), ins=0.1)
+lm.lasso.cv$lambda.1se
+lm.lasso.1se <- glmnet(cancer.lasso.dm,cancer$deathRate,lambda = lm.lasso.cv$lambda.1se,alpha=1)
+
+lm.lasso.1se.fitted <- predict(lm.lasso.1se, newx=cancer.lasso.dm)
+lm.lasso.1se.residuals <- cancer$deathRate - lm.lasso.1se.fitted
+```
+
+```{r Lasso trace A, eval=FALSE}
+# Produce a plot that shows the trace of each parameter estimate for different lambda
+lm.lasso.scaled<-glmnet(scale(cancer.lasso.dm),cancer$deathRate,alpha=1)
+traceLogLambda(lm.lasso.scaled,lm.lasso.cv,ylim=c(-10,10), sub="LASSO trace against log(lambda)")
+```
+
+2.4 Statistical Interpretation and Validation
+
+```{r ResidualPlot A,eval=FALSE}
+
+# So wanna make a plot of residuals vs fitteds
+library(ggplot2)
+
+multResidualPlot <- function(residual.list, fitted.list, models) {
+  
+  
+  # a <- data.frame(x=fitted.list[[1]], y=residual.list[[1]], col=rep('blue', times=length(fitted.list[[1]])))
+  a <- data.frame()
+  for (i in 1:length(models)) {
+    x <- fitted.list[[i]] 
+    y <- residual.list[[i]]
+    model <- rep(models[i], times=length(x))
+    
+    df.temp <- data.frame(x, y, model)
+    colnames(df.temp) <- c("x", "y", "model")
+    a <- rbind(a, df.temp)
+  }
+  mrp <- ggplot(a, aes(x=x, y=y, colour=model)) + 
+    geom_point(alpha=0.3, size=0.75) + geom_smooth() +
+    labs(x="Fitted Values", y="Residuals", title="Residuals vs Fitted Values", model="Models")
+  return(mrp)
+}
+
+lm.ridge.residuals <- cancer$deathRate - lm.ridgefitted
+residual.list <- list(
+  hybridoptimalAIC$residuals,
+  hybridoptimalBIC$residuals,
+  lm.ridge.residuals,
+  lm.lasso.1se.residuals
+)
+
+fitted.list <- list(
+  hybridoptimalAIC$fitted.values,
+  hybridoptimalBIC$fitted.values,
+  lm.ridgefitted,
+  lm.lasso.1se.fitted
+)
+mrp <- multResidualPlot(residual.list, fitted.list,
+                 c("Hybrid Optimal AIC", "Hybrid Optimal BIC", "RIDGE", "LASSO"))
+mrp
+```
+
+```{r ResidualPlot 2 A, eval=FALSE, include=FALSE}
+library(plotly)
+### INTERACTIVE RESIDUAL
+ggplotly(mrp)
+```
+
+Produce map of each states average residual value for the LASSO model.
+
+```{r Average A, eval=FALSE}
+#average for each state
+averageresidual=round(tapply(lm.lasso.1se.residuals,cancermodel2$State,mean)[-c(2,12)],0)
+states <- map_data("state")
+averagedf <- data.frame(region=unique(states$region), averageresidual)
+mergedf <- merge(states, averagedf, by="region")
+statenames <- data.frame(region=tolower(state.name), clong=state.center$x, clat=state.center$y)
+statenames <- merge(statenames, averagedf, by="region")
+statenames$lab <- paste(statenames$region, '\n', statenames$averageresidual, sep="")
+```
+
+```{R USMAP A, eval=FALSE, cache=TRUE}
+qplot(long, lat, data=mergedf, geom="polygon", fill=averageresidual, group=region) + 
+  scale_fill_gradient(averageresidual,low="yellow",high="red") +
+  geom_text(data=statenames,aes(clong,clat,label=averageresidual,inherit.aes = FALSE,label.size=0.001)) +
+  theme(axis.line=element_blank(),axis.text.x=element_blank(),
+        axis.text.y=element_blank(),axis.ticks=element_blank(),
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank(), legend.title = element_blank(),
+        panel.background=element_blank(),panel.border=element_blank(),panel.grid.major=element_blank(),
+        panel.grid.minor=element_blank(),plot.background=element_blank(),plot.title =element_text(hjust=0.5) ) +
+    ggtitle("Heatmap of Average Residuals of US States") 
+```
+
+```{r get-labels, eval = FALSE}
 labs = all_labels()
 labs = setdiff(labs, c("setup", "get-labels"))
 ```
-
-```{r all-code, ref.label=labs, eval=FALSE}
-```
-  
