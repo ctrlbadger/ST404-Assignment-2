@@ -348,7 +348,7 @@ traceLogLambda(lm.lasso.scaled,lm.lasso.cv,ylim=c(-10,10), sub="LASSO trace agai
 The Lasso regression using 1-standard-error-lambda produces the following parameter estimates. Alongside we see the parameter estimates for Ridge regression and stepwise regression to allow for easier comparison of the models.
 
 \scriptsize
-```{r Lasso estimates,echo=FALSE}
+```{r,echo=FALSE}
 b <- data.frame(sapply(round(coef(lm.lasso.1se), 3), FUN=identity))
 colnames(b) <- "Parameter Estimates"
 rownames(b) <- rownames(round(coef(lm.lasso.1se), 3))
