@@ -447,20 +447,18 @@ multResidualPlot <- function(residual.list, fitted.list, models) {
 
 lm.ridge.residuals <- cancer$deathRate - lm.ridgefitted
 residual.list <- list(
-  hybridoptimalAIC$residuals,
   hybridoptimalBIC$residuals,
   lm.ridge.residuals,
   lm.lasso.1se.residuals
 )
 
 fitted.list <- list(
-  hybridoptimalAIC$fitted.values,
   hybridoptimalBIC$fitted.values,
   lm.ridgefitted,
   lm.lasso.1se.fitted
 )
 mrp <- multResidualPlot(residual.list, fitted.list,
-                 c("Hybrid Optimal AIC", "Hybrid Optimal BIC", "RIDGE", "LASSO"))
+                 c("Hybrid Optimal BIC", "RIDGE", "LASSO"))
 mrp
 ```
 
@@ -738,20 +736,18 @@ multResidualPlot <- function(residual.list, fitted.list, models) {
 
 lm.ridge.residuals <- cancer$deathRate - lm.ridgefitted
 residual.list <- list(
-  hybridoptimalAIC$residuals,
   hybridoptimalBIC$residuals,
   lm.ridge.residuals,
   lm.lasso.1se.residuals
 )
 
 fitted.list <- list(
-  hybridoptimalAIC$fitted.values,
   hybridoptimalBIC$fitted.values,
   lm.ridgefitted,
   lm.lasso.1se.fitted
 )
 mrp <- multResidualPlot(residual.list, fitted.list,
-                 c("Hybrid Optimal AIC", "Hybrid Optimal BIC", "RIDGE", "LASSO"))
+                 c("Hybrid Optimal BIC", "RIDGE", "LASSO"))
 mrp
 ```
 
