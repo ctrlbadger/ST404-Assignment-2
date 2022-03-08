@@ -16,10 +16,11 @@ cancermodel2 = separate(cancer,"Geography", into=c("County","State"),sep=",")[-c
 ```{r, include=FALSE}
 #average for each state
 averagedeathrate=round(tapply(cancermodel2$deathRate,cancermodel2$State,mean)[-c(2,12)],0)
+averagedincidenceRate=round(tapply(cancermodel2$incidenceRate,cancermodel2$State,mean)[-c(2,12)],0)
 
 states <- map_data("state")
 
-averagedf <- data.frame(region=unique(states$region), averagedeathrate)
+averagedf <- data.frame(region=unique(states$region), averagedeathrate, averagedincidenceRate)
 
 mergedf <- merge(states, averagedf, by="region")
 
@@ -27,8 +28,14 @@ statenames <- data.frame(region=tolower(state.name), clong=state.center$x, clat=
 
 statenames <- merge(statenames, averagedf, by="region")
 statenames$lab <- paste(statenames$region, '\n', statenames$averagedeathrate, sep="")
+statenames$lab_incidenceRate <- paste(statenames$region, '\n', statenames$averageincidenceRate, sep="")
 ```
 
+```{R ExampleTable}
+# 1392 1745
+cancer %>% filter(Geography == c("Philadelphia County, Pennsylvania", "Clay County, Kentucky")) %>% select(Geography, incidenceRate, medIncome, binnedInc, )
+
+```
 
 
 ```{R USMAP, echo=FALSE}
@@ -42,6 +49,17 @@ qplot(long, lat, data=mergedf, geom="polygon", fill=averagedeathrate, group=regi
         panel.background=element_blank(),panel.border=element_blank(),panel.grid.major=element_blank(),
         panel.grid.minor=element_blank(),plot.background=element_blank(),plot.title =element_text(hjust=0.5) ) +
     ggtitle("Heatmap of Death Rates of US States") 
+
+qplot(long, lat, data=mergedf, geom="polygon", fill=averagedincidenceRate, group=region) + 
+  scale_fill_gradient(averagedincidenceRate,low="yellow",high="red") +
+  geom_text(data=statenames,aes(clong,clat,label=lab_incidenceRate,inherit.aes = FALSE,label.size=0.01)) +
+  theme(axis.line=element_blank(),axis.text.x=element_blank(),
+        axis.text.y=element_blank(),axis.ticks=element_blank(),
+        axis.title.x=element_blank(),
+        axis.title.y=element_blank(), legend.title = element_blank(),
+        panel.background=element_blank(),panel.border=element_blank(),panel.grid.major=element_blank(),
+        panel.grid.minor=element_blank(),plot.background=element_blank(),plot.title =element_text(hjust=0.5) ) +
+    ggtitle("Heatmap of Incidence Rates of US States") 
 
 ```
 
@@ -134,8 +152,8 @@ us_county <- map_data("county")
 us_state <- map_data("state")  %>% 
   transmute(long1 = long, lat1 = lat, group = group + max(us_county$group), 
             region1 = region, group1=group)
-us_state_county <- us_county %>% full_join(us_state) %>% create_cancer_map_df(cancer)
 
+us_state_county <- us_county %>% full_join(us_state) %>% create_cancer_map_df(cancer)
 ```
 
 ```{r DeathRateMap}
@@ -143,4 +161,14 @@ death_rate_map <- map_plot(data=us_state_county,
                            fill=us_state_county$deathRate, fill_lab="Death Rate")
 death_rate_map
 
+incidence_rate_map <- map_plot(data=us_state_county, 
+                           fill=us_state_county$incidenceRate, fill_lab="Death Rate")
+incidence_rate_map
+
+cancer_residuals <- cancer %>% mutate(residuals=lm.lasso.1se.residuals)
+us_state_county <- us_county %>% full_join(us_state) %>% create_cancer_map_df(cancer_residuals)
+residual_map <- map_plot(data=us_state_county, fill=us_state_county$residuals, fill_lab="Death Rate")
+
+ggplotly(map_plot(data=us_state_county, fill=us_state_county$deathRate, fill_lab="Death Rate", showStateLines=FALSE))
+ggplotly(map_plot(data=us_state_county, fill=us_state_county$residuals, fill_lab="Residuals", showStateLines = FALSE))
 ```
