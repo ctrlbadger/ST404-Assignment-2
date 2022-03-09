@@ -9,6 +9,8 @@ output:
 fontsize: 11pt
 linestretch: 1.5
 bibliography: references.bib
+header-includes: 
+- \usepackage{float}
 ---
 
 ```{r setup, include=FALSE}
@@ -34,7 +36,7 @@ library(ggplot2)
 
 ## Key Findings
 
-Given our preferred model the most important predictors for cancer death rates for a given state were incidence rates, median income and private health care coverage. All predictors for the model are in the table below with the parameter estimate and a scaled model to show importance of predictors. This shows that `incidenceRate` and `log medianIncome` followed by `PctPrivateCoverage` have the largest influence over death rates. The table shows in the first row the model unscaled parameters and in the second the scaled model parameters, the larger the values the more the predictor affects death rates
+Given our preferred model the most important predictors for cancer death rates for a given state were incidence rates, median income and private health care coverage. All predictors for the model are in the table below with the parameter estimate and a scaled model to show importance of predictors. This shows that `incidenceRate` and `log medianIncome` followed by `PctPrivateCoverage` have the largest influence over death rates. The table shows in the first row the unscaled model parameters and in the second the scaled model parameters, a larger value indicates the predictor having more affect on death rates.
 
 ```{r, eval=FALSE, include=FALSE}
 lasso.coefs.tab <-cbind(lasso.coefs, lasso.scaled.coefs.ordered)
@@ -42,20 +44,19 @@ colnames(lasso.coefs.tab) <- c("Non-Scaled", "Scaled")
 save(lasso.coefs.tab, file="lasso.coefs.tab.rdata")
 ```
 
-```{r, echo=FALSE, fig.pos='H', fig.cap="LASSO Model"}
+\scriptsize
+
+```{r, echo=FALSE}
 load(file="lasso.coefs.tab.rdata")
-kable(t(lasso.coefs.tab[lasso.coefs.tab[, 1] != 0, ]), row.names=FALSE)
-      # caption = "LASSO Death Rate Model Coefficients,
-      # (TOP) Non-Scaled, (BOTTOM) Scaled")
-#%>%
-  #kable_styling(latex_options = "HOLD_position")
+kable(t(lasso.coefs.tab[lasso.coefs.tab[, 1] != 0, ]), row.names=FALSE, align='c')
 ```
 
+\normalsize
 
 Understandably cancer diagnoses are a key predictor for death rates, with an increase in the number of cancer diagnoses by 50 per 100,000 increasing cancer death rates by 10 per 100,000. This of course does not imply that there should be a policy to decrease cancer diagnoses. Increasing cancer diagnoses will lead to more people with cancer on death certificates even if cancer may not have been the primary cause of death.
-Wealthier north western states have similar mean incidence rates to poorer south western states but much lower death rates showing that diagnoses are a good baseline additional predictors for poverty need to be included.
+Wealthier north western states have similar mean incidence rates to poorer south western states but much lower death rates showing that diagnoses are a good baseline however additional predictors for poverty and coverage give a stronger model.
 
-Due to the strong collinearity of many variables and thus our choice of regression method, we can not give a strong interpretation for keeping all but one variable the same and giving the associated change in death rates. An increased Death Rate is more likely if a county has a low median income, low private coverage, these though will be dependent on low employment and high unemployment percentages which may be because of a low education rate. Due to many variables explaining the same information about death rates the LASSO model reduces the complexity, for example even though Percent Public Coverage is correlated well with death rates it can be left out of the model as it is strongly correlated with both percent private coverage and employee provided coverage.
+Due to the strong collinearity of many variables and thus our choice of regression method, we can not give a strong interpretation for keeping all but one variable the same and giving the associated change in death rates. An increased Death Rate is more likely if a county has a low median income, low private coverage, these though will be dependent on low employment and high unemployment percentages which may be because of a low education rate. Due to many variables explaining the same "information" about death rates the LASSO method reduces model complexity, for example even though Percent Public Coverage is correlated well with death rates it can be left out of the model as it is strongly correlated with both percent private coverage and employee provided coverage.
 
 ## Summary of EDA
 
@@ -79,17 +80,13 @@ We used __Bayesian Information Criteria(BIC)__ in our analysis. This penalises a
 
 ### RIDGE and LASSO Regression
 
-Since we are focusing on the explanatory power of the model, Ridge regression which keeps all variables is not ideal. Thus we turned our focus to Lasso, which gives a more parsimonious model.
-The suggested model contains eight variables which is the simplest model among our approaches. As the purpose of this report is to reveal patterns in the mortality rate, we believed it is best to choose a simple model for stronger explanatory power.
+We implemented penalised regression models for RIDGE and LASSO to counteract the multicollinearity issues in the data. RIDGE Regression gave a strong predictive model however all variables were included and many were close to 0. 
+The LASSO model contains eight variables which is the simplest model among our approaches and gave similar predictive power. As the purpose of this report is to reveal patterns in the mortality rate, we believed it is best to choose a simple model for stronger explanatory power.
 
 ### Final Model Choice and Diagnostics
 
-We used residuals plot and QQ plot to diagnose the stepwise regression model. Both plots are satisfactory, agreeing with model assumptions.
-
-We also performed Leave-one-out cross-validation for this stepwise model, which gives $R^2$ value of $0.4621$.
-We did the same cross-validation for our Ridge and Lasso model.
-The Ridge model gives $R^2$ value of $0.4436$.
-The Lasso model gives $R^2$ value of $0.4441$.
+We used residuals plot and QQ plot to diagnose the stepwise regression model. Both plots are satisfactory, agreeing with model assumptions. Performing Leave-one-out cross-validation for the stepwise model gave an $R^2$ value of $0.4621$.
+Doing the same cross-validation for our Ridge and Lasso model gave us an $R^2$ of $0.4436$ and $0.4441$ respectively.
 
 The stepwise model fits the observed data the best among all our models. The Lasso and the Ridge model is similar in this sense.
 However, the Lasso model contains the least number of predictor variables and we believed this is the most important criterion.
@@ -333,7 +330,7 @@ cancer.lasso.dm <- cancer %>%
 
 We used cross-validation from the glmnet library which leaves out a 10th of the data every time. We produced the following plot (Fig. 4) of mean-squared error against log(lambda). We decided to use the 1-standard-error-lambda because this likely to shrink some predictor variables to zero, performing variable selection. We prefer a simpler model. (See Appendix 5.2.3)
 
-```{r Lasso cv, echo=FALSE, fig.asp=0.5, fig.cap="Mean-squared error against log(lambda)", message=FALSE,warning=FALSE}
+```{r echo=FALSE, fig.asp=0.5, fig.cap="Mean-squared error against log(lambda)", message=FALSE,warning=FALSE}
 set.seed((934))
 lm.lasso <-glmnet(cancer.lasso.dm,cancer$deathRate,alpha=1)
 lm.lasso.cv <- cv.glmnet(cancer.lasso.dm,cancer$deathRate,alpha=1)
@@ -349,7 +346,7 @@ lm.lasso.1se.residuals <- cancer$deathRate - lm.lasso.1se.fitted
 
 We produced a plot (Fig.5) that shows a trace of each parameter estimate for different values of log(lambda). We scaled the model for a better visual interpretation.
 
-```{r Lasso trace, echo=FALSE, fig.cap="Trace of parameter estimates for different lambda",fig.asp=0.5, message=FALSE,warning=FALSE}
+```{r echo=FALSE, fig.cap="Trace of parameter estimates for different lambda",fig.asp=0.5, message=FALSE,warning=FALSE}
 lm.lasso.scaled<-glmnet(scale(cancer.lasso.dm),cancer$deathRate,alpha=1)
 traceLogLambda(lm.lasso.scaled,lm.lasso.cv,ylim=c(-10,10), sub="LASSO trace against log(lambda)")
 ```
@@ -495,9 +492,6 @@ ggplot(data=mergedf) + geom_polygon(aes(x=long, y=lat, fill=averageresidual, gro
 
 # Author Contributions
 
-# References
-
-<div id="refs"></div>
 
 
 \pagebreak
