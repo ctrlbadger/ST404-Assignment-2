@@ -485,13 +485,8 @@ statenames$lab <- paste(c(state.abb, 'DC')[match(statenames$region, c(tolower(st
 qplot(long, lat, data=mergedf, geom="polygon", fill=averageresidual, group=region) + 
   scale_fill_gradient(averageresidual,low="yellow",high="red") +
   geom_text(data=statenames,aes(clong,clat,label=statenames$lab,inherit.aes = FALSE,label.size=0.001)) +
-  theme(axis.line=element_blank(),axis.text.x=element_blank(),
-        axis.text.y=element_blank(),axis.ticks=element_blank(),
-        axis.title.x=element_blank(),
-        axis.title.y=element_blank(), legend.title = element_blank(),
-        panel.background=element_blank(),panel.border=element_blank(),panel.grid.major=element_blank(),
-        panel.grid.minor=element_blank(),plot.background=element_blank(),plot.title =element_text(hjust=0.5) ) +
-    ggtitle("Heatmap of Average Residuals of US States") 
+   theme_void() + theme(legend.title = element_blank(),plot.title = element_text(hjust = 0.5))+
+ + ggtitle("Heatmap of Average Residuals of US States") 
 ```
 
 # Author Contributions
@@ -517,8 +512,6 @@ mod1=lm(PctEmployed16_Over~+incidenceRate+medIncome+binnedInc+povertyPercent+Med
 missdf = cancer[which(is.na(cancer$PctEmployed16_Over)==TRUE),]
 imputed = predict(mod1,missdf)
 cancer[which(is.na(cancer$PctEmployed16_Over)==TRUE),"PctEmployed16_Over"] = imputed
-```
-```{r averageHouseholdSize A, eval=FALSE}
 # Scale average household sizes that are less than 1 by 100
 cancer[which(cancer$AvgHouseholdSize < 1), ]$AvgHouseholdSize <- 
   100*cancer[which(cancer$AvgHouseholdSize < 1), ]$AvgHouseholdSize
@@ -546,8 +539,6 @@ cancer <- filter(cancer, incidenceRate <= 850)
 # Log transforming the heavily skewed distributions of PctBlack and medIncome
 cancer$logpctblack = log(cancer$PctBlack+0.05)
 cancer$logmedincome = log(cancer$medIncome)
-```
-```{r heteroscedasticity1 A,eval=FALSE, fig.asp=0.5, fig.cap="Residuals plot Percent Black and Log Percent Black"}
 # Showing improvements in homoscedasticity in PctBlack
 # Similar plots can be produced for medIncome
 par(mfrow=c(1,2))
@@ -573,17 +564,11 @@ backwardoptimalBIC = step(cmax,direction="backward",
 scope=list("lower"=c0,"upper"=cmax),trace=0,k=log(3045))
 hybridoptimalBIC = step(c0,direction="both",
 scope=list("lower"=c0,"upper"=cmax),trace=0,k=log(3045))
-```
-```{r summaryAICBIC A, eval = FALSE }
 # An example code for summary and coefficient of models
 summary(hybridoptimalBIC)
 coef(hybridoptimalBIC)
-```
-```{r StepwiseVIF A, eval=TRUE}
 # Computing the VIF of the BIC stepwise regression model
 vif(hybridoptimalBIC)
-```
-```{r LOOCVforStepwise A, cache=TRUE, eval=FALSE}
 library(caret)
 #specify the cross-validation method
 #fit a regression model and use LOOCV to evaluate performance
@@ -625,8 +610,6 @@ lm.ridgefitted <- predict(lm.ridge.1se, newx=cancer.dm)
 scatter.smooth(cancer$deathRate - lm.ridgefitted, x=lm.ridgefitted,
                xlab="Fitted", ylab="Residuals", 
                sub="Residuals vs Fitted for RIDGE Model")
-```
-```{r Ridge Loo A, eval=FALSE, cache=TRUE}
 # Leave-one-out cross-validation for RIDGE Regression
 # Calculate R-squared statistics
 # We also performed the same procedures for LASSO Regression
@@ -646,9 +629,7 @@ for (i in 1:n) {
   dev.ratios1[i] <- lm.ridge.1se$dev.ratio
 }
 mean(dev.ratios1)
-```
-
-```{r Ridge estimate A, eval=FALSE}
+##Produce column of table for coefficients table
 library(knitr)
 # This produces a table of parameter estimate for RIDGE model
 # We also produced similar table for LASSO model and combined these with the stepwise coefficients into a 'kable'
@@ -675,8 +656,6 @@ lm.lasso.cv$lambda.1se
 lm.lasso.1se <- glmnet(cancer.lasso.dm,cancer$deathRate,lambda = lm.lasso.cv$lambda.1se,alpha=1)
 lm.lasso.1se.fitted <- predict(lm.lasso.1se, newx=cancer.lasso.dm)
 lm.lasso.1se.residuals <- cancer$deathRate - lm.lasso.1se.fitted
-```
-```{r Lasso trace A, eval=FALSE}
 # Produce a plot that shows the trace of each parameter estimate for different lambda
 lm.lasso.scaled<-glmnet(scale(cancer.lasso.dm),cancer$deathRate,alpha=1)
 traceLogLambda(lm.lasso.scaled,lm.lasso.cv,ylim=c(-10,10), sub="LASSO trace against log(lambda)")
@@ -723,18 +702,11 @@ mergedf <- merge(states, averagedf, by="region")
 statenames <- data.frame(region=tolower(state.name), clong=state.center$x, clat=state.center$y)
 statenames <- merge(statenames, averagedf, by="region")
 statenames$lab <- paste(c(state.abb, 'DC')[match(statenames$region, c(tolower(state.name), 'District of Columbia'))], '\n', statenames$averageresidual, sep="")
-```
-
-```{R USMAP A, eval=FALSE, cache=TRUE}
+#Produce heatmap of average residual
 qplot(long, lat, data=mergedf, geom="polygon", fill=averageresidual, group=region) + 
   scale_fill_gradient(averageresidual,low="yellow",high="red") +
-  geom_text(data=statenames,aes(clong,clat,label=averageresidual,inherit.aes = FALSE,label.size=0.001)) +
-  theme(axis.line=element_blank(),axis.text.x=element_blank(),
-        axis.text.y=element_blank(),axis.ticks=element_blank(),
-        axis.title.x=element_blank(),
-        axis.title.y=element_blank(), legend.title = element_blank(),
-        panel.background=element_blank(),panel.border=element_blank(),panel.grid.major=element_blank(),
-        panel.grid.minor=element_blank(),plot.background=element_blank(),plot.title =element_text(hjust=0.5) ) +
-    ggtitle("Heatmap of Average Residuals of US States") 
+  geom_text(data=statenames,aes(clong,clat,label=statenames$lab,inherit.aes = FALSE,label.size=0.001)) +
+   theme_void() + theme(legend.title = element_blank(),plot.title = element_text(hjust = 0.5))+
+ + ggtitle("Heatmap of Average Residuals of US States") 
 ```
 \normalsize
