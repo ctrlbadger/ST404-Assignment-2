@@ -164,7 +164,7 @@ plot(lm(deathRate ~ .,data=cancer[-c(1,4)]),4)
 cancer <- filter(cancer, incidenceRate <= 850)
 ```
 
-### Transformations {#transformations}
+### Transformations {#transformations1}
 
 We transform Percent Black by first shifting the values upwards by 0.05, to ensure we have no zero values, then take a log transform. We also transform the Median Income by again taking a log transformation. We do these transformations to ensure the data is not heavily skewed and allow for a more accurate model. (See Appendix 2.1.3)
 
