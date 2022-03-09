@@ -78,6 +78,7 @@ We have discovered a few pairs or clusters of predictor variables that are highl
 
 While most predictor variables have absolute correlation coefficient roughly 0.3 to 0.4 with death rate, __Median Age Male__, __Median Age Female__ and __Average Household Size__ have almost zero correlation coefficient. We expect our model to not include these uncorrelated variables.
 
+
 ## Modelling Approach
 
 We used Stepwise Regression, RIDGE Regression and LASSO Regression to build our model. We compared the outputs and the variables selections of these models. We also analyse the goodness of fits of these models using Leave-one-out cross-validation, $R^2$ statistics and residuals analysis.
