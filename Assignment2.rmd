@@ -34,7 +34,7 @@ library(ggplot2)
 
 ## Key Findings
 
-Given our preferred model the most important predictors for cancer death rates for a given state were incidence rates, median income and private health care coverage. All predictors for the model are in the table below with the parameter estimate and a scaled model to show importance of predictors. This shows that `incidenceRate` and `log medianIncome` followed by `PctPrivateCoverage` have the largest influence over death rates. The table shows in the first row the model unscaled parameters and in the second the scaled model parameters, the larger the values the more the predictor affects death rates
+Given our preferred model the major determinants for cancer death rates for a given state were __Incidence Rate__, __Median Income__ and __Private Health Care Coverage__. All predictors for the model are in the table below with the parameter estimate and a scaled model to show the importance of predictors. This shows that __Incidence Rate__ and __Log(Median income)__ followed by __Percent Private Health Care Coverage__ have the largest influence over death rates. The table shows in the first row the model unscaled parameters and in the second the scaled model parameters, the larger the values the more the predictor affects death rates.
 
 ```{r, eval=FALSE, include=FALSE}
 lasso.coefs.tab <-cbind(lasso.coefs, lasso.scaled.coefs.ordered)
@@ -51,33 +51,46 @@ kable(t(lasso.coefs.tab[lasso.coefs.tab[, 1] != 0, ]), row.names=FALSE)
   #kable_styling(latex_options = "HOLD_position")
 ```
 
-
 Understandably cancer diagnoses are a key predictor for death rates, with an increase in the number of cancer diagnoses by 50 per 100,000 increasing cancer death rates by 10 per 100,000. This of course does not imply that there should be a policy to decrease cancer diagnoses. Increasing cancer diagnoses will lead to more people with cancer on death certificates even if cancer may not have been the primary cause of death. 
 Wealthier north western states have similar mean incidence rates to poorer south western states but much lower death rates showing that diagnoses are a good baseline additional predictors for poverty need to be included. 
 
-Due to the strong collinearity of many variables and thus our choice of regression method, we can not give a strong interpretation for keeping all but one variable the same and giving the associated change in death rates. An increased Death Rate is more likely if a county has a low median income, low private coverage, these though will be dependent on low employment and high unemployment percentages which may be because of a low education rate. Due to many variables explaining the same information about death rates the LASSO model reduces the complexity, for example even though Percent Public Coverage is correlated well with death rates it can be left out of the model as it is strongly correlated with both percent private coverage and employee provided coverage.
+Due to the strong collinearity of many variables and thus our choice of regression method, we can not give a strong interpretation for keeping all but one variable the same and giving the associated change in death rates. An increased death rate is more likely if a county has a low median income, low private coverage, these though will be dependent on low employment and high unemployment percentages which can be a result of a low education rate. Due to variables explaining the same amount of information about death rates the LASSO model reduces the complexity, for example even though Percent Public Coverage is correlated well with death rates it can be left out as it is strongly correlated with both percent private coverage and employee provided coverage.
+
 
 ## Summary of EDA
 
+In the previous EDA report we have explored the data set and we will perform data cleaning and variable transformations before constructing a linear model. 
+
 ### Missing/Incorrect Values and Outliers
 
-We identified 152 missing values in __Percent Employed 16 and Over__. As these values were Missing Completely at Random we imputed them back into our data set with a linear model. We also identified values in __Average Household Size__ that were unreasonably small. We believed this is an error in data entry and we scaled them by 100.
-For outliers, We removed 'Union County, Florida' and 'Williamsburg City, Virginia' because of there high __Incidence Rates__.
+We identified 152 missing values in __Percent Employed 16 and Over__. Since no pattern was observed, we deduced that these values are missing at random (MCAR). We used other complete data entries to calculate what we would expect these values to be and impute them back to our data set. We also identified values in __Average Household Size__ that are unreasonably small. We believed this is an error in data entry and we scaled them by 100 in order to make it reasonable.
+For outliers, We removed __Williamsburg City, Virginia__ because of its high incidence rate but low death rate, hence high influence to our model. 
 
 ### Transformations
 
-In order to fulfill the model assumptions, namely linearity, normality, and constant variance, we performed log transforms for two variables: __Median Income__ and __Percent Black__ which suffered the most among all variables. Although the transformations did not cure the problems, they result in improvements for both. For other variables, we deduced that they are sufficient for the model assumptions and hence did not perform any transformations for model simplicity.
+In order to fulfill the model assumptions, namely __Linearity__, __Independence__, __Homoscedasticity__, __Normality__, we performed log transforms for two variables: __Median Income__ and __Percent Black__ which suffered the most among all variables. Although the transformations did not cure the problems, they result in improvements in linearity and normality, reducing heteroscedasticity for both said variables. For other variables, we deduced that they are good enough to fulfill the model assumptions and hence did not perform any transformations for model simplicity.
+
+### Multicollinearity
+
+We have discovered a few pairs or clusters of predictor variables that are highly correlated with each other. The obvious ones are __Median Age Female__ and __Median Age Male__, __Percent Married__ and __Percent Married Households__, __Binned Income__ and __Median Income__. These variables measure the same force and hence at least one in the pairs are expected to be excluded in our modelling. 
+
+### Correlation with Death Rate
+
+While most predictor variables have absolute correlation coefficient roughly 0.3 to 0.4 with death rate, __Median Age Male__, __Median Age Female__ and __Average Household Size__ have almost zero correlation coefficient. We expect our model to not include these uncorrelated variables.
+
 
 ## Modelling Approach
 
-We used Stepwise Regression, RIDGE Regression and LASSO Regression to build our model. We compared the outputs and the variables selections of these models. We also analyse the goodness of fits of these models using Leave-one-out cross validation, $R^2$ statistics and residuals analysis.
-We did not include __Geography__ as it is an id variable. __Binned Income__ was not used in the model as more information was included in __Median Income__. 
+We used Stepwise Regression, RIDGE Regression and LASSO Regression to build our model. We compared the outputs and the variables selections of these models. We also analyse the goodness of fits of these models using Leave-one-out cross-validation, $R^2$ statistics and residuals analysis.
+We did not include __Geography__ and __Binned Income__ and we were using the __Log Percent Black__ and __Log Median Income__ in the following analysis.
 
 ### Stepwise Regression
 
-We used __Bayesian Information Criteria(BIC)__ in our analysis. This penalises additional parameters harder than __Akaike information criterion(AIC)__ which agrees with parsimony in our modelling. We performed forward, backward and hybrid stepwise regression to account for local minimums. In all of the models that were generated we notice that we have groups of parameters that are similar and hence induce multicollinearity in the models. For example, we see both __Percent Married__ and __Percent Married Households__ in the models and as stepwise methods do not account for multicollinearity this causes increases in the variance of our coefficient estimates and makes the model sensitive to changes, thus reducing drastically the predictive power of the model. In order to address the issue of multicollinearity we apply Ridge and Lasso techniques which account for this.
+We used __Bayesian Information Criteria(BIC)__ in our analysis. This penalises additional parameters harder than __Akaike information criterion(AIC)__ which agrees with parsimony in our modelling preference. We performed forward, backward and hybrid stepwise regression. In all of the models that were generated we notice that we have groups of parameters that are similar and hence induce multicollinearity in the models. For example, we see both __Percent Married__ and __Percent Married Households__ in the models and as stepwise methods do not account for multicollinearity this causes increases in the variance of our coefficient estimates and makes the model sensitive to changes, thus reducing drastically the predictive power of the model. In order to address the issue of multicollinearity we apply Ridge regression which deals with this problem.
 
-### RIDGE and LASSO Regression
+### RIDGE Regression
+
+### LASSO Regression
 
 The suggested model contains eight variables which is the simplest model among our approaches. Since the purpose of this report is to reveal patterns in the mortality rate, we believed it is best to choose a simple model for stronger explanatory power.
 
@@ -92,23 +105,20 @@ The Lasso model gives $R^2$ value of $0.4441$.
 
 The stepwise model fits the observed data the best among all our models. The Lasso and the Ridge model is similar in this sense.
 However, the Lasso model contains the least number of predictor variables and we believed this is the most important criterion.
-Thus from our analysis briefly outlined above and in the next section we recommend the LASSO model due to its mix of predictive and explanatory power as well as being a simple model.
+Thus from our analysis briefly outlined above and in the next section we recommend the following model, as seen below, due to its mix of predictive and explanatory power as well as being a simple model.
 
-## Limitations of Analysis
+$DeathRate = 470.47 + 0.23\ IncidenceRate - 0.25\ PctEmployed16\_Over\\ + 0.029\ PctUnemployed16\_Over- 0.32\ PctPrivateCoverage + 0.21\ PctEmpPrivCoverage - 10.06\ Edu18\_24 + 0.90\ log(PctBlack) - 32.34\ log(MedianIncome)$
 
-One limitation of using LASSO regression is that it does not completely handle the problem of multicollinearity, however it reduces the multicollinearity present in the modelby a large amount. Often it selects one feature from a group of correlated features, which happens arbitrarily in nature. In our model, this happens on the three health care coverage variables, where Percent Public Coverage was dropped. However, in our case, this is not a severe problem as we focus more on the explanatory power than the predictive power. LASSO regression reduces our model to 8 predictor variables and this leads to a loss of predictive power. At the same time, the log transformed variables are difficult to interpret.
+### Limitations
+
+One limitation of LASSO regression is that it does not completely handle the problem of multicollinearity, however it reduces the multicollinearity present in the model by a large amount. Often it selects one feature from a group of correlated features. In our model, this happens on the three health care coverage variables, where Percent Public Coverage was dropped. However, in our case, this is not a severe problem as we focus more on the explanatory power than the predictive power. LASSO regression reduces our model to 8 predictor variables and this leads to a loss of predictive power. At the same time, the log transformed variables are difficult to interpret.
 
 Another issue is that LASSO models are difficult to diagnose. Unlike stepwise regressions, it is difficult to produce hypothesis tests to check the statistical significance of the predictors. 
 
-## Further Improvements to the Model
-
-In order to develop this model in the future and improve its capabilities we make the following suggestions. For a more complex model with a large number of predictors including the state as a variable will mean each state's unique qualities can be considered by this coefficient, but will greatly increase the complexity of the model. Another improvement is to add different health coverage costs for different states, as for example a low income state with cheap private insurance is likely to also have low death rates, but the model does not account for this.
-
-
 ## Areas that do not conform the general pattern
 
-Similarly, we see from the average residual map that in particular the 3 states Utah (Average of -22), Idaho (Average of -19) and Colorado (Average of -18) all have high residual averages and as they are negative this implies that the model is overfitting for these states and thus these states don't conform to the general pattern. However, as the model if overfitting and we are estimating death rate this isnt a cause for concern as we know the average death rates for these states is highly likely to be lower than what the model predicts. It is also important to note that these all lie in a similar region and in general we see that the majority of states on the west coast have an average negative residual, so the model overfits for these states, whereas on the east coast and central we see positive average residuals, the model is underfitting these states. With the main states of concern for overfitting with an average residual of 14 each for Oklahoma and Arkansas and an average of 13 in the District of Columbia.
- 
+Similarly, we see from the average residual map that in particular the 3 states __Utah__ (Average of -22), __Idaho__ (Average of -19) and __Colorado__ (Average of -18) all have high residual averages and as they are negative this implies that the model is overfitting for these states and thus these states don't conform to the general pattern. However, as the model if overfitting and we are estimating death rate this isnt a cause for concern as we know the average death rates for these states is highly likely to be lower than what the model predicts. It is also important to note that these all lie in a similar region and in general we see that the majority of states on the west coast have an average negative residual, so the model overfits for these states, whereas on the east coast and central we see positive average residuals, the model is underfitting these states. With the main states of concern for overfitting with an average residual of 14 each for __Oklahoma__ and __Arkansas__ and an average of 13 in __the District of Columbia__.
+
 \pagebreak 
 
 # Statistical Methodology
@@ -133,7 +143,7 @@ imputed = predict(mod1,missdf)
 cancer[which(is.na(cancer$PctEmployed16_Over)==TRUE),"PctEmployed16_Over"] = imputed
 ```
 
-For counties with Average Household Size less than one we took the decision to scale these values by 100 and kept them in the data set. This fixed the normality of Average Household Sizee as shown in the histogram.
+For counties with Average Household Size less than one we took the decision to scale the transformations by 100 and kept them in the data set. This fixed the normality of Average Household Sizee as shown in the histogram.
 
 ```{r averageHouseholdSize, echo=FALSE,fig.cap="Histograms before(Left) and after(Right)", fig.asp=0.5}
 # Scale average household sizes that are less than 1 by 100
@@ -146,7 +156,7 @@ hist(cancer$AvgHouseholdSize, breaks=30, xlab="AvgHouseholdSize", main="Histogra
 
 ### Outliers {#outliers}
 
-We found counties with high incidence rates, namely __Union County, Florida__ and __Williamsburg City, Virginia__. We looked into the cook's distance plots (Fig.2) and noticed only 'Williamsburg City, Virginia' has large cook's distance and hence influential. The first cook's distance plot used a linear model with only incidenceRate as the predictor variable. The second used all the numerical variables. We concluded although __Union County, Florida__ has high leverage, it is not influential and hence should be kept in our data set.
+Counties with high incidence rates, namely __Union County, Florida__ and __Williamsburg City, Virginia__. We looked into the cook's distance plots (Fig.2) and noticed only 'Williamsburg City, Virginia' has large cook's distance and hence influential. The first cook's distance plot used a linear model with only incidenceRate as the predictor variable. The second used all the numerical variables. We concluded although __Union County, Florida__ has high leverage, it is not influential and hence should be kept in our data set.
 (See Appendix 2.1.2)
 
 ```{r incidenceRateRemoval, echo=FALSE, fig.asp=0.5, fig.cap="Cook's distance plots of models with only incidence Rate(Left) and all variables(Right)"}
@@ -181,7 +191,7 @@ plot(lm(deathRate~logpctblack,data=cancer),1)
 
 ### AIC and BIC Forward and Backward Variable Selection
 
-We performed forward, backward and hybrid stepwise regression according to BIC to ensure a more parsimonious model. We saw that the models generated for BIC are the same. It has 11 variables and the estimates are shown in Table 1.
+We performed forward, backward and hybrid stepwise regression according to BIC to ensure a more parsimonious model. We saw that the models generated for BIC are all the same. It has 11 variables and the estimates are shown in Table 1.
 
 ```{r stepwise, include=FALSE}
 # Below we perform stepwise regression for both AIC and BIC
@@ -205,9 +215,9 @@ For the model generated we can see from the summary output (See Appendix 5.2.1),
 summary(hybridoptimalBIC)
 ```
 
-We computed the Variance Inflation Factors (VIF) for this model and found that there are numerous values that are at least 5 indicating multicollinearity in the predictors. In particular, we saw a VIF of at least 10 in Percent Married and a VIF of 8 in Percent Married Households. As well as in log(Median Income), Percent Employed 16 and Over, Percent Employers Private Coverage and Percent Private Coverage. Due to this frequent multicollinearity between the predictors in the stepwise model, the stepwise model is not a suitable approach as multicollinearity was not taken into account and thus we proceeded with Ridge and Lasso Regression in the following sections, hoping for a model with reduced multicollinearity.
+We computed the Variance Inflation Factors (VIF) for this model and found that there are numerous values that are at least 5 indicating multicollinearity in the predictor variables. In particular, we saw a VIF of at least 10 in Percent Married and a VIF of 8 in Percent Married Households. As well as in log(Median Income), Percent Employed 16 and Over, Percent Employers Private Coverage and Percent Private Coverage. Due to this frequent multicollinearity between the predictors in the stepwise model, the stepwise model is not a suitable approach as multicollinearity was not taken into account and thus we proceeded with Ridge Regression and Lasso Regression in the following sections, hoping for a model with reduced multicollinearity.
 
-To complete the section on stepwise regression we performed leave-one-out cross-validation (in order to compute the $R^2$ of the stepwise models and also the Root Mean Squared Error (See Appendix 5.2.1)). This allowed us to compare these models with the Ridge and Lasso models we generate in the enxt sections. Performing this we see in the stepwise model that we have an $R^2$ value of 0.4623.
+To complete the section on stepwise regression we performed leave-one-out cross-validation (in order to compute the $R^2$ of the stepwise models and also the Root Mean Squared Error (See Appendix 5.2.1). This allowed us to compare these models with the Ridge and Lasso models we generate in the enxt sections. Performing this we see in the stepwise model we have an $R^2$ value of 0.4623.
 
 ```{r LOOCVforStepwise, cache=TRUE, include=FALSE}
 library(caret)
@@ -225,9 +235,9 @@ hybridoptimalBIC.loocv <- loocv(hybridoptimalBIC,data=cancermodel)
 
 ### RIDGE Regression
 
-To address the multicollinearity present in the data we assessed the viability of a Ridge Regression Model. For this we fitted all continuous variables as predictors using the `glmnet` package. 
+To address the multicollinearity present in the data we assessed the viability of a Ridge Regression Model. For this we fitted all continuous variables as predictors using the `glmnet` library. 
 
-The trace plot shows that the Ridge penalisation method reduced many variables close to 0 but did not remove any variables from the model itself suggesting that these predictors are insignificant when it comes to prediction. (See Apendix 5.2.2)
+The trace plot shows that the Ridge penalisation method reduced many variables close to 0 but did not remove any variables from the model itself. (See Apendix 5.2.2)
 
 ```{r Ridge 1, include=FALSE}
 library(glmnet)
@@ -315,7 +325,7 @@ rownames(a) <- rownames(round(coef(lm.ridge.1se), 3))
 
 \normalsize
 
-Performing a leave-one-out cross-validation gives an $R^2$ statistic of $0.4438$. Which is similar to the previous stepwise regression method and is more difficult to diagnose. Moreover, the Ridge model kept all variables which made a complex model which is against our preference of parsimony. Therefore we concluded that the Ridge regression is not a suitable model.
+Performing a leave-one-out cross-validation gives an $R^2$ statistic of $0.4438$. Which is similar to the previous stepwise regression method and is more difficult to diagnose. Moreover, the Ridge model kept all variables which made a complex model which is against our preference on parsimony. Therefore we concluded that the Ridge regression is not a suitable model.
 
 ### LASSO Regression 
 
@@ -328,7 +338,8 @@ cancer.lasso.dm <- cancer %>%
   data.matrix()
 ```
 
-We used cross-validation from the glmnet library which leaves out a 10th of the data every time. We produced the following plot (Fig. 4) of mean-squared error against log(lambda). We decided to use the 1-standard-error-lambda because this likely to shrink some predictor variables to zero, performing variable selection. We prefer a simpler model. (See Appendix 5.2.3)
+We used cross-validation from the glmnet library which leaves out a 10th of the data every time.
+We produced the following plot (Fig. 4)of mean-squared error against log(lambda). We decided to use the 1-standard-error-lambda because this likely to shrink some predictor variables to zero, performing variable selection. We prefer a simpler model. (See Appendix 5.2.3)
 
 ```{r Lasso cv, echo=FALSE, fig.asp=0.5, fig.cap="Mean-squared error against log(lambda)", message=FALSE,warning=FALSE}
 set.seed((934))
@@ -344,7 +355,8 @@ lm.lasso.1se.fitted <- predict(lm.lasso.1se, newx=cancer.lasso.dm)
 lm.lasso.1se.residuals <- cancer$deathRate - lm.lasso.1se.fitted
 ```
 
-We produced a plot (Fig.5) that shows a trace of each parameter estimate for different values of log(lambda). We scaled the model for a better visual interpretation.
+We produced a plot (Fig.5) that shows a trace of each parameter estimate for different values of log(lambda). 
+We scaled the model for a better visual interpretation.
 
 ```{r Lasso trace, echo=FALSE, fig.cap="Trace of parameter estimates for different lambda",fig.asp=0.5, message=FALSE,warning=FALSE}
 lm.lasso.scaled<-glmnet(scale(cancer.lasso.dm),cancer$deathRate,alpha=1)
@@ -367,7 +379,8 @@ kable(y, caption="Parameter Estimates of the Models")
 
 ### Interpretation
 
-From the estimates output above, the Lasso regression eliminates a considerable number of predictor variables. The Lasso regression model has the following non-zero predictor estimates: __Incidence Rate__, __Percent Employed 16 and Over__, __Percent Private Coverage__,  __Percent Employer Provided Private Coverage__, __Education Levels__, __Log of Percent Black__, __Log of Median Income__.
+From the estimates output above, the Lasso regression eliminates a considerable number of predictor variables. The Lasso regression model has the following non-zero predictor estimates: __Incidence Rate__, __Percent Employed 16 and Over__, __Percent Private Coverage__,  __Percent Employer Provided Private Coverage__, __Education Levels__, __Log of Percent Black__,
+__Log of Median Income__.
 
 The two age variables and Average Household Size were removed from the model. This agreed with our EDA which showed that they have almost no correlation with death rate.
 Both employment variables and two out of three healthcare coverage variables are included in this model. We believe this is reasonable because although they showed evidence of collinearity/multicollinearity, we did not have strong arguments to remove any of them. Therefore, we agreed with the variable selection suggested by the Lasso Regression.
@@ -457,7 +470,7 @@ mrp <- multResidualPlot(residual.list, fitted.list,
 mrp
 ```
 
-We see from the plot above that all three models appear to exhibit constant variance with an even spread of points as well as having a mean of zero with the distributions symmetrical about zero. Thus satisfying our key linear regression assumptions of homeoscedasticity and residuals having a mean of zero and thus providing further evidence that the LASSO model is a suitable model with respect to its residuals.
+We see from the plot above that all three models appear to exhibit constant variance with an even spread of points as well as having a mean of zero with the distributions symmetrical about zero. Thus satisfying our key linear regression assumptions of homeoscedasticity and residuals having a mean of zero.
 
 ```{r ResidualPlot 2, eval=FALSE, include=FALSE}
 library(plotly)
@@ -465,7 +478,7 @@ library(plotly)
 ggplotly(mrp)
 ```
 
-We also produced a heatmap of the US according to the average residual for each state to identify if there were any states/regions that did not conform to the general pattern of our model. As we can see and as highlighted in our findings we do see regions that do not conform and in general we see states further west are being overfitted by the model e.g. Utah, Idaho and Colorado all with high negative average residuals of -22, -19 and -18 respectively. We also see the central states being underfitted by the model for states such as Oklahoma and Arkansas with average residuals of 14 and 13 respectively. However, in general we see that the model fits the data relatively well with no large residuals other than those pointed out above and again gives us further evidence on the predictive and explanatory power of the LASSO model.
+Produce map of each states average residual value for the LASSO model.
 
 ```{r Average, include=FALSE}
 cancermodel2 = separate(cancer,"Geography",into=c("County","State"),sep=",")
