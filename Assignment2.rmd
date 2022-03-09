@@ -705,10 +705,9 @@ statenames <- data.frame(region=tolower(state.name), clong=state.center$x, clat=
 statenames <- merge(statenames, averagedf, by="region")
 statenames$lab <- paste(c(state.abb, 'DC')[match(statenames$region, c(tolower(state.name), 'District of Columbia'))], '\n', statenames$averageresidual, sep="")
 #Produce heatmap of average residual
-qplot(long, lat, data=mergedf, geom="polygon", fill=averageresidual, group=region) +
-  scale_fill_gradient(averageresidual,low="yellow",high="red") +
-  geom_text(data=statenames,aes(clong,clat,label=statenames$lab,inherit.aes = FALSE,label.size=0.001)) +
-   theme_void() + theme(legend.title = element_blank(),plot.title = element_text(hjust = 0.5))
- + ggtitle("Heatmap of Average Residuals of US States")
+ggplot(data=mergedf) + geom_polygon(aes(x=long, y=lat, fill=averageresidual, group=region)) +
+  scale_fill_gradient(low="yellow",high="red", name="Residual") +
+  geom_text(data=statenames,aes(clong,clat,label=lab,inherit.aes = FALSE,label.size=0.001)) +
+   theme_void() + theme(plot.title = element_text(hjust = 0.5))
 ```
 \normalsize
