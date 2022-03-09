@@ -79,6 +79,7 @@ We used __Bayesian Information Criteria(BIC)__ in our analysis. This penalises a
 
 ### RIDGE and LASSO Regression
 
+Since we are focusing on the explanatory power of the model, Ridge regression which keeps all variables is not ideal. Thus we turned our focus to Lasso, which gives a more parsimonious model.
 The suggested model contains eight variables which is the simplest model among our approaches. Since the purpose of this report is to reveal patterns in the mortality rate, we believed it is best to choose a simple model for stronger explanatory power.
 
 ### Final Model Choice and Diagnostics
