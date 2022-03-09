@@ -4,7 +4,7 @@ author: "Frank Or, Remos Gong, Sam Glanfield, Thomas Broadbent"
 date: "`r Sys.Date()`"
 output:
   bookdown::pdf_document2: default
-  pdf_document: 
+  pdf_document:
     number_sections: true
 fontsize: 11pt
 linestretch: 1.5
@@ -28,7 +28,7 @@ library(glmnet)
 library(ggplot2)
 ```
 
-\pagebreak 
+\pagebreak
 
 # Findings
 
@@ -45,15 +45,15 @@ save(lasso.coefs.tab, file="lasso.coefs.tab.rdata")
 ```{r, echo=FALSE, fig.pos='H', fig.cap="LASSO Model"}
 load(file="lasso.coefs.tab.rdata")
 kable(t(lasso.coefs.tab[lasso.coefs.tab[, 1] != 0, ]), row.names=FALSE)
-      # caption = "LASSO Death Rate Model Coefficients, 
-      # (TOP) Non-Scaled, (BOTTOM) Scaled") 
-#%>% 
+      # caption = "LASSO Death Rate Model Coefficients,
+      # (TOP) Non-Scaled, (BOTTOM) Scaled")
+#%>%
   #kable_styling(latex_options = "HOLD_position")
 ```
 
 
-Understandably cancer diagnoses are a key predictor for death rates, with an increase in the number of cancer diagnoses by 50 per 100,000 increasing cancer death rates by 10 per 100,000. This of course does not imply that there should be a policy to decrease cancer diagnoses. Increasing cancer diagnoses will lead to more people with cancer on death certificates even if cancer may not have been the primary cause of death. 
-Wealthier north western states have similar mean incidence rates to poorer south western states but much lower death rates showing that diagnoses are a good baseline additional predictors for poverty need to be included. 
+Understandably cancer diagnoses are a key predictor for death rates, with an increase in the number of cancer diagnoses by 50 per 100,000 increasing cancer death rates by 10 per 100,000. This of course does not imply that there should be a policy to decrease cancer diagnoses. Increasing cancer diagnoses will lead to more people with cancer on death certificates even if cancer may not have been the primary cause of death.
+Wealthier north western states have similar mean incidence rates to poorer south western states but much lower death rates showing that diagnoses are a good baseline additional predictors for poverty need to be included.
 
 Due to the strong collinearity of many variables and thus our choice of regression method, we can not give a strong interpretation for keeping all but one variable the same and giving the associated change in death rates. An increased Death Rate is more likely if a county has a low median income, low private coverage, these though will be dependent on low employment and high unemployment percentages which may be because of a low education rate. Due to many variables explaining the same information about death rates the LASSO model reduces the complexity, for example even though Percent Public Coverage is correlated well with death rates it can be left out of the model as it is strongly correlated with both percent private coverage and employee provided coverage.
 
@@ -71,7 +71,7 @@ In order to fulfill the model assumptions, namely linearity, normality, and cons
 ## Modelling Approach
 
 We used Stepwise Regression, RIDGE Regression and LASSO Regression to build our model. We compared the outputs and the variables selections of these models. We also analyse the goodness of fits of these models using Leave-one-out cross validation, $R^2$ statistics and residuals analysis.
-We did not include __Geography__ as it is an id variable. __Binned Income__ was not used in the model as more information was included in __Median Income__. 
+We did not include __Geography__ as it is an id variable. __Binned Income__ was not used in the model as more information was included in __Median Income__.
 
 ### Stepwise Regression
 
@@ -80,7 +80,7 @@ We used __Bayesian Information Criteria(BIC)__ in our analysis. This penalises a
 ### RIDGE and LASSO Regression
 
 Since we are focusing on the explanatory power of the model, Ridge regression which keeps all variables is not ideal. Thus we turned our focus to Lasso, which gives a more parsimonious model.
-The suggested model contains eight variables which is the simplest model among our approaches. Since the purpose of this report is to reveal patterns in the mortality rate, we believed it is best to choose a simple model for stronger explanatory power.
+The suggested model contains eight variables which is the simplest model among our approaches. As the purpose of this report is to reveal patterns in the mortality rate, we believed it is best to choose a simple model for stronger explanatory power.
 
 ### Final Model Choice and Diagnostics
 
@@ -99,7 +99,7 @@ Thus from our analysis briefly outlined above and in the next section we recomme
 
 One limitation of using LASSO regression is that it does not completely handle the problem of multicollinearity, however it reduces the multicollinearity present in the modelby a large amount. Often it selects one feature from a group of correlated features, which happens arbitrarily in nature. In our model, this happens on the three health care coverage variables, where Percent Public Coverage was dropped. However, in our case, this is not a severe problem as we focus more on the explanatory power than the predictive power. LASSO regression reduces our model to 8 predictor variables and this leads to a loss of predictive power. At the same time, the log transformed variables are difficult to interpret.
 
-Another issue is that LASSO models are difficult to diagnose. Unlike stepwise regressions, it is difficult to produce hypothesis tests to check the statistical significance of the predictors. 
+Another issue is that LASSO models are difficult to diagnose. Unlike stepwise regressions, it is difficult to produce hypothesis tests to check the statistical significance of the predictors.
 
 ## Further Improvements to the Model
 
@@ -108,12 +108,11 @@ In order to develop this model in the future and improve its capabilities we mak
 
 ## Areas that do not conform the general pattern
 
-Below we a heatmap of the average residuals according to our model where we have illustrated the average performance of our model in each state. For states that are yellow and have a negative quantity the model is overfitting and predicitng a higher death rate than what was observed, whereas the red states the model is underfitting and thus predicitng a lower quantity than the death rate we observed. We aim to have the average residual for each state close to 0. We further analyse this in section 2.3..
+Below we a heatmap of the average residuals according to our model where we have illustrated the average performance of our model in each state. For states that are yellow and have a negative quantity the model is overfitting and predicitng a higher death rate than what was observed, whereas the red states the model is underfitting and thus predicitng a lower quantity than the death rate we observed. We aim to have the average residual for each state close to 0. We further analyse this in section 2.3.
 
 ![Residuals Map of US](map.png)
 
-
-\pagebreak 
+\pagebreak
 
 # Statistical Methodology
 
@@ -127,7 +126,7 @@ load('cancer.rdata')
 
 ### Missing Or Incorrect Values
 
-We saw counties with missing values in Percentage Employed 16 and Over and we concluded that the data is Missing Completely at Random. In order to rectify this we impute this data by fitting a linear regression model of Percentage Employed 16 and Over on the remaining variables to estimate what these values would be. (See Appendix 2.1.1). 
+We saw counties with missing values in Percentage Employed 16 and Over and we concluded that the data is Missing Completely at Random. In order to rectify this we impute this data by fitting a linear regression model of Percentage Employed 16 and Over on the remaining variables to estimate what these values would be. (See Appendix 5.1.1).
 
 ```{r impute, include=FALSE}
 # Impute the missing data seen in the data set
@@ -143,7 +142,7 @@ For counties with Average Household Size less than one we took the decision to s
 # Scale average household sizes that are less than 1 by 100
 par(mfrow=c(1,2))
 hist(cancer$AvgHouseholdSize, breaks=30, xlab="AvgHouseholdSize", main="Histogram of AvgHouseholdSize")
-cancer[which(cancer$AvgHouseholdSize < 1), ]$AvgHouseholdSize <- 
+cancer[which(cancer$AvgHouseholdSize < 1), ]$AvgHouseholdSize <-
   100*cancer[which(cancer$AvgHouseholdSize < 1), ]$AvgHouseholdSize
 hist(cancer$AvgHouseholdSize, breaks=30, xlab="AvgHouseholdSize", main="Histogram of AvgHouseholdSize")
 ```
@@ -151,7 +150,7 @@ hist(cancer$AvgHouseholdSize, breaks=30, xlab="AvgHouseholdSize", main="Histogra
 ### Outliers {#outliers}
 
 We found counties with high incidence rates, namely __Union County, Florida__ and __Williamsburg City, Virginia__. We looked into the cook's distance plots (Fig.2) and noticed only 'Williamsburg City, Virginia' has large cook's distance and hence influential. The first cook's distance plot used a linear model with only incidenceRate as the predictor variable. The second used all the numerical variables. We concluded although __Union County, Florida__ has high leverage, it is not influential and hence should be kept in our data set.
-(See Appendix 2.1.2)
+
 
 ```{r incidenceRateRemoval, echo=FALSE, fig.asp=0.5, fig.cap="Cook's distance plots of models with only incidence Rate(Left) and all variables(Right)"}
 # Cook's distance Plot
@@ -164,7 +163,7 @@ cancer <- filter(cancer, incidenceRate <= 850)
 
 ### Transformations {#transformations1}
 
-We transformed Percent Black by first shifting the values upwards by 0.05, to ensure we have no zero values, then take a log transform. We also transformed Median Income by again taking a log transformation. We performed these transformations to ensure the data was not heavily skewed and allowed for a more accurate model. (See Appendix 2.1.3)
+We transformed Percent Black by first shifting the values upwards by 0.05, to ensure we have no zero values, then take a log transform. We also transformed Median Income by again taking a log transformation. We performed these transformations to ensure the data was not heavily skewed and allowed for a more accurate model. (See Appendix 5.1.3)
 
 ```{r transformationsaaaa, include=FALSE}
 # Log transforming the heavily skewed distributions of PctBlack and medIncome
@@ -211,7 +210,7 @@ summary(hybridoptimalBIC)
 
 We computed the Variance Inflation Factors (VIF) for this model and found that there are numerous values that are at least 5 indicating multicollinearity in the predictors. In particular, we saw a VIF of at least 10 in Percent Married and a VIF of 8 in Percent Married Households. As well as in log(Median Income), Percent Employed 16 and Over, Percent Employers Private Coverage and Percent Private Coverage. Due to this frequent multicollinearity between the predictors in the stepwise model, the stepwise model is not a suitable approach as multicollinearity was not taken into account and thus we proceeded with Ridge and Lasso Regression in the following sections, hoping for a model with reduced multicollinearity.
 
-To complete the section on stepwise regression we performed leave-one-out cross-validation (in order to compute the $R^2$ of the stepwise models and also the Root Mean Squared Error (See Appendix 5.2.1)). This allowed us to compare these models with the Ridge and Lasso models we generate in the enxt sections. Performing this we see in the stepwise model that we have an $R^2$ value of 0.4623.
+To complete the section on stepwise regression we performed leave-one-out cross-validation (in order to compute the $R^2$ of the stepwise models and also the Root Mean Squared Error (See Appendix 5.2.1). This allowed us to compare these models with the Ridge and Lasso models we generate in the enxt sections. Performing this we see in the stepwise model that we have an $R^2$ value of 0.4623.
 
 ```{r LOOCVforStepwise, cache=TRUE, include=FALSE}
 library(caret)
@@ -229,7 +228,7 @@ hybridoptimalBIC.loocv <- loocv(hybridoptimalBIC,data=cancermodel)
 
 ### RIDGE Regression
 
-To address the multicollinearity present in the data we assessed the viability of a Ridge Regression Model. For this we fitted all continuous variables as predictors using the `glmnet` package. 
+To address the multicollinearity present in the data we assessed the viability of a Ridge Regression Model. For this we fitted all continuous variables as predictors using the `glmnet` package.
 
 The trace plot shows that the Ridge penalisation method reduced many variables close to 0 but did not remove any variables from the model itself suggesting that these predictors are insignificant when it comes to prediction. (See Apendix 5.2.2)
 
@@ -237,7 +236,7 @@ The trace plot shows that the Ridge penalisation method reduced many variables c
 library(glmnet)
 
 # Create Data Matrix
-cancer.dm <- cancer %>% 
+cancer.dm <- cancer %>%
   select(!c("Geography", "medIncome", "binnedInc", "PctBlack", "deathRate")) %>%
   data.matrix()
 
@@ -251,18 +250,18 @@ traceLogLambda <- function(lm1, lm1.cv, ylim=NULL, sub=NULL) {
   abline(v=log(lm1.cv$lambda.min),col="blue")
   legend("bottomright",legend=c("Minimum lambda", "1 standard error larger lambda"),lty=c(1,1),col=c("blue","red"), ins=0.05)
   title(sub=sub)
-  
+
 }
 
 traceLogLambda(lm.ridge, lm.ridge.cv, ylim=c(-20, 1), sub="RIDGE trace against log(lambda)")
 
-lm.ridge.1se <- glmnet(cancer.dm, cancer$deathRate, alpha = 0, 
+lm.ridge.1se <- glmnet(cancer.dm, cancer$deathRate, alpha = 0,
                lambda = lm.ridge.cv$lambda.1se)
 
 
 lm.ridgefitted <- predict(lm.ridge.1se, newx=cancer.dm)
 scatter.smooth(cancer$deathRate - lm.ridgefitted, x=lm.ridgefitted,
-               xlab="Fitted", ylab="Residuals", 
+               xlab="Fitted", ylab="Residuals",
                sub="Residuals vs Fitted for RIDGE Model")
 ```
 
@@ -274,7 +273,7 @@ library(parallel)
 library(foreach)
 library(doParallel)
 numCores <- detectCores()
-registerDoParallel(numCores) 
+registerDoParallel(numCores)
 
 n <- dim(cancer)[1]
 dev.ratios <- rep(NA, n)
@@ -284,14 +283,14 @@ lm.ridge.cv <- cv.glmnet(cancer.dm, cancer$deathRate, alpha=0, nfolds=n, paralle
 lm.ridge.cv$lambda.1se
 
 for (i in 1:n) {
-  lm.ridge.1se <- glmnet(cancer.dm[-i,], cancer$deathRate[-i], alpha = 0, 
+  lm.ridge.1se <- glmnet(cancer.dm[-i,], cancer$deathRate[-i], alpha = 0,
                lambda = lm.ridge.cv$lambda.1se)
-  
-  
+
+
   dev.ratios1[i] <- lm.ridge.1se$dev.ratio
   # lm.residuals <- predict(lm.ridge.1se, newx=cancer.dm[-i, ]) - cancer$deathRate[-i]
-  # dev.ratios[i] <- 1 - sum(lm.residuals^2)/sum((cancer$deathRate[-i] -mean(cancer$deathRate[-i]))^2) 
-  
+  # dev.ratios[i] <- 1 - sum(lm.residuals^2)/sum((cancer$deathRate[-i] -mean(cancer$deathRate[-i]))^2)
+
 }
 mean(dev.ratios1)
 
@@ -321,7 +320,7 @@ rownames(a) <- rownames(round(coef(lm.ridge.1se), 3))
 
 Performing a leave-one-out cross-validation gives an $R^2$ statistic of $0.4438$. Which is similar to the previous stepwise regression method and is more difficult to diagnose. Moreover, the Ridge model kept all variables which made a complex model which is against our preference of parsimony. Therefore we concluded that the Ridge regression is not a suitable model.
 
-### LASSO Regression 
+### LASSO Regression
 
 ```{r Lasso data cleaning,echo=FALSE}
 # cancer.lasso.dm <- cancer %>%
@@ -380,10 +379,10 @@ The most important predictors are those with the largest scaled coefficient esti
 The only other scaled coefficient larger than 0.1 in magnitude is the proportion of private coverage (-0.130). This makes sense along the same reasoning as for median income, but the estimate is also somewhat influenced by collinearity with median income.
 
 We calculated the $R^2$ statistics using leave-one-out cross-validation which is 0.4441.
- 
+
 ```{r LASSO_RMSE, include=FALSE, cache=TRUE}
 numCores <- detectCores()
-registerDoParallel(numCores) 
+registerDoParallel(numCores)
 
 n <- dim(cancer)[1]
 lasso.dev.ratios <- rep(NA, n)
@@ -393,25 +392,25 @@ lm.lasso.cv <- cv.glmnet(cancer.lasso.dm, cancer$deathRate, alpha=0, nfolds=n, p
 lm.lasso.cv$lambda.1se
 
 for (i in 1:n) {
-  lm.lasso.1se <- glmnet(cancer.dm[-i,], cancer$deathRate[-i], alpha = 0, 
+  lm.lasso.1se <- glmnet(cancer.dm[-i,], cancer$deathRate[-i], alpha = 0,
                lambda = lm.lasso.cv$lambda.1se)
-  
-  
+
+
   lasso.dev.ratios1[i] <- lm.ridge.1se$dev.ratio
   # lm.residuals <- predict(lm.ridge.1se, newx=cancer.dm[-i, ]) - cancer$deathRate[-i]
-  # dev.ratios[i] <- 1 - sum(lm.residuals^2)/sum((cancer$deathRate[-i] -mean(cancer$deathRate[-i]))^2) 
-  
+  # dev.ratios[i] <- 1 - sum(lm.residuals^2)/sum((cancer$deathRate[-i] -mean(cancer$deathRate[-i]))^2)
+
 }
 mean(lasso.dev.ratios1)
 
 for (i in 1:n) {
-  lm.lasso.min <- glmnet(cancer.dm[-i,], cancer$deathRate[-i], alpha = 0, 
+  lm.lasso.min <- glmnet(cancer.dm[-i,], cancer$deathRate[-i], alpha = 0,
                lambda = lm.lasso.cv$lambda.min)
-  
+
   lasso.dev.ratios1[i] <- lm.ridge.1se$dev.ratio
   # lm.residuals <- predict(lm.ridge.1se, newx=cancer.dm[-i, ]) - cancer$deathRate[-i]
-  # dev.ratios[i] <- 1 - sum(lm.residuals^2)/sum((cancer$deathRate[-i] -mean(cancer$deathRate[-i]))^2) 
-  
+  # dev.ratios[i] <- 1 - sum(lm.residuals^2)/sum((cancer$deathRate[-i] -mean(cancer$deathRate[-i]))^2)
+
 }
 mean(lasso.dev.ratios1)
 ```
@@ -425,20 +424,20 @@ mean(lasso.dev.ratios1)
 library(ggplot2)
 
 multResidualPlot <- function(residual.list, fitted.list, models) {
-  
-  
+
+
   # a <- data.frame(x=fitted.list[[1]], y=residual.list[[1]], col=rep('blue', times=length(fitted.list[[1]])))
   a <- data.frame()
   for (i in 1:length(models)) {
-    x <- fitted.list[[i]] 
+    x <- fitted.list[[i]]
     y <- residual.list[[i]]
     model <- rep(models[i], times=length(x))
-    
+
     df.temp <- data.frame(x, y, model)
     colnames(df.temp) <- c("x", "y", "model")
     a <- rbind(a, df.temp)
   }
-  mrp <- ggplot(a, aes(x=x, y=y, colour=model)) + 
+  mrp <- ggplot(a, aes(x=x, y=y, colour=model)) +
     geom_point(alpha=0.3, size=0.75) + geom_smooth() +
     labs(x="Fitted Values", y="Residuals", title="Residuals vs Fitted Values", model="Models")
   return(mrp)
@@ -485,18 +484,18 @@ statenames$lab <- paste(c(state.abb, 'DC')[match(statenames$region, c(tolower(st
 ```
 
 ```{R USMAP, cache=TRUE, eval=FALSE}
-ggplot(data=mergedf) + geom_polygon(aes(x=long, y=lat, fill=averageresidual, group=region)) + 
+ggplot(data=mergedf) + geom_polygon(aes(x=long, y=lat, fill=averageresidual, group=region)) +
   scale_fill_gradient(low="yellow",high="red", name="Residual") +
   geom_text(data=statenames,aes(clong,clat,label=lab,inherit.aes = FALSE,label.size=0.001)) +
-   theme_void() + theme(plot.title = element_text(hjust = 0.5)) 
-#+ ggtitle("Heatmap of Average Residuals of US States") 
+   theme_void() + theme(plot.title = element_text(hjust = 0.5))
+#+ ggtitle("Heatmap of Average Residuals of US States")
 ```
 
 \pagebreak
 
 # Author Contributions
 
-# References 
+# References
 
 <div id="refs"></div>
 
@@ -518,7 +517,7 @@ missdf = cancer[which(is.na(cancer$PctEmployed16_Over)==TRUE),]
 imputed = predict(mod1,missdf)
 cancer[which(is.na(cancer$PctEmployed16_Over)==TRUE),"PctEmployed16_Over"] = imputed
 # Scale average household sizes that are less than 1 by 100
-cancer[which(cancer$AvgHouseholdSize < 1), ]$AvgHouseholdSize <- 
+cancer[which(cancer$AvgHouseholdSize < 1), ]$AvgHouseholdSize <-
   100*cancer[which(cancer$AvgHouseholdSize < 1), ]$AvgHouseholdSize
 hist(cancer$AvgHouseholdSize, breaks=30, xlab="AvgHouseholdSize", main="Histogram of AvgHouseholdSize")
 ```
@@ -607,11 +606,11 @@ traceLogLambda <- function(lm1, lm1.cv, ylim=NULL, sub=NULL) {
   title(sub=sub)
 }
 traceLogLambda(lm.ridge, lm.ridge.cv, ylim=c(-20, 1), sub="RIDGE trace against log(lambda)")
-lm.ridge.1se <- glmnet(cancer.dm, cancer$deathRate, alpha = 0, 
+lm.ridge.1se <- glmnet(cancer.dm, cancer$deathRate, alpha = 0,
                lambda = lm.ridge.cv$lambda.1se)
 lm.ridgefitted <- predict(lm.ridge.1se, newx=cancer.dm)
 scatter.smooth(cancer$deathRate - lm.ridgefitted, x=lm.ridgefitted,
-               xlab="Fitted", ylab="Residuals", 
+               xlab="Fitted", ylab="Residuals",
                sub="Residuals vs Fitted for RIDGE Model")
 # Leave-one-out cross-validation for RIDGE Regression
 # Calculate R-squared statistics
@@ -620,14 +619,14 @@ library(parallel)
 library(foreach)
 library(doParallel)
 numCores <- detectCores()
-registerDoParallel(numCores) 
+registerDoParallel(numCores)
 n <- dim(cancer)[1]
 dev.ratios <- rep(NA, n)
 dev.ratios1 <- rep(NA, n)
 lm.ridge.cv <- cv.glmnet(cancer.dm, cancer$deathRate, alpha=0, nfolds=n, parallel=TRUE)
 lm.ridge.cv$lambda.1se
 for (i in 1:n) {
-  lm.ridge.1se <- glmnet(cancer.dm[-i,], cancer$deathRate[-i], alpha = 0, 
+  lm.ridge.1se <- glmnet(cancer.dm[-i,], cancer$deathRate[-i], alpha = 0,
                lambda = lm.ridge.cv$lambda.1se)
   dev.ratios1[i] <- lm.ridge.1se$dev.ratio
 }
@@ -674,14 +673,14 @@ library(ggplot2)
 multResidualPlot <- function(residual.list, fitted.list, models) {
   a <- data.frame()
   for (i in 1:length(models)) {
-    x <- fitted.list[[i]] 
+    x <- fitted.list[[i]]
     y <- residual.list[[i]]
     model <- rep(models[i], times=length(x))
     df.temp <- data.frame(x, y, model)
     colnames(df.temp) <- c("x", "y", "model")
     a <- rbind(a, df.temp)
   }
-  mrp <- ggplot(a, aes(x=x, y=y, colour=model)) + 
+  mrp <- ggplot(a, aes(x=x, y=y, colour=model)) +
     geom_point(alpha=0.3, size=0.75) + geom_smooth() +
     labs(x="Fitted Values", y="Residuals", title="Residuals vs Fitted Values", model="Models")
   return(mrp)
@@ -706,10 +705,10 @@ statenames <- data.frame(region=tolower(state.name), clong=state.center$x, clat=
 statenames <- merge(statenames, averagedf, by="region")
 statenames$lab <- paste(c(state.abb, 'DC')[match(statenames$region, c(tolower(state.name), 'District of Columbia'))], '\n', statenames$averageresidual, sep="")
 #Produce heatmap of average residual
-qplot(long, lat, data=mergedf, geom="polygon", fill=averageresidual, group=region) + 
+qplot(long, lat, data=mergedf, geom="polygon", fill=averageresidual, group=region) +
   scale_fill_gradient(averageresidual,low="yellow",high="red") +
   geom_text(data=statenames,aes(clong,clat,label=statenames$lab,inherit.aes = FALSE,label.size=0.001)) +
    theme_void() + theme(legend.title = element_blank(),plot.title = element_text(hjust = 0.5))
- + ggtitle("Heatmap of Average Residuals of US States") 
+ + ggtitle("Heatmap of Average Residuals of US States")
 ```
 \normalsize
