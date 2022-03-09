@@ -80,7 +80,7 @@ We used __Bayesian Information Criteria(BIC)__ in our analysis. This penalises a
 ### RIDGE and LASSO Regression
 
 Since we are focusing on the explanatory power of the model, Ridge regression which keeps all variables is not ideal. Thus we turned our focus to Lasso, which gives a more parsimonious model.
-The suggested model contains eight variables which is the simplest model among our approaches. Since the purpose of this report is to reveal patterns in the mortality rate, we believed it is best to choose a simple model for stronger explanatory power.
+The suggested model contains eight variables which is the simplest model among our approaches. As the purpose of this report is to reveal patterns in the mortality rate, we believed it is best to choose a simple model for stronger explanatory power.
 
 ### Final Model Choice and Diagnostics
 
@@ -108,7 +108,7 @@ In order to develop this model in the future and improve its capabilities we mak
 
 ## Areas that do not conform the general pattern
 
-Below we a heatmap of the average residuals according to our model where we have illustrated the average performance of our model in each state. For states that are yellow and have a negative quantity the model is overfitting and predicitng a higher death rate than what was observed, whereas the red states the model is underfitting and thus predicitng a lower quantity than the death rate we observed. We aim to have the average residual for each state close to 0. We further analyse this in section 2.3..
+Below we a heatmap of the average residuals according to our model where we have illustrated the average performance of our model in each state. For states that are yellow and have a negative quantity the model is overfitting and predicitng a higher death rate than what was observed, whereas the red states the model is underfitting and thus predicitng a lower quantity than the death rate we observed. We aim to have the average residual for each state close to 0. We further analyse this in section 2.3.
  
 \pagebreak 
 
@@ -124,7 +124,7 @@ load('cancer.rdata')
 
 ### Missing Or Incorrect Values
 
-We saw counties with missing values in Percentage Employed 16 and Over and we concluded that the data is Missing Completely at Random. In order to rectify this we impute this data by fitting a linear regression model of Percentage Employed 16 and Over on the remaining variables to estimate what these values would be. (See Appendix 2.1.1). 
+We saw counties with missing values in Percentage Employed 16 and Over and we concluded that the data is Missing Completely at Random. In order to rectify this we impute this data by fitting a linear regression model of Percentage Employed 16 and Over on the remaining variables to estimate what these values would be. (See Appendix 5.1.1). 
 
 ```{r impute, include=FALSE}
 # Impute the missing data seen in the data set
@@ -148,7 +148,7 @@ hist(cancer$AvgHouseholdSize, breaks=30, xlab="AvgHouseholdSize", main="Histogra
 ### Outliers {#outliers}
 
 We found counties with high incidence rates, namely __Union County, Florida__ and __Williamsburg City, Virginia__. We looked into the cook's distance plots (Fig.2) and noticed only 'Williamsburg City, Virginia' has large cook's distance and hence influential. The first cook's distance plot used a linear model with only incidenceRate as the predictor variable. The second used all the numerical variables. We concluded although __Union County, Florida__ has high leverage, it is not influential and hence should be kept in our data set.
-(See Appendix 2.1.2)
+
 
 ```{r incidenceRateRemoval, echo=FALSE, fig.asp=0.5, fig.cap="Cook's distance plots of models with only incidence Rate(Left) and all variables(Right)"}
 # Cook's distance Plot
@@ -161,7 +161,7 @@ cancer <- filter(cancer, incidenceRate <= 850)
 
 ### Transformations {#transformations1}
 
-We transformed Percent Black by first shifting the values upwards by 0.05, to ensure we have no zero values, then take a log transform. We also transformed Median Income by again taking a log transformation. We performed these transformations to ensure the data was not heavily skewed and allowed for a more accurate model. (See Appendix 2.1.3)
+We transformed Percent Black by first shifting the values upwards by 0.05, to ensure we have no zero values, then take a log transform. We also transformed Median Income by again taking a log transformation. We performed these transformations to ensure the data was not heavily skewed and allowed for a more accurate model. (See Appendix 5.1.3)
 
 ```{r transformationsaaaa, include=FALSE}
 # Log transforming the heavily skewed distributions of PctBlack and medIncome
@@ -208,7 +208,7 @@ summary(hybridoptimalBIC)
 
 We computed the Variance Inflation Factors (VIF) for this model and found that there are numerous values that are at least 5 indicating multicollinearity in the predictors. In particular, we saw a VIF of at least 10 in Percent Married and a VIF of 8 in Percent Married Households. As well as in log(Median Income), Percent Employed 16 and Over, Percent Employers Private Coverage and Percent Private Coverage. Due to this frequent multicollinearity between the predictors in the stepwise model, the stepwise model is not a suitable approach as multicollinearity was not taken into account and thus we proceeded with Ridge and Lasso Regression in the following sections, hoping for a model with reduced multicollinearity.
 
-To complete the section on stepwise regression we performed leave-one-out cross-validation (in order to compute the $R^2$ of the stepwise models and also the Root Mean Squared Error (See Appendix 5.2.1)). This allowed us to compare these models with the Ridge and Lasso models we generate in the enxt sections. Performing this we see in the stepwise model that we have an $R^2$ value of 0.4623.
+To complete the section on stepwise regression we performed leave-one-out cross-validation (in order to compute the $R^2$ of the stepwise models and also the Root Mean Squared Error (See Appendix 5.2.1). This allowed us to compare these models with the Ridge and Lasso models we generate in the enxt sections. Performing this we see in the stepwise model that we have an $R^2$ value of 0.4623.
 
 ```{r LOOCVforStepwise, cache=TRUE, include=FALSE}
 library(caret)
