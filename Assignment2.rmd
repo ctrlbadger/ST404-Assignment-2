@@ -469,11 +469,22 @@ ggplotly(mrp)
 
 Produce map of each states average residual value for the LASSO model.
 
+```{r Average, include=FALSE}
+cancermodel2 = separate(cancer,"Geography",into=c("County","State"),sep=",")
+#average for each state
+averageresidual=round(tapply(lm.lasso.1se.residuals,cancermodel2$State,mean)[-c(2,12)],0)
+states <- map_data("state")
+averagedf <- data.frame(region=unique(states$region), averageresidual)
+mergedf <- merge(states, averagedf, by="region")
+statenames <- data.frame(region=tolower(state.name), clong=state.center$x, clat=state.center$y)
+statenames <- merge(statenames, averagedf, by="region")
+statenames$lab <- paste(c(state.abb, 'DC')[match(statenames$region, c(tolower(state.name), 'District of Columbia'))], '\n', statenames$averageresidual, sep="")
+```
 
 ```{R USMAP, echo=FALSE, cache=TRUE}
 qplot(long, lat, data=mergedf, geom="polygon", fill=averageresidual, group=region) + 
   scale_fill_gradient(averageresidual,low="yellow",high="red") +
-  geom_text(data=statenames,aes(clong,clat,label=averageresidual,inherit.aes = FALSE,label.size=0.001)) +
+  geom_text(data=statenames,aes(clong,clat,label=statenames$lab,inherit.aes = FALSE,label.size=0.001)) +
   theme(axis.line=element_blank(),axis.text.x=element_blank(),
         axis.text.y=element_blank(),axis.ticks=element_blank(),
         axis.title.x=element_blank(),
@@ -744,7 +755,7 @@ averagedf <- data.frame(region=unique(states$region), averageresidual)
 mergedf <- merge(states, averagedf, by="region")
 statenames <- data.frame(region=tolower(state.name), clong=state.center$x, clat=state.center$y)
 statenames <- merge(statenames, averagedf, by="region")
-statenames$lab <- paste(statenames$region, '\n', statenames$averageresidual, sep="")
+statenames$lab <- paste(c(state.abb, 'DC')[match(statenames$region, c(tolower(state.name), 'District of Columbia'))], '\n', statenames$averageresidual, sep="")
 ```
 
 ```{R USMAP A, eval=FALSE, cache=TRUE}
