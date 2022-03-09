@@ -68,10 +68,6 @@ For outliers, We removed 'Union County, Florida' and 'Williamsburg City, Virgini
 
 In order to fulfill the model assumptions, namely linearity, normality, and constant variance, we performed log transforms for two variables: __Median Income__ and __Percent Black__ which suffered the most among all variables. Although the transformations did not cure the problems, they result in improvements for both. For other variables, we deduced that they are sufficient for the model assumptions and hence did not perform any transformations for model simplicity.
 
-## Major Determinants of Mortality Rates
-
-From our model building process we have identified that the major determinants in high mortality rates of cancer in the US are: __Incidence Rate, Percent Unemployed 16 and Over, Percent Employer Provided Private Coverage and Percent Black__. Whereas, the major determinants in low mortality rates are: __Percent Employed 16 and Over, Percent Private Coverage, Education Levels and Median Income__.
-
 ## Modelling Approach
 
 We used Stepwise Regression, RIDGE Regression and LASSO Regression to build our model. We compared the outputs and the variables selections of these models. We also analyse the goodness of fits of these models using Leave-one-out cross validation, $R^2$ statistics and residuals analysis.
