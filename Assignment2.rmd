@@ -495,6 +495,8 @@ ggplot(data=mergedf) + geom_polygon(aes(x=long, y=lat, fill=averageresidual, gro
 
 # Author Contributions
 
+Remus Gong contributed to Findings, Statistical Methodology, Lasso Regression and Appendix.
+
 # References
 
 <div id="refs"></div>
