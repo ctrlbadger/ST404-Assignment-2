@@ -1,6 +1,6 @@
 ---
 title: "ST404 Assignment 2"
-author: "Frank Or, Remos Gong, Sam Glanfield, Thomas Broadbent"
+author: "Frank Or, Remus Gong, Sam Glanfield, Thomas Broadbent"
 date: "`r Sys.Date()`"
 output:
   bookdown::pdf_document2: default
@@ -492,9 +492,10 @@ ggplot(data=mergedf) + geom_polygon(aes(x=long, y=lat, fill=averageresidual, gro
 
 # Author Contributions
 
-Remus Gong contributed to Findings, Statistical Methodology, Lasso Regression and Appendix.
+Remus Gong contributed to Findings, Statistical Methodology, LASSO Regression and Appendix.
 Sam Glanfield contributed to Findings, Statistical Methodology, Stepwise Regression and Heatmap.
 Thomas Broadbent contributed to Findings,  Statistical Methodology, RIDGE and LASSO Regression, $R^2$ Cross Validation and Appendix.
+Frank Or contributed to Findings, Statistical Methodology, and LASSO Regression.
 
 # References
 
