@@ -518,7 +518,6 @@ missdf = cancer[which(is.na(cancer$PctEmployed16_Over)==TRUE),]
 imputed = predict(mod1,missdf)
 cancer[which(is.na(cancer$PctEmployed16_Over)==TRUE),"PctEmployed16_Over"] = imputed
 ```
-
 ```{r averageHouseholdSize A, eval=FALSE}
 # Scale average household sizes that are less than 1 by 100
 cancer[which(cancer$AvgHouseholdSize < 1), ]$AvgHouseholdSize <- 
@@ -548,7 +547,6 @@ cancer <- filter(cancer, incidenceRate <= 850)
 cancer$logpctblack = log(cancer$PctBlack+0.05)
 cancer$logmedincome = log(cancer$medIncome)
 ```
-
 ```{r heteroscedasticity1 A,eval=FALSE, fig.asp=0.5, fig.cap="Residuals plot Percent Black and Log Percent Black"}
 # Showing improvements in homoscedasticity in PctBlack
 # Similar plots can be produced for medIncome
@@ -576,18 +574,15 @@ scope=list("lower"=c0,"upper"=cmax),trace=0,k=log(3044))
 hybridoptimalBIC = step(c0,direction="both",
 scope=list("lower"=c0,"upper"=cmax),trace=0,k=log(3044))
 ```
-
 ```{r summaryAICBIC A, eval = FALSE }
 # An example code for summary and coefficient of models
 summary(hybridoptimalBIC)
 coef(hybridoptimalBIC)
 ```
-
 ```{r StepwiseVIF A, eval=TRUE}
 # Computing the VIF of the BIC stepwise regression model
 vif(hybridoptimalBIC)
 ```
-
 ```{r LOOCVforStepwise A, cache=TRUE, eval=FALSE}
 library(caret)
 #specify the cross-validation method
@@ -615,7 +610,6 @@ cancer.dm <- cancer %>%
   data.matrix()
 lm.ridge <- glmnet(cancer.dm, cancer$deathRate, alpha=0)
 lm.ridge.cv <- cv.glmnet(cancer.dm, cancer$deathRate, alpha=0)
-
 # Create Model Plot Func
 traceLogLambda <- function(lm1, lm1.cv, ylim=NULL, sub=NULL) {
   plot(lm1,"lambda",label = T, ylim=ylim)
@@ -625,16 +619,13 @@ traceLogLambda <- function(lm1, lm1.cv, ylim=NULL, sub=NULL) {
   title(sub=sub)
 }
 traceLogLambda(lm.ridge, lm.ridge.cv, ylim=c(-20, 1), sub="RIDGE trace against log(lambda)")
-
 lm.ridge.1se <- glmnet(cancer.dm, cancer$deathRate, alpha = 0, 
                lambda = lm.ridge.cv$lambda.1se)
 lm.ridgefitted <- predict(lm.ridge.1se, newx=cancer.dm)
 scatter.smooth(cancer$deathRate - lm.ridgefitted, x=lm.ridgefitted,
                xlab="Fitted", ylab="Residuals", 
                sub="Residuals vs Fitted for RIDGE Model")
-
 ```
-
 ```{r Ridge Loo A, eval=FALSE, cache=TRUE}
 # Leave-one-out cross-validation for RIDGE Regression
 # Calculate R-squared statistics
@@ -644,13 +635,11 @@ library(foreach)
 library(doParallel)
 numCores <- detectCores()
 registerDoParallel(numCores) 
-
 n <- dim(cancer)[1]
 dev.ratios <- rep(NA, n)
 dev.ratios1 <- rep(NA, n)
 lm.ridge.cv <- cv.glmnet(cancer.dm, cancer$deathRate, alpha=0, nfolds=n, parallel=TRUE)
 lm.ridge.cv$lambda.1se
-
 for (i in 1:n) {
   lm.ridge.1se <- glmnet(cancer.dm[-i,], cancer$deathRate[-i], alpha = 0, 
                lambda = lm.ridge.cv$lambda.1se)
@@ -662,15 +651,10 @@ mean(dev.ratios1)
 ```{r Ridge estimate A, eval=FALSE}
 library(knitr)
 # This produces a table of parameter estimate for RIDGE model
-# We also produced similar table for LASSO model
+# We also produced similar table for LASSO model and combined these with the stepwise coefficients into a 'kable'
 a <- data.frame(sapply(round(coef(lm.ridge.1se), 3), FUN=identity))
 colnames(a) <- "Parameter Estimates"
 rownames(a) <- rownames(round(coef(lm.ridge.1se), 3))
-shortNames <- c("Intercept", "IncidRT", "PctPov", "MedMale", "MedFemale", 
-                "AvgHH", "PctMarr", "PctEmp", "PctUnemp", "PrivCov", "PubCov", 
-                "MarrHH", "lPctBlack", "lMedInc")
-colnames(a) <- colnames(shortNames)
-kable(t(a))
 ```
 \normalsize
 
@@ -689,11 +673,9 @@ abline(v=log(lm.lasso.cv$lambda.min),col="blue")
 legend("topright",legend=c("Minimum lambda", "1 standard error larger lambda"),lty=c(1,1),col=c("blue","red"), ins=0.1)
 lm.lasso.cv$lambda.1se
 lm.lasso.1se <- glmnet(cancer.lasso.dm,cancer$deathRate,lambda = lm.lasso.cv$lambda.1se,alpha=1)
-
 lm.lasso.1se.fitted <- predict(lm.lasso.1se, newx=cancer.lasso.dm)
 lm.lasso.1se.residuals <- cancer$deathRate - lm.lasso.1se.fitted
 ```
-
 ```{r Lasso trace A, eval=FALSE}
 # Produce a plot that shows the trace of each parameter estimate for different lambda
 lm.lasso.scaled<-glmnet(scale(cancer.lasso.dm),cancer$deathRate,alpha=1)
@@ -705,9 +687,8 @@ traceLogLambda(lm.lasso.scaled,lm.lasso.cv,ylim=c(-10,10), sub="LASSO trace agai
 
 \scriptsize
 ```{r ResidualPlot A,eval=FALSE}
-# So wanna make a plot of residuals vs fitteds
+# Create plot of Residual vs Fitted
 library(ggplot2)
-
 multResidualPlot <- function(residual.list, fitted.list, models) {
   a <- data.frame()
   for (i in 1:length(models)) {
@@ -724,23 +705,9 @@ multResidualPlot <- function(residual.list, fitted.list, models) {
   return(mrp)
 }
 lm.ridge.residuals <- cancer$deathRate - lm.ridgefitted
-residual.list <- list(
-  hybridoptimalBIC$residuals,
-  lm.ridge.residuals,
-  lm.lasso.1se.residuals
-)
-fitted.list <- list(
-  hybridoptimalBIC$fitted.values,
-  lm.ridgefitted,
-  lm.lasso.1se.fitted
-)
+residual.list <- list(hybridoptimalBIC$residuals, lm.ridge.residuals, lm.lasso.1se.residuals)
+fitted.list <- list(hybridoptimalBIC$fitted.values, lm.ridgefitted, lm.lasso.1se.fitted)
 mrp <- multResidualPlot(residual.list, fitted.list, c("Hybrid Optimal BIC", "RIDGE", "LASSO"))
-```
-
-```{r ResidualPlot 2 A, eval=FALSE, include=FALSE}
-library(plotly)
-### INTERACTIVE RESIDUAL
-ggplotly(mrp)
 ```
 \normalsize
 
