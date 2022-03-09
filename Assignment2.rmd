@@ -109,7 +109,10 @@ In order to develop this model in the future and improve its capabilities we mak
 ## Areas that do not conform the general pattern
 
 Below we a heatmap of the average residuals according to our model where we have illustrated the average performance of our model in each state. For states that are yellow and have a negative quantity the model is overfitting and predicitng a higher death rate than what was observed, whereas the red states the model is underfitting and thus predicitng a lower quantity than the death rate we observed. We aim to have the average residual for each state close to 0. We further analyse this in section 2.3..
- 
+
+![Residuals Map of US](map.png)
+
+
 \pagebreak 
 
 # Statistical Methodology
@@ -478,13 +481,14 @@ mergedf <- merge(states, averagedf, by="region")
 statenames <- data.frame(region=tolower(state.name), clong=state.center$x, clat=state.center$y)
 statenames <- merge(statenames, averagedf, by="region")
 statenames$lab <- paste(c(state.abb, 'DC')[match(statenames$region, c(tolower(state.name), 'District of Columbia'))], '\n', statenames$averageresidual, sep="")
+
 ```
 
 ```{R USMAP, echo=FALSE, cache=TRUE, message=FALSE,warning=FALSE}
-qplot(long, lat, data=mergedf, geom="polygon", fill=averageresidual, group=region) + 
-  scale_fill_gradient(averageresidual,low="yellow",high="red") +
-  geom_text(data=statenames,aes(clong,clat,label=statenames$lab,inherit.aes = FALSE,label.size=0.001)) +
-   theme_void() + theme(legend.title = element_blank(),plot.title = element_text(hjust = 0.5)) 
+ggplot(data=mergedf) + geom_polygon(aes(x=long, y=lat, fill=averageresidual, group=region)) + 
+  scale_fill_gradient(low="yellow",high="red", name="Residual") +
+  geom_text(data=statenames,aes(clong,clat,label=lab,inherit.aes = FALSE,label.size=0.001)) +
+   theme_void() + theme(plot.title = element_text(hjust = 0.5)) 
 #+ ggtitle("Heatmap of Average Residuals of US States") 
 ```
 
