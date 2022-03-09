@@ -181,11 +181,11 @@ cancermodel <- cancer %>% select(
 c0=lm(deathRate~1,cancermodel)
 cmax=lm(deathRate~.,cancermodel)
 forwardoptimalBIC = step(c0,direction="forward",
-scope=list("lower"=c0,"upper"=cmax),trace=0,k=log(3044))
+scope=list("lower"=c0,"upper"=cmax),trace=0,k=log(3045))
 backwardoptimalBIC = step(cmax,direction="backward",
-scope=list("lower"=c0,"upper"=cmax),trace=0,k=log(3044))
+scope=list("lower"=c0,"upper"=cmax),trace=0,k=log(3045))
 hybridoptimalBIC = step(c0,direction="both",
-scope=list("lower"=c0,"upper"=cmax),trace=0,k=log(3044))
+scope=list("lower"=c0,"upper"=cmax),trace=0,k=log(3045))
 ```
 
 For the model generated we see from the summary output, with strong evidence, that all the coefficients are different from zero. From observing the output we see that we would expect there to be multicollinearity in these models due to variables that measure similar or opposite quantities, for example Percent Married and Percent Married Households.
@@ -568,11 +568,11 @@ cancermodel <- cancer %>% select(
 c0=lm(deathRate~1,cancermodel)
 cmax=lm(deathRate~.,cancermodel)
 forwardoptimalBIC = step(c0,direction="forward",
-scope=list("lower"=c0,"upper"=cmax),trace=0,k=log(3044))
+scope=list("lower"=c0,"upper"=cmax),trace=0,k=log(3045))
 backwardoptimalBIC = step(cmax,direction="backward",
-scope=list("lower"=c0,"upper"=cmax),trace=0,k=log(3044))
+scope=list("lower"=c0,"upper"=cmax),trace=0,k=log(3045))
 hybridoptimalBIC = step(c0,direction="both",
-scope=list("lower"=c0,"upper"=cmax),trace=0,k=log(3044))
+scope=list("lower"=c0,"upper"=cmax),trace=0,k=log(3045))
 ```
 ```{r summaryAICBIC A, eval = FALSE }
 # An example code for summary and coefficient of models
