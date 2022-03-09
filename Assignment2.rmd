@@ -25,11 +25,38 @@ library(dplyr)
 library(car)
 library(tidyr)
 library(glmnet)
+library(ggplot2)
 ```
 
 \pagebreak 
 
 # Findings
+
+## Key Findings
+
+Given our preferred model the most important predictors for cancer death rates for a given state were incidence rates, median income and private health care coverage. All predictors for the model are in the table below with the parameter estimate and a scaled model to show importance of predictors. This shows that `incidenceRate` and `log medianIncome` followed by `PctPrivateCoverage` have the largest influence over death rates.
+
+```{r, eval=FALSE, include=FALSE}
+lasso.coefs.tab <-cbind(lasso.coefs, lasso.scaled.coefs.ordered)
+colnames(lasso.coefs.tab) <- c("Non-Scaled", "Scaled")
+save(lasso.coefs.tab, file="lasso.coefs.tab.rdata")
+```
+
+```{r, echo=FALSE, fig.pos='H', fig.cap="LASSO Model"}
+load(file="lasso.coefs.tab.rdata")
+kable(t(lasso.coefs.tab[lasso.coefs.tab[, 1] != 0, ]), row.names=FALSE)
+      # caption = "LASSO Death Rate Model Coefficients, 
+      # (TOP) Non-Scaled, (BOTTOM) Scaled") 
+#%>% 
+  #kable_styling(latex_options = "HOLD_position")
+```
+
+
+Understandably cancer diagnoses are a key predictor for death rates, with an increase in the number of cancer diagnoses by 50 per 100,000 increasing cancer death rates by 10 per 100,000. This of course does not imply that there should be a policy to decrease cancer diagnoses. Increasing cancer diagnoses will lead to more people with cancer on death certificates even if cancer may not have been the primary cause of death. 
+Wealthier north western states have similar mean incidence rates to poorer south western states but much lower death rates showing that diagnoses are a good baseline additional predictors for poverty need to be included. 
+
+Due to the strong collinearity of many variables and thus our choice of regression method, we can not give a strong interpretation for keeping all but one variable the same and giving the associated change in death rates. An increased Death Rate is more likely if a county has a low median income, low private coverage, these though will be dependent on low employment and high unemployment percentages which may be because of a low education rate. Due to variables explaining the same amount of information about death rates the LASSO model reduces the complexity, for example even though Percent Public Coverage is correlated well with death rates it can be left out as it is strongly correlated with both percent private coverage and employee provided coverage.
+
 
 ## Summary of EDA
 
@@ -94,7 +121,7 @@ $DeathRate = 470.47 + 0.23IncidenceRate - 0.25PctEmployed16\_Over + 0.029PctUnem
 
 ## Areas that do not conform the general pattern
 
-We do see examples of counties that do not conform to the general pattern with unusually high or low mortality rates. One example we have is 'Williamsburg City, Virginia' where we see a high incidence rate of 1014 yet a comparatively small death rate of 162, however we see that it's percent private coverage is 19% above the US average and the median male and female ages of 26 and 24 respectively are considerably lower than the median US ages, potentially being causes for this low death rate. Similarly, we see from the average residual map that in particular the 3 states Utah (Average of -22), Idaho (Average of -19) and Colorado (Average of -18) all have high residual averages and as they are negative this implies that the model is overfitting for these states and thus these states don't conform to the general pattern. However, as the model if overfitting and we are estimating death rate this isnt a cause for concern as we know the average death rates for these states is highly likely to be lower than what the model predicts. It is also important to note that these all lie in a similar region and in general we see that the majority of states on the west coast have an average negative residual, so the model overfits for these states, hwereas on the east coast and central we see positive average residuals, the model is underfitting these states. With the main staes of concern for overfitting with an average residual of 14 each for Oklahoma and Arkansas and an average of 13 in the District of Columbia.
+Similarly, we see from the average residual map that in particular the 3 states Utah (Average of -22), Idaho (Average of -19) and Colorado (Average of -18) all have high residual averages and as they are negative this implies that the model is overfitting for these states and thus these states don't conform to the general pattern. However, as the model if overfitting and we are estimating death rate this isnt a cause for concern as we know the average death rates for these states is highly likely to be lower than what the model predicts. It is also important to note that these all lie in a similar region and in general we see that the majority of states on the west coast have an average negative residual, so the model overfits for these states, whereas on the east coast and central we see positive average residuals, the model is underfitting these states. With the main states of concern for overfitting with an average residual of 14 each for Oklahoma and Arkansas and an average of 13 in the District of Columbia.
 
 \pagebreak 
 
@@ -485,8 +512,8 @@ statenames$lab <- paste(c(state.abb, 'DC')[match(statenames$region, c(tolower(st
 qplot(long, lat, data=mergedf, geom="polygon", fill=averageresidual, group=region) + 
   scale_fill_gradient(averageresidual,low="yellow",high="red") +
   geom_text(data=statenames,aes(clong,clat,label=statenames$lab,inherit.aes = FALSE,label.size=0.001)) +
-   theme_void() + theme(legend.title = element_blank(),plot.title = element_text(hjust = 0.5))
- + ggtitle("Heatmap of Average Residuals of US States") 
+   theme_void() + theme(legend.title = element_blank(),plot.title = element_text(hjust = 0.5)) 
+#+ ggtitle("Heatmap of Average Residuals of US States") 
 ```
 
 # Author Contributions
@@ -499,9 +526,9 @@ qplot(long, lat, data=mergedf, geom="polygon", fill=averageresidual, group=regio
 \pagebreak
 # Appendix
 
-2.1 Outcomes of EDA
+## Outcomes of EDA
 
-2.1.1 Missing Or Incorrect Values
+### Missing Or Incorrect Values
 
 \scriptsize
 ```{r impute A, eval=FALSE}
@@ -519,7 +546,7 @@ hist(cancer$AvgHouseholdSize, breaks=30, xlab="AvgHouseholdSize", main="Histogra
 ```
 \normalsize
 
-2.1.2 Outliers
+### Outliers
 
 \scriptsize
 ```{r incidenceRateRemoval A, eval=FALSE, fig.asp=0.5, fig.cap="Cook's distance plots with one variable(Left) and all variables(Right)"}
@@ -532,7 +559,7 @@ cancer <- filter(cancer, incidenceRate <= 850)
 ```
 \normalsize
 
-2.1.3 Transformations
+### Transformations
 
 \scriptsize
 ```{r transformations A, eval=FALSE}
@@ -547,9 +574,9 @@ plot(lm(deathRate~logpctblack,data=cancer),1)
 ```
 \normalsize
 
-2.2 Modelling Approach and Variable Selection
+## Modelling Approach and Variable Selection
 
-2.2.1 AIC and BIC Forward and Backward Variable Selection
+### AIC and BIC Forward and Backward Variable Selection
 
 \scriptsize
 ```{r stepwise A, eval=FALSE}
@@ -583,7 +610,7 @@ hybridoptimalBIC.loocv <- loocv(hybridoptimalBIC,data=cancermodel)
 ```
 \normalsize
 
-2.2.2 RIDGE Regression
+### RIDGE Regression
 
 \scriptsize
 ```{r Ridge 1 A, eval=FALSE}
@@ -639,7 +666,7 @@ rownames(a) <- rownames(round(coef(lm.ridge.1se), 3))
 ```
 \normalsize
 
-2.2.3 LASSO Regression
+### LASSO Regression
 
 \scriptsize
 ```{r Lasso cv A, eval=FALSE}
@@ -662,7 +689,7 @@ traceLogLambda(lm.lasso.scaled,lm.lasso.cv,ylim=c(-10,10), sub="LASSO trace agai
 ```
 \normalsize
 
-2.4 Statistical Interpretation and Validation
+## Statistical Interpretation and Validation
 
 \scriptsize
 ```{r ResidualPlot A,eval=FALSE}
@@ -690,7 +717,7 @@ mrp <- multResidualPlot(residual.list, fitted.list, c("Hybrid Optimal BIC", "RID
 ```
 \normalsize
 
-Produce map of each states average residual value for the LASSO model.
+### Produce map of each states average residual value for the LASSO model.
 
 \scriptsize
 ```{r Average A, eval=FALSE}
