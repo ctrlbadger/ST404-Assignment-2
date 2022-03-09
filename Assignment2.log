@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.23 (MiKTeX 21.10) (preloaded format=pdflatex 2021.10.24)  9 MAR 2022 14:53
+This is pdfTeX, Version 3.141592653-2.6-1.40.23 (MiKTeX 21.10) (preloaded format=pdflatex 2021.10.24)  9 MAR 2022 15:31
 entering extended mode
 **./Assignment2.tex
 (Assignment2.tex
@@ -621,68 +621,56 @@ Overfull \hbox (34.67004pt too wide) in paragraph at lines 163--172
 [][] 
  []
 
-[2] [3] [4]
-Overfull \hbox (27.79037pt too wide) in paragraph at lines 248--249
-[]$\OML/lmm/m/it/10.95 DeathRate \OT1/lmr/m/n/10.95 (-20) = 470\OML/lmm/m/it/10
-.95 :\OT1/lmr/m/n/10.95 (-20) 47 + 0\OML/lmm/m/it/10.95 :\OT1/lmr/m/n/10.95 (-2
-0) 23\OML/lmm/m/it/10.95 IncidenceRate \OMS/lmsy/m/n/10.95   \OT1/lmr/m/n/10.95
- (-20) 0\OML/lmm/m/it/10.95 :\OT1/lmr/m/n/10.95 (-20) 25\OML/lmm/m/it/10.95 Pct
-Employed\OT1/lmr/m/n/10.95 (-20) 16[]\OML/lmm/m/it/10.95 Over \OT1/lmr/m/n/10.9
-5 (-20) + 0\OML/lmm/m/it/10.95 :\OT1/lmr/m/n/10.95 (-20) 029\OML/lmm/m/it/10.95
- PctUnemployed\OT1/lmr/m/n/10.95 (-20) 16[]\OML/lmm/m/it/10.95 Over \OMS/lmsy/m
-/n/10.95  
- []
-
-[5]
-<Assignment2_files/figure-latex/averageHouseholdSize-1.pdf, id=91, 505.89pt x 2
+[2] [3] [4] [5] [6]
+<Assignment2_files/figure-latex/averageHouseholdSize-1.pdf, id=94, 505.89pt x 2
 52.945pt>
 File: Assignment2_files/figure-latex/averageHouseholdSize-1.pdf Graphic file (t
 ype pdf)
 <use Assignment2_files/figure-latex/averageHouseholdSize-1.pdf>
 Package pdftex.def Info: Assignment2_files/figure-latex/averageHouseholdSize-1.
-pdf  used on input line 274.
+pdf  used on input line 263.
 (pdftex.def)             Requested size: 469.76265pt x 234.88133pt.
-[6 <./Assignment2_files/figure-latex/averageHouseholdSize-1.pdf>]
-<Assignment2_files/figure-latex/incidenceRateRemoval-1.pdf, id=109, 505.89pt x 
+[7 <./Assignment2_files/figure-latex/averageHouseholdSize-1.pdf>]
+<Assignment2_files/figure-latex/incidenceRateRemoval-1.pdf, id=113, 505.89pt x 
 252.945pt>
 File: Assignment2_files/figure-latex/incidenceRateRemoval-1.pdf Graphic file (t
 ype pdf)
 <use Assignment2_files/figure-latex/incidenceRateRemoval-1.pdf>
 Package pdftex.def Info: Assignment2_files/figure-latex/incidenceRateRemoval-1.
-pdf  used on input line 289.
+pdf  used on input line 278.
 (pdftex.def)             Requested size: 469.76265pt x 234.88133pt.
 pdfTeX warning (ext4): destination with the same identifier (name{transformatio
 ns}) has been already used, duplicate ignored
 <to be read again> 
                    \relax 
-l.297 ...{Transformations}\label{transformations}}
+l.286 ...{Transformations}\label{transformations}}
                                                   
-<Assignment2_files/figure-latex/heteroscedasticity1-1.pdf, id=110, 505.89pt x 2
+<Assignment2_files/figure-latex/heteroscedasticity1-1.pdf, id=114, 505.89pt x 2
 52.945pt>
 File: Assignment2_files/figure-latex/heteroscedasticity1-1.pdf Graphic file (ty
 pe pdf)
 <use Assignment2_files/figure-latex/heteroscedasticity1-1.pdf>
 Package pdftex.def Info: Assignment2_files/figure-latex/heteroscedasticity1-1.p
-df  used on input line 305.
+df  used on input line 294.
 (pdftex.def)             Requested size: 469.76265pt x 234.88133pt.
-[7 <./Assignment2_files/figure-latex/incidenceRateRemoval-1.pdf>] [8 <./Assignm
+[8 <./Assignment2_files/figure-latex/incidenceRateRemoval-1.pdf>] [9 <./Assignm
 ent2_files/figure-latex/heteroscedasticity1-1.pdf>]
-<Assignment2_files/figure-latex/Lasso cv-1.pdf, id=136, 505.89pt x 252.945pt>
+<Assignment2_files/figure-latex/Lasso cv-1.pdf, id=139, 505.89pt x 252.945pt>
 File: Assignment2_files/figure-latex/Lasso cv-1.pdf Graphic file (type pdf)
 <use Assignment2_files/figure-latex/Lasso cv-1.pdf>
 Package pdftex.def Info: Assignment2_files/figure-latex/Lasso cv-1.pdf  used on
- input line 351.
+ input line 340.
 (pdftex.def)             Requested size: 469.76265pt x 234.88133pt.
-<Assignment2_files/figure-latex/Lasso trace-1.pdf, id=137, 505.89pt x 252.945pt
+<Assignment2_files/figure-latex/Lasso trace-1.pdf, id=140, 505.89pt x 252.945pt
 >
 File: Assignment2_files/figure-latex/Lasso trace-1.pdf Graphic file (type pdf)
 <use Assignment2_files/figure-latex/Lasso trace-1.pdf>
 Package pdftex.def Info: Assignment2_files/figure-latex/Lasso trace-1.pdf  used
- on input line 367.
+ on input line 356.
 (pdftex.def)             Requested size: 469.76265pt x 234.88133pt.
-[9] [10 <./Assignment2_files/figure-latex/Lasso cv-1.pdf> <./Assignment2_files/
-figure-latex/Lasso trace-1.pdf>]
-Overfull \hbox (830.4256pt too wide) detected at line 430
+[10] [11 <./Assignment2_files/figure-latex/Lasso cv-1.pdf> <./Assignment2_files
+/figure-latex/Lasso trace-1.pdf>]
+Overfull \hbox (830.4256pt too wide) detected at line 419
 \OML/lmm/m/it/10.95 DeathRate \OT1/lmr/m/n/10.95 = 470\OML/lmm/m/it/10.95 :\OT1
 /lmr/m/n/10.95 47 + 0\OML/lmm/m/it/10.95 :\OT1/lmr/m/n/10.95 23 \OML/lmm/m/it/1
 0.95 IncidenceRate \OMS/lmsy/m/n/10.95   \OT1/lmr/m/n/10.95 0\OML/lmm/m/it/10.9
@@ -699,50 +687,50 @@ n/10.95 90 \OML/lmm/m/it/10.95 LogPercentBlack \OMS/lmsy/m/n/10.95   \OT1/lmr/m
 dianIncome
  []
 
-[11]
+[12]
 LaTeX Font Info:    Trying to load font information for TS1+lmtt on input line 
-443.
+432.
 (C:\Users\ctrlb\AppData\Local\Programs\MiKTeX\tex/latex/lm\ts1lmtt.fd
 File: ts1lmtt.fd 2009/10/30 v1.6 Font defs for Latin Modern
 )
-<Assignment2_files/figure-latex/ResidualPlot-1.pdf, id=170, 505.89pt x 325.215p
+<Assignment2_files/figure-latex/ResidualPlot-1.pdf, id=174, 505.89pt x 325.215p
 t>
 File: Assignment2_files/figure-latex/ResidualPlot-1.pdf Graphic file (type pdf)
 
 <use Assignment2_files/figure-latex/ResidualPlot-1.pdf>
 Package pdftex.def Info: Assignment2_files/figure-latex/ResidualPlot-1.pdf  use
-d on input line 445.
+d on input line 434.
 (pdftex.def)             Requested size: 469.76265pt x 301.99028pt.
-[12 <./Assignment2_files/figure-latex/ResidualPlot-1.pdf>]
-<Assignment2_files/figure-latex/USMAP-1.pdf, id=187, 505.89pt x 325.215pt>
+[13 <./Assignment2_files/figure-latex/ResidualPlot-1.pdf>]
+<Assignment2_files/figure-latex/USMAP-1.pdf, id=192, 505.89pt x 325.215pt>
 File: Assignment2_files/figure-latex/USMAP-1.pdf Graphic file (type pdf)
 <use Assignment2_files/figure-latex/USMAP-1.pdf>
 Package pdftex.def Info: Assignment2_files/figure-latex/USMAP-1.pdf  used on in
-put line 459.
+put line 448.
 (pdftex.def)             Requested size: 469.76265pt x 301.99028pt.
-[13 <./Assignment2_files/figure-latex/USMAP-1.pdf>]
+[14 <./Assignment2_files/figure-latex/USMAP-1.pdf>]
 LaTeX Font Info:    Font shape `T1/lmtt/bx/n' in size <8> not available
-(Font)              Font shape `T1/lmtt/b/n' tried instead on input line 569.
-[14]
+(Font)              Font shape `T1/lmtt/b/n' tried instead on input line 558.
+[15]
 
 LaTeX Font Warning: Font shape `T1/lmtt/bx/it' in size <8> not available
-(Font)              Font shape `T1/lmtt/b/sl' tried instead on input line 631.
+(Font)              Font shape `T1/lmtt/b/sl' tried instead on input line 620.
 
 
-Overfull \vbox (1.37062pt too high) detected at line 639
+Overfull \vbox (1.37062pt too high) detected at line 628
  []
 
-[15] [16] [17] [18] (Assignment2.aux)
+[16] [17] [18] [19] (Assignment2.aux)
 
 LaTeX Warning: There were multiply-defined labels.
 
  ) 
 Here is how much of TeX's memory you used:
- 13807 strings out of 478907
- 212468 string characters out of 2851891
- 559995 words of memory out of 3000000
- 31202 multiletter control sequences out of 15000+600000
- 455107 words of font info for 131 fonts, out of 8000000 for 9000
+ 13809 strings out of 478907
+ 212478 string characters out of 2851891
+ 559970 words of memory out of 3000000
+ 31203 multiletter control sequences out of 15000+600000
+ 455157 words of font info for 132 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  74i,8n,80p,1066b,479s stack positions out of 5000i,500n,10000p,200000b,80000s
 {C:/Users/ctrlb/AppData/Local/Programs/MiKTeX/fonts/enc/dvips/lm/lm-ts1.enc}{
@@ -763,9 +751,9 @@ b/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmtko10.pfb><C:/Users/ctr
 lb/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmtt10.pfb><C:/Users/ctr
 lb/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmtt8.pfb><C:/Users/ctrl
 b/AppData/Local/Programs/MiKTeX/fonts/type1/public/lm/lmtti10.pfb>
-Output written on Assignment2.pdf (18 pages, 1428114 bytes).
+Output written on Assignment2.pdf (19 pages, 1428910 bytes).
 PDF statistics:
- 384 PDF objects out of 1000 (max. 8388607)
- 102 named destinations out of 1000 (max. 500000)
- 26788 words of extra memory for PDF output out of 29859 (max. 10000000)
+ 395 PDF objects out of 1000 (max. 8388607)
+ 101 named destinations out of 1000 (max. 500000)
+ 26804 words of extra memory for PDF output out of 29859 (max. 10000000)
 
