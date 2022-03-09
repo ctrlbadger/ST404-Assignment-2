@@ -485,7 +485,7 @@ statenames$lab <- paste(c(state.abb, 'DC')[match(statenames$region, c(tolower(st
 qplot(long, lat, data=mergedf, geom="polygon", fill=averageresidual, group=region) + 
   scale_fill_gradient(averageresidual,low="yellow",high="red") +
   geom_text(data=statenames,aes(clong,clat,label=statenames$lab,inherit.aes = FALSE,label.size=0.001)) +
-   theme_void() + theme(legend.title = element_blank(),plot.title = element_text(hjust = 0.5))+
+   theme_void() + theme(legend.title = element_blank(),plot.title = element_text(hjust = 0.5))
  + ggtitle("Heatmap of Average Residuals of US States") 
 ```
 
@@ -706,7 +706,7 @@ statenames$lab <- paste(c(state.abb, 'DC')[match(statenames$region, c(tolower(st
 qplot(long, lat, data=mergedf, geom="polygon", fill=averageresidual, group=region) + 
   scale_fill_gradient(averageresidual,low="yellow",high="red") +
   geom_text(data=statenames,aes(clong,clat,label=statenames$lab,inherit.aes = FALSE,label.size=0.001)) +
-   theme_void() + theme(legend.title = element_blank(),plot.title = element_text(hjust = 0.5))+
+   theme_void() + theme(legend.title = element_blank(),plot.title = element_text(hjust = 0.5))
  + ggtitle("Heatmap of Average Residuals of US States") 
 ```
 \normalsize
