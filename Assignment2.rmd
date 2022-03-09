@@ -108,6 +108,12 @@ Thus from our analysis briefly outlined above and in the next section we recomme
 
 $DeathRate = 470.47 + 0.23\ IncidenceRate - 0.25\ PctEmployed16\_Over\\ + 0.029\ PctUnemployed16\_Over- 0.32\ PctPrivateCoverage + 0.21\ PctEmpPrivCoverage - 10.06\ Edu18\_24 + 0.90\ log(PctBlack) - 32.34\ log(MedianIncome)$
 
+### Limitations
+
+One limitation of LASSO regression is that it does not completely handle the problem of multicollinearity, however it reduces the multicollinearity present in the model by a large amount. Often it selects one feature from a group of correlated features. In our model, this happens on the three health care coverage variables, where Percent Public Coverage was dropped. However, in our case, this is not a severe problem as we focus more on the explanatory power than the predictive power. LASSO regression reduces our model to 8 predictor variables and this leads to a loss of predictive power. At the same time, the log transformed variables are difficult to interpret.
+
+Another issue is that LASSO models are difficult to diagnose. Unlike stepwise regressions, it is difficult to produce hypothesis tests to check the statistical significance of the predictors. 
+
 ## Areas that do not conform the general pattern
 
 Similarly, we see from the average residual map that in particular the 3 states __Utah__ (Average of -22), __Idaho__ (Average of -19) and __Colorado__ (Average of -18) all have high residual averages and as they are negative this implies that the model is overfitting for these states and thus these states don't conform to the general pattern. However, as the model if overfitting and we are estimating death rate this isnt a cause for concern as we know the average death rates for these states is highly likely to be lower than what the model predicts. It is also important to note that these all lie in a similar region and in general we see that the majority of states on the west coast have an average negative residual, so the model overfits for these states, whereas on the east coast and central we see positive average residuals, the model is underfitting these states. With the main states of concern for overfitting with an average residual of 14 each for __Oklahoma__ and __Arkansas__ and an average of 13 in __the District of Columbia__.
