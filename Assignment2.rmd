@@ -34,7 +34,7 @@ library(ggplot2)
 
 ## Key Findings
 
-Given our preferred model the most important predictors for cancer death rates for a given state were incidence rates, median income and private health care coverage. All predictors for the model are in the table below with the parameter estimate and a scaled model to show importance of predictors. This shows that `incidenceRate` and `log medianIncome` followed by `PctPrivateCoverage` have the largest influence over death rates.
+Given our preferred model the most important predictors for cancer death rates for a given state were incidence rates, median income and private health care coverage. All predictors for the model are in the table below with the parameter estimate and a scaled model to show importance of predictors. This shows that `incidenceRate` and `log medianIncome` followed by `PctPrivateCoverage` have the largest influence over death rates. The table shows in the first row the model unscaled parameters and in the second the scaled model parameters, the larger the values the more the predictor affects death rates
 
 ```{r, eval=FALSE, include=FALSE}
 lasso.coefs.tab <-cbind(lasso.coefs, lasso.scaled.coefs.ordered)
