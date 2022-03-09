@@ -372,7 +372,8 @@ From the estimates output above, the Lasso regression eliminates a considerable 
 The two age variables and Average Household Size were removed from the model. This agreed with our EDA which showed that they have almost no correlation with death rate.
 Both employment variables and two out of three healthcare coverage variables are included in this model. We believe this is reasonable because although they showed evidence of collinearity/multicollinearity, we did not have strong arguments to remove any of them. Therefore, we agreed with the variable selection suggested by the Lasso Regression.
 
-Most predictor estimates are smaller than one. However the estimates for Education Levels and Log Median Income are -10.05 and -32.39 respectively which are exceptionally large and negative. This means that they have much larger impact on the predicted death rates than other predictor variables. It makes sense that Median Income has the largest impact because patients in counties with higher median income tend to be able to afford better treatment which will reduce mortality rates.
+The most important predictors are those with the largest scaled coefficient estimates, incidence rate (+0.426) and median income (-0.284). It is intuitively clear why these would have the largest impact: more cases of cancer mean more deaths, and higher median income may be associated with affording better treatments which reduce mortality rates.
+The only other scaled coefficient larger than 0.1 in magnitude is the proportion of private coverage (-0.130). This makes sense along the same reasoning as for median income, but the estimate is also somewhat influenced by collinearity with median income.
 
 We calculated the $R^2$ statistics using leave-one-out cross-validation which is 0.4441.
  
