@@ -484,7 +484,7 @@ statenames$lab <- paste(c(state.abb, 'DC')[match(statenames$region, c(tolower(st
 
 ```
 
-```{R USMAP, echo=FALSE, cache=TRUE, message=FALSE,warning=FALSE}
+```{R USMAP, cache=TRUE, eval=FALSE}
 ggplot(data=mergedf) + geom_polygon(aes(x=long, y=lat, fill=averageresidual, group=region)) + 
   scale_fill_gradient(low="yellow",high="red", name="Residual") +
   geom_text(data=statenames,aes(clong,clat,label=lab,inherit.aes = FALSE,label.size=0.001)) +
@@ -595,9 +595,7 @@ hybridoptimalBIC.loocv <- loocv(hybridoptimalBIC,data=cancermodel)
 library(glmnet)
 # Producing a 1-standard-error-lambda RIDGE regression model
 # We also used similar codes for LASSO regression
-cancer.dm <- cancer %>% 
-  select(!c("Geography", "medIncome", "binnedInc", "PctBlack", "deathRate")) %>%
-  data.matrix()
+cancer.dm <- cancermodel %>% select(!c("deathRate")) %>% data.matrix()
 lm.ridge <- glmnet(cancer.dm, cancer$deathRate, alpha=0)
 lm.ridge.cv <- cv.glmnet(cancer.dm, cancer$deathRate, alpha=0)
 # Create Model Plot Func
