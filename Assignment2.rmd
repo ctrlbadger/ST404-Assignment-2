@@ -483,7 +483,7 @@ statenames$lab <- paste(c(state.abb, 'DC')[match(statenames$region, c(tolower(st
 
 ```
 
-```{R USMAP, cache=TRUE, eval=FALSE}
+```{R USMAP, cache=TRUE, eval=FALSE, include=FALSE}
 ggplot(data=mergedf) + geom_polygon(aes(x=long, y=lat, fill=averageresidual, group=region)) +
   scale_fill_gradient(low="yellow",high="red", name="Residual") +
   geom_text(data=statenames,aes(clong,clat,label=lab,inherit.aes = FALSE,label.size=0.001)) +
