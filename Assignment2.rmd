@@ -381,10 +381,8 @@ kable(y, caption="Parameter Estimates of the Models")
 From the estimates output above, the Lasso regression eliminates a considerable number of predictor variables. The Lasso regression model has the following non-zero predictor estimates: __Incidence Rate__, __Percent Employed 16 and Over__, __Percent Private Coverage__,  __Percent Employer Provided Private Coverage__, __Education Levels__, __Log of Percent Black__,
 __Log of Median Income__.
 
-$$
-Death Rate = 470.47 + 0.23\ IncidenceRate -0.25\ Pecent Employed\_Over16 + 0.29\ PercentUnemployed\_Over16 \\- 0.32\  PercentPrivateCoverage  +0.21\ Percent Employer Provided Private Coverage \\-10.05\ Education Levels +0.90\ Log PercentBlack
--32.39\ Log Median Income
-$$
+$Death Rate = 470.47+0.23IncidenceRate-0.25PercentEmployed\_Over16+\\0.29PercentUnemployed\_Over16-0.32PercentPrivateCoverage+\\0.21PercentEmployerProvidedPrivateCoverage-10.05EducationLevels+\\0.9log(PercentBlack+0.05)-32.39Log(MedianIncome)$
+
 The two age variables and Average Household Size are removed from the model. This agrees with our EDA which showed that they have very close to zero correlation coefficient with Death Rate.
 Both employment variables and two out of three healthcare coverage variables are included in this model. We believe this is reasonable because although they showed evidence of collinearity/multicollinearity, we did not have strong arguments to remove any of them. Therefore, we agreed with the variable selection suggested by the Lasso Regression.
 
