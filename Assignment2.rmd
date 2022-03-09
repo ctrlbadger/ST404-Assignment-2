@@ -9,7 +9,7 @@ output:
 fontsize: 11pt
 linestretch: 1.5
 bibliography: references.bib
-header-includes: 
+header-includes:
 - \usepackage{float}
 ---
 
@@ -80,7 +80,7 @@ We used __Bayesian Information Criteria(BIC)__ in our analysis. This penalises a
 
 ### RIDGE and LASSO Regression
 
-We implemented penalised regression models for RIDGE and LASSO to counteract the multicollinearity issues in the data. RIDGE Regression gave a strong predictive model however all variables were included and many were close to 0. 
+We implemented penalised regression models for RIDGE and LASSO to counteract the multicollinearity issues in the data. RIDGE Regression gave a strong predictive model however all variables were included and many were close to 0.
 The LASSO model contains eight variables which is the simplest model among our approaches and gave similar predictive power. As the purpose of this report is to reveal patterns in the mortality rate, we believed it is best to choose a simple model for stronger explanatory power.
 
 ### Final Model Choice and Diagnostics
@@ -105,7 +105,7 @@ In order to develop this model in the future and improve its capabilities we mak
 
 ## Areas that do not conform the general pattern
 
-Below we a heatmap of the average residuals according to our model where we have illustrated the average performance of our model in each state. For states that are yellow and have a negative quantity the model is overfitting and predicitng a higher death rate than what was observed, whereas the red states the model is underfitting and thus predicitng a lower quantity than the death rate we observed. We aim to have the average residual for each state close to 0. We further analyse this in section 2.3.
+Below we a heatmap of the average residuals according to our model (Fig.1) where we have illustrated the average performance of our model in each state. For states that are yellow and have a negative quantity the model is overfitting and predicitng a higher death rate than what was observed, whereas the red states the model is underfitting and thus predicitng a lower quantity than the death rate we observed. We aim to have the average residual for each state close to 0. We further analyse this in section 2.3.
 
 ![Residuals Map of US](map.png)
 
@@ -133,7 +133,7 @@ imputed = predict(mod1,missdf)
 cancer[which(is.na(cancer$PctEmployed16_Over)==TRUE),"PctEmployed16_Over"] = imputed
 ```
 
-For counties with Average Household Size less than one we took the decision to scale these values by 100 and kept them in the data set. This fixed the normality of Average Household Sizee as shown in the histogram.
+For counties with Average Household Size less than one we took the decision to scale these values by 100 and kept them in the data set. This fixed the normality of Average Household Sizee as shown in the histogram. (Fig.2)
 
 ```{r averageHouseholdSize, echo=FALSE,fig.cap="Histograms before(Left) and after(Right)", fig.asp=0.5}
 # Scale average household sizes that are less than 1 by 100
@@ -146,7 +146,7 @@ hist(cancer$AvgHouseholdSize, breaks=30, xlab="AvgHouseholdSize", main="Histogra
 
 ### Outliers {#outliers}
 
-We found counties with high incidence rates, namely __Union County, Florida__ and __Williamsburg City, Virginia__. We looked into the cook's distance plots (Fig.2) and noticed only 'Williamsburg City, Virginia' has large cook's distance and hence influential. The first cook's distance plot used a linear model with only incidenceRate as the predictor variable. The second used all the numerical variables. We concluded although __Union County, Florida__ has high leverage, it is not influential and hence should be kept in our data set.
+We found counties with high incidence rates, namely __Union County, Florida__ and __Williamsburg City, Virginia__. We looked into the cook's distance plots (Fig.3) and noticed only 'Williamsburg City, Virginia' has large cook's distance and hence influential. The first cook's distance plot used a linear model with only incidenceRate as the predictor variable. The second used all the numerical variables. We concluded although __Union County, Florida__ has high leverage, it is not influential and hence should be kept in our data set.
 
 
 ```{r incidenceRateRemoval, echo=FALSE, fig.asp=0.5, fig.cap="Cook's distance plots of models with only incidence Rate(Left) and all variables(Right)"}
@@ -168,7 +168,7 @@ cancer$logpctblack = log(cancer$PctBlack+0.05)
 cancer$logmedincome = log(cancer$medIncome)
 ```
 
-The following residual plots (Fig.3) show the improvements in homoscedasticity in Percent Black and Median Income after log-transform respectively.
+The residual plots (Fig.4) show the improvements in homoscedasticity in Percent Black and Median Income after log-transform respectively.
 
 ```{r heteroscedasticity1,echo=FALSE, fig.asp=0.5, fig.cap="Residuals plot Percent Black(Left) and Log Percent Black(Right"}
 # Showing improvements in homoscedasticity in PctBlack
@@ -328,7 +328,7 @@ cancer.lasso.dm <- cancer %>%
   data.matrix()
 ```
 
-We used cross-validation from the glmnet library which leaves out a 10th of the data every time. We produced the following plot (Fig. 4) of mean-squared error against log(lambda). We decided to use the 1-standard-error-lambda because this likely to shrink some predictor variables to zero, performing variable selection. We prefer a simpler model. (See Appendix 5.2.3)
+We used cross-validation from the glmnet library which leaves out a 10th of the data every time. We produced the following plot (Fig. 5) of mean-squared error against log(lambda). We decided to use the 1-standard-error-lambda because this likely to shrink some predictor variables to zero, performing variable selection. We prefer a simpler model. (See Appendix 5.2.3)
 
 ```{r echo=FALSE, fig.asp=0.5, fig.cap="Mean-squared error against log(lambda)", message=FALSE,warning=FALSE}
 set.seed((934))
@@ -344,9 +344,9 @@ lm.lasso.1se.fitted <- predict(lm.lasso.1se, newx=cancer.lasso.dm)
 lm.lasso.1se.residuals <- cancer$deathRate - lm.lasso.1se.fitted
 ```
 
-We produced a plot (Fig.5) that shows a trace of each parameter estimate for different values of log(lambda). We scaled the model for a better visual interpretation.
+We produced a plot (Fig.6) that shows a trace of each parameter estimate for different values of log(lambda). We scaled the model for a better visual interpretation.
 
-```{r echo=FALSE, fig.cap="Trace of parameter estimates for different lambda",fig.asp=0.5, message=FALSE,warning=FALSE}
+```{r, echo=FALSE, fig.cap="Trace of parameter estimates for different lambda",fig.asp=0.5, message=FALSE,warning=FALSE}
 lm.lasso.scaled<-glmnet(scale(cancer.lasso.dm),cancer$deathRate,alpha=1)
 traceLogLambda(lm.lasso.scaled,lm.lasso.cv,ylim=c(-10,10), sub="LASSO trace against log(lambda)")
 ```
@@ -457,7 +457,7 @@ mrp <- multResidualPlot(residual.list, fitted.list,
 mrp
 ```
 
-We see from the plot above that all three models appear to exhibit constant variance with an even spread of points as well as having a mean of zero with the distributions symmetrical about zero. Thus satisfying our key linear regression assumptions of homeoscedasticity and residuals having a mean of zero and thus providing further evidence that the LASSO model is a suitable model with respect to its residuals.
+We see from the plot above (Fig.7) that all three models appear to exhibit constant variance with an even spread of points as well as having a mean of zero with the distributions symmetrical about zero. Thus satisfying our key linear regression assumptions of homeoscedasticity and residuals having a mean of zero and thus providing further evidence that the LASSO model is a suitable model with respect to its residuals.
 
 ```{r ResidualPlot 2, eval=FALSE, include=FALSE}
 library(plotly)
@@ -492,6 +492,13 @@ ggplot(data=mergedf) + geom_polygon(aes(x=long, y=lat, fill=averageresidual, gro
 
 # Author Contributions
 
+Remus Gong contributed to Findings, Statistical Methodology, Lasso Regression and Appendix.
+Sam Glanfield contributed to Findings, Statistical Methodology, Stepwise Regression and Heatmap.
+Thomas Broadbent contributed to Findings,  Statistical Methodology, RIDGE and LASSO Regression, $R^2$ Cross Validation and Appendix.
+
+# References
+
+<div id="refs"></div>
 
 
 \pagebreak
