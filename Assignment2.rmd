@@ -41,7 +41,7 @@ lasso.coefs.tab <-cbind(lasso.coefs, lasso.scaled.coefs.ordered)
 colnames(lasso.coefs.tab) <- c("Non-Scaled", "Scaled")
 save(lasso.coefs.tab, file="lasso.coefs.tab.rdata")
 ```
-
+\small
 ```{r, echo=FALSE, fig.pos='H', fig.cap="LASSO Model"}
 load(file="lasso.coefs.tab.rdata")
 kable(t(lasso.coefs.tab[lasso.coefs.tab[, 1] != 0, ]), row.names=FALSE)
@@ -50,7 +50,7 @@ kable(t(lasso.coefs.tab[lasso.coefs.tab[, 1] != 0, ]), row.names=FALSE)
 #%>%
   #kable_styling(latex_options = "HOLD_position")
 ```
-
+\normalsize
 
 Understandably cancer diagnoses are a key predictor for death rates, with an increase in the number of cancer diagnoses by 50 per 100,000 increasing cancer death rates by 10 per 100,000. This of course does not imply that there should be a policy to decrease cancer diagnoses. Increasing cancer diagnoses will lead to more people with cancer on death certificates even if cancer may not have been the primary cause of death.
 Wealthier north western states have similar mean incidence rates to poorer south western states but much lower death rates showing that diagnoses are a good baseline additional predictors for poverty need to be included.
