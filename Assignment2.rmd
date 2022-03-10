@@ -62,7 +62,7 @@ Due to the strong collinearity of many variables and thus our choice of regressi
 ### Missing/Incorrect Values and Outliers
 
 We identified 152 missing values in __Percent Employed 16 and Over__. As these values were Missing Completely at Random we imputed them back into our data set with a linear model. We also identified values in __Average Household Size__ that were unreasonably small. We believed this is an error in data entry and we scaled them by 100.
-For outliers, We removed 'Union County, Florida' and 'Williamsburg City, Virginia' because of there high __Incidence Rates__.
+We removed 'Union County, Florida' and 'Williamsburg City, Virginia' because of their outlier values in __Incidence Rate__.
 
 ### Transformations
 
@@ -75,7 +75,7 @@ We did not include __Geography__ as it is an id variable. __Binned Income__ was 
 
 ### Stepwise Regression
 
-We used __Bayesian Information Criteria(BIC)__ in our analysis. This penalises additional parameters harder than __Akaike information criterion(AIC)__ which agrees with parsimony in our modelling. We performed forward, backward and hybrid stepwise regression to account for local minimums. In all of the models that were generated we notice that we have groups of parameters that are similar and hence induce multicollinearity in the models. For example, we see both __Percent Married__ and __Percent Married Households__ in the models and as stepwise methods do not account for multicollinearity this causes increases in the variance of our coefficient estimates and makes the model sensitive to changes, thus reducing drastically the predictive power of the model. In order to address this issue we apply Ridge and LASSO techniques which account for this.
+We used the __Bayesian Information Criterion(BIC)__ in our analysis, which penalises additional parameters harder than the  __Akaike Information Criterion(AIC)__, agreeing with parsimony in our modelling. We performed forward, backward and hybrid stepwise regression to avoid local minima. In all of the models that were generated we groups of similar parameters inducing multicollinearity. For example, we see both __Percent Married__ and __Percent Married Households__ in the models and as stepwise methods do not account for multicollinearity this causes increases in the variance of our coefficient estimates and makes the model sensitive to changes, thus reducing drastically the predictive power of the model. In order to address this issue we apply Ridge and LASSO techniques which account for this.
 
 ### RIDGE and LASSO Regression
 
