@@ -1,5 +1,6 @@
 ---
 title: "ST404 Assignment 2"
+subtitle: "Linear Model for US Cancer Mortality Rate"
 author: "Frank Or, Remus Gong, Sam Glanfield, Thomas Broadbent"
 date: "`r Sys.Date()`"
 output:
