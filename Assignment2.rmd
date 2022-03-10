@@ -224,7 +224,7 @@ hybridoptimalBIC.loocv <- loocv(hybridoptimalBIC,data=cancermodel)
 
 To address the multicollinearity present in the data we assessed the viability of a Ridge Regression Model. For this we fitted all continuous variables as predictors using the `glmnet` package.
 
-Although Ridge penalisation does not remove variables, the trace plot shows many variables were shrunk close to 0, suggesting these predictors have insignificant predictive power. (See Apendix 5.2.2)
+Although Ridge penalisation does not remove variables, the trace plot shows many variables were shrunk close to 0, suggesting these predictors have insignificant predictive power. (See Appendix 5.2.2)
 
 ```{r Ridge 1, include=FALSE}
 library(glmnet)
@@ -371,7 +371,7 @@ Both employment variables and two out of three healthcare coverage variables are
 
 The most important predictors are those with the largest scaled coefficient estimates, incidence rate (+0.426) and median income (-0.284). It is intuitively clear why these would have the largest impact: more cases of cancer mean more deaths, and higher median income may be associated with affording better treatments which reduce mortality rates. The only other scaled coefficient larger than 0.1 in magnitude is the proportion of private coverage (-0.130). This makes sense along the same reasoning as for median income, but the estimate is also somewhat influenced by collinearity with median income.
 
-We calculated the $R^2$ statistics using leave-one-out cross-validation which is 0.4441.
+We calculated a leave-one-out cross-validated $R^2$ statistic of 0.4441.
 
 ```{r LASSO_RMSE, include=FALSE, cache=TRUE}
 numCores <- detectCores()
