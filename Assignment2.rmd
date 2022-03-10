@@ -223,7 +223,7 @@ hybridoptimalBIC.loocv <- loocv(hybridoptimalBIC,data=cancermodel)
 
 To address the multicollinearity present in the data we assessed the viability of a Ridge Regression Model. For this we fitted all continuous variables as predictors using the `glmnet` package.
 
-The trace plot shows that the Ridge penalisation method reduced many variables close to 0 but did not remove any variables from the model itself suggesting that these predictors are insignificant when it comes to prediction. (See Apendix 5.2.2)
+Although Ridge penalisation does not remove variables, the trace plot shows many variables were shrunk close to 0, suggesting these predictors have insignificant predictive power. (See Apendix 5.2.2)
 
 ```{r Ridge 1, include=FALSE}
 library(glmnet)
