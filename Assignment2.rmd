@@ -325,7 +325,7 @@ cancer.lasso.dm <- cancer %>%
   data.matrix()
 ```
 
-We used cross-validation from the glmnet library which leaves out a 10th of the data every time. We produced the following plot (Fig. 5) of mean-squared error against log(lambda). We decided to use the 1-standard-error-lambda because this is likely to shrink some predictor variables to zero, performing variable selection. We prefer a simpler model. (See Appendix 4.2.3)
+We used cross-validation from the glmnet library which leaves out a 10th of the data every time. We produced the following plot (Fig. 5) of mean-squared error against log($\lambda$). We decided to use the 1-standard-error-$\lambda$ because this is likely to shrink some predictor variables to zero, performing variable selection. We prefer a simpler model. (See Appendix 4.2.3)
 
 ```{r echo=FALSE, fig.asp=0.5, fig.cap="Mean-squared error against log(lambda)", message=FALSE,warning=FALSE}
 set.seed((934))
@@ -347,7 +347,7 @@ We produced a plot (Fig.6) that shows a trace of each parameter estimate for dif
 lm.lasso.scaled<-glmnet(scale(cancer.lasso.dm),cancer$deathRate,alpha=1)
 traceLogLambda(lm.lasso.scaled,lm.lasso.cv,ylim=c(-10,10), sub="LASSO trace against log(lambda)")
 ```
-The LASSO regression using 1-standard-error-lambda produced the following parameter estimates. Alongside we see the parameter estimates for Ridge regression and stepwise regression to allow for easier comparison of the models.
+The LASSO regression using 1-standard-error-$\lambda$ produced the following parameter estimates. Alongside we see the parameter estimates for Ridge regression and stepwise regression to allow for easier comparison of the models.
 
 \scriptsize
 ```{r,echo=FALSE}
