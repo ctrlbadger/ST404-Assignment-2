@@ -36,7 +36,7 @@ library(ggplot2)
 
 ## Key Findings
 
-Given our preferred model the most important predictors for cancer death rates for a given state were incidence rates, median income and private health care coverage. All predictors for the model are in the table below with the parameter estimate and a scaled model to show importance of predictors. This shows that `incidenceRate` and `log medianIncome` followed by `PctPrivateCoverage` have the largest influence over death rates. The table shows in the first row the unscaled model parameters and in the second the scaled model parameters, a larger value indicates the predictor having more affect on death rates.
+Given our preferred model the most important predictors for cancer death rates for a given state were incidence rates, median income and private health care coverage. All predictors for the model are in the table below with the parameter estimate and a scaled model to show the importance of the predictors. This shows that `incidenceRate` and `log medianIncome` followed by `PctPrivateCoverage` have the largest influence over death rates. The table shows in the first row the unscaled model parameters and in the second the scaled model parameters, a larger value indicates the predictor having more affect on death rates.
 
 ```{r, eval=FALSE, include=FALSE}
 lasso.coefs.tab <-cbind(lasso.coefs, lasso.scaled.coefs.ordered)
@@ -53,8 +53,7 @@ kable(t(lasso.coefs.tab[lasso.coefs.tab[, 1] != 0, ]), row.names=FALSE, align='c
 
 \normalsize
 
-Understandably cancer diagnoses are a key predictor for death rates, with an increase in the number of cancer diagnoses by 50 per 100,000 increasing cancer death rates by 10 per 100,000. This of course does not imply that there should be a policy to decrease cancer diagnoses. Increasing cancer diagnoses will lead to more people with cancer on death certificates even if cancer may not have been the primary cause of death.
-Wealthier north western states have similar mean incidence rates to poorer south western states but much lower death rates showing that diagnoses are a good baseline however additional predictors for poverty and coverage give a stronger model.
+Understandably cancer diagnoses are a key predictor for death rates, with an increase in the number of cancer diagnoses by 50 per 100,000 increasing cancer death rates by 10 per 100,000. This of course does not imply that there should be a policy to decrease cancer diagnoses. Increasing cancer diagnoses will lead to more people with cancer on death certificates even if cancer may not have been the primary cause of death. Wealthier north western states have similar mean incidence rates to poorer south western states but much lower death rates showing that diagnoses are a good baseline however additional predictors for poverty and coverage give a stronger model.
 
 Due to the strong collinearity of many variables and thus our choice of regression method, we can not give a strong interpretation for keeping all but one variable the same and giving the associated change in death rates. An increased Death Rate is more likely if a county has a low median income, low private coverage, these though will be dependent on low employment and high unemployment percentages which may be because of a low education rate. Due to many variables explaining the same "information" about death rates the LASSO method reduces model complexity, for example even though Percent Public Coverage is correlated well with death rates it can be left out of the model as it is strongly correlated with both percent private coverage and employee provided coverage.
 
@@ -76,7 +75,7 @@ We did not include __Geography__ as it is an id variable. __Binned Income__ was 
 
 ### Stepwise Regression
 
-We used __Bayesian Information Criteria(BIC)__ in our analysis. This penalises additional parameters harder than __Akaike information criterion(AIC)__ which agrees with parsimony in our modelling. We performed forward, backward and hybrid stepwise regression to account for local minimums. In all of the models that were generated we notice that we have groups of parameters that are similar and hence induce multicollinearity in the models. For example, we see both __Percent Married__ and __Percent Married Households__ in the models and as stepwise methods do not account for multicollinearity this causes increases in the variance of our coefficient estimates and makes the model sensitive to changes, thus reducing drastically the predictive power of the model. In order to address the issue of multicollinearity we apply Ridge and Lasso techniques which account for this.
+We used __Bayesian Information Criteria(BIC)__ in our analysis. This penalises additional parameters harder than __Akaike information criterion(AIC)__ which agrees with parsimony in our modelling. We performed forward, backward and hybrid stepwise regression to account for local minimums. In all of the models that were generated we notice that we have groups of parameters that are similar and hence induce multicollinearity in the models. For example, we see both __Percent Married__ and __Percent Married Households__ in the models and as stepwise methods do not account for multicollinearity this causes increases in the variance of our coefficient estimates and makes the model sensitive to changes, thus reducing drastically the predictive power of the model. In order to address this issue we apply Ridge and Lasso techniques which account for this.
 
 ### RIDGE and LASSO Regression
 
@@ -85,16 +84,13 @@ The LASSO model contains eight variables which is the simplest model among our a
 
 ### Final Model Choice and Diagnostics
 
-We used residuals plot and QQ plot to diagnose the stepwise regression model. Both plots are satisfactory, agreeing with model assumptions. Performing Leave-one-out cross-validation for the stepwise model gave an $R^2$ value of $0.4621$.
-Doing the same cross-validation for our Ridge and Lasso model gave us an $R^2$ of $0.4436$ and $0.4441$ respectively.
+We used residuals plot and QQ plot to diagnose the stepwise regression model. Both plots are satisfactory, agreeing with model assumptions. Performing Leave-one-out cross-validation for the stepwise model gave an $R^2$ value of $0.4621$. Doing the same cross-validation for our Ridge and Lasso model gave us an $R^2$ of $0.4436$ and $0.4441$ respectively.
 
-The stepwise model fits the observed data the best among all our models. The Lasso and the Ridge model is similar in this sense.
-However, the Lasso model contains the least number of predictor variables and we believed this is the most important criterion.
-Thus from our analysis briefly outlined above and in the next section we recommend the LASSO model due to its mix of predictive and explanatory power as well as being a simple model.
+The stepwise model fits the observed data the best among all our models. The Lasso and the Ridge model is similar in this sense. However, the Lasso model contains the least number of predictor variables and we believed this is the most important criterion. Thus from our analysis briefly outlined above and in the next section we recommend the LASSO model due to its mix of predictive and explanatory power as well as being a simple model.
 
 ## Limitations of Analysis
 
-One limitation of using LASSO regression is that it does not completely handle the problem of multicollinearity, however it reduces the multicollinearity present in the modelby a large amount. Often it selects one feature from a group of correlated features, which happens arbitrarily in nature. In our model, this happens on the three health care coverage variables, where Percent Public Coverage was dropped. However, in our case, this is not a severe problem as we focus more on the explanatory power than the predictive power. LASSO regression reduces our model to 8 predictor variables and this leads to a loss of predictive power. At the same time, the log transformed variables are difficult to interpret.
+One limitation of using LASSO regression is that it does not completely handle the problem of multicollinearity, however it reduces the multicollinearity present in the model by a large amount. Often it selects one feature from a group of correlated features, which happens arbitrarily in nature. In our model, this happens on the three health care coverage variables, where Percent Public Coverage was dropped. However, in our case, this is not a severe problem as we focus more on the explanatory power than the predictive power. LASSO regression reduces our model to 8 predictor variables and this leads to a loss of predictive power. At the same time, the log transformed variables are difficult to interpret.
 
 Another issue is that LASSO models are difficult to diagnose. Unlike stepwise regressions, it is difficult to produce hypothesis tests to check the statistical significance of the predictors.
 
@@ -105,7 +101,7 @@ In order to develop this model in the future and improve its capabilities we mak
 
 ## Areas that do not conform the general pattern
 
-Below we a heatmap of the average residuals according to our model (Fig.1) where we have illustrated the average performance of our model in each state. For states that are yellow and have a negative quantity the model is overfitting and predicitng a higher death rate than what was observed, whereas the red states the model is underfitting and thus predicitng a lower quantity than the death rate we observed. We aim to have the average residual for each state close to 0. We further analyse this in section 2.3.
+Below we see a heatmap of the average residuals according to our model (Fig.1) where we have illustrated the average performance of our model in each state. For states that are yellow and have a negative quantity the model is overfitting and predicitng a higher death rate than what was observed, whereas the red states the model is underfitting and thus predicitng a lower quantity than the death rate we observed. We aim to have the average residual for each state close to 0. We further analyse this in section 2.3.
 
 ![Residuals Map of US](map.png)
 
@@ -328,7 +324,7 @@ cancer.lasso.dm <- cancer %>%
   data.matrix()
 ```
 
-We used cross-validation from the glmnet library which leaves out a 10th of the data every time. We produced the following plot (Fig. 5) of mean-squared error against log(lambda). We decided to use the 1-standard-error-lambda because this likely to shrink some predictor variables to zero, performing variable selection. We prefer a simpler model. (See Appendix 5.2.3)
+We used cross-validation from the glmnet library which leaves out a 10th of the data every time. We produced the following plot (Fig. 5) of mean-squared error against log(lambda). We decided to use the 1-standard-error-lambda because this is likely to shrink some predictor variables to zero, performing variable selection. We prefer a simpler model. (See Appendix 5.2.3)
 
 ```{r echo=FALSE, fig.asp=0.5, fig.cap="Mean-squared error against log(lambda)", message=FALSE,warning=FALSE}
 set.seed((934))
@@ -493,7 +489,7 @@ ggplot(data=mergedf) + geom_polygon(aes(x=long, y=lat, fill=averageresidual, gro
 # Author Contributions
 
 Remus Gong contributed to Findings, Statistical Methodology, LASSO Regression and Appendix.
-Sam Glanfield contributed to Findings, Statistical Methodology, Stepwise Regression and Heatmap.
+Sam Glanfield contributed to Findings, Statistical Methodology, Appendix, Stepwise Regression and Heatmap.
 Thomas Broadbent contributed to Findings,  Statistical Methodology, RIDGE and LASSO Regression, $R^2$ Cross Validation and Appendix.
 Frank Or contributed to Findings, Statistical Methodology, and LASSO Regression, Poster.
 
