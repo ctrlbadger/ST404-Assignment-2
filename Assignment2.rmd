@@ -84,9 +84,9 @@ The LASSO model contains eight variables which is the simplest model among our a
 
 ### Final Model Choice and Diagnostics
 
-We used residuals plot and QQ plot to diagnose the stepwise regression model. Both plots are satisfactory, agreeing with model assumptions. Performing Leave-one-out cross-validation for the stepwise model gave an $R^2$ value of $0.4621$. Doing the same cross-validation for our Ridge and Lasso model gave us an $R^2$ of $0.4436$ and $0.4441$ respectively.
+We used residuals plot and QQ plot to diagnose the stepwise regression model. Both plots are satisfactory, agreeing with model assumptions. Performing Leave-one-out cross-validation for the stepwise model gave an $R^2$ value of $0.4621$. Doing the same cross-validation for our Ridge and LASSO model gave us an $R^2$ of $0.4436$ and $0.4441$ respectively.
 
-The stepwise model fits the observed data the best among all our models. The Lasso and the Ridge model is similar in this sense. However, the Lasso model contains the least number of predictor variables and we believed this is the most important criterion. Thus from our analysis briefly outlined above and in the next section we recommend the LASSO model due to its mix of predictive and explanatory power as well as being a simple model.
+The stepwise model fits the observed data the best among all our models. The LASSO and the Ridge model is similar in this sense. However, the LASSO model contains the least number of predictor variables and we believed this is the most important criterion. Thus from our analysis briefly outlined above and in the next section we recommend the LASSO model due to its mix of predictive and explanatory power as well as being a simple model.
 
 ## Limitations of Analysis
 
@@ -101,7 +101,7 @@ In order to develop this model in the future and improve its capabilities we mak
 
 ## Areas that do not conform the general pattern
 
-Below we see a heatmap of the average residuals according to our model (Fig.1) where we have illustrated the average performance of our model in each state. For states that are yellow and have a negative quantity the model is overfitting and predicitng a higher death rate than what was observed, whereas the red states the model is underfitting and thus predicitng a lower quantity than the death rate we observed. We aim to have the average residual for each state close to 0. We further analyse this in section 2.3.
+Below we see a heatmap of the average residuals according to our model (Fig.1) where we have illustrated the average performance of our model in each state. For states that are yellow and have a negative quantity the model is overfitting and predicting a higher death rate than what was observed, whereas the red states the model is underfitting and thus predicitng a lower quantity than the death rate we observed. We aim to have the average residual for each state close to 0. We further analyse this in section 2.3.
 
 ![Residuals Map of US](map.png)
 
@@ -203,7 +203,7 @@ summary(hybridoptimalBIC)
 
 We computed the Variance Inflation Factors (VIF) for this model and found that there are numerous values that are at least 5 indicating multicollinearity in the predictors. In particular, we saw a VIF of at least 10 in Percent Married and a VIF of 8 in Percent Married Households. As well as in log(Median Income), Percent Employed 16 and Over, Percent Employers Private Coverage and Percent Private Coverage. Due to this frequent multicollinearity between the predictors in the stepwise model, the stepwise model is not a suitable approach as multicollinearity was not taken into account and thus we proceeded with Ridge and Lasso Regression in the following sections, hoping for a model with reduced multicollinearity.
 
-To complete the section on stepwise regression we performed leave-one-out cross-validation (in order to compute the $R^2$ of the stepwise models and also the Root Mean Squared Error (See Appendix 5.2.1). This allowed us to compare these models with the Ridge and Lasso models we generate in the enxt sections. Performing this we see in the stepwise model that we have an $R^2$ value of 0.4623.
+To complete the section on stepwise regression we performed leave-one-out cross-validation (in order to compute the $R^2$ of the stepwise models and also the Root Mean Squared Error (See Appendix 5.2.1). This allowed us to compare these models with the Ridge and LASSO models we generate in the enxt sections. Performing this we see in the stepwise model that we have an $R^2$ value of 0.4623.
 
 ```{r LOOCVforStepwise, cache=TRUE, include=FALSE}
 library(caret)
@@ -346,7 +346,7 @@ We produced a plot (Fig.6) that shows a trace of each parameter estimate for dif
 lm.lasso.scaled<-glmnet(scale(cancer.lasso.dm),cancer$deathRate,alpha=1)
 traceLogLambda(lm.lasso.scaled,lm.lasso.cv,ylim=c(-10,10), sub="LASSO trace against log(lambda)")
 ```
-The Lasso regression using 1-standard-error-lambda produced the following parameter estimates. Alongside we see the parameter estimates for Ridge regression and stepwise regression to allow for easier comparison of the models.
+The LASSO regression using 1-standard-error-lambda produced the following parameter estimates. Alongside we see the parameter estimates for Ridge regression and stepwise regression to allow for easier comparison of the models.
 
 \scriptsize
 ```{r,echo=FALSE}
@@ -363,13 +363,12 @@ kable(y, caption="Parameter Estimates of the Models")
 
 ### Interpretation
 
-From the estimates output above, the Lasso regression eliminates a considerable number of predictor variables. The Lasso regression model has the following non-zero predictor estimates: __Incidence Rate__, __Percent Employed 16 and Over__, __Percent Private Coverage__,  __Percent Employer Provided Private Coverage__, __Education Levels__, __Log of Percent Black__, __Log of Median Income__.
+From the estimates output above, the Lasso regression eliminates a considerable number of predictor variables. The LASSO regression model has the following non-zero predictor estimates: __Incidence Rate__, __Percent Employed 16 and Over__, __Percent Private Coverage__,  __Percent Employer Provided Private Coverage__, __Education Levels__, __Log of Percent Black__, __Log of Median Income__.
 
 The two age variables and Average Household Size were removed from the model. This agreed with our EDA which showed that they have almost no correlation with death rate.
-Both employment variables and two out of three healthcare coverage variables are included in this model. We believe this is reasonable because although they showed evidence of collinearity/multicollinearity, we did not have strong arguments to remove any of them. Therefore, we agreed with the variable selection suggested by the Lasso Regression.
+Both employment variables and two out of three healthcare coverage variables are included in this model. We believe this is reasonable because although they showed evidence of collinearity/multicollinearity, we did not have strong arguments to remove any of them. Therefore, we agreed with the variable selection suggested by the LASSO Regression.
 
-The most important predictors are those with the largest scaled coefficient estimates, incidence rate (+0.426) and median income (-0.284). It is intuitively clear why these would have the largest impact: more cases of cancer mean more deaths, and higher median income may be associated with affording better treatments which reduce mortality rates.
-The only other scaled coefficient larger than 0.1 in magnitude is the proportion of private coverage (-0.130). This makes sense along the same reasoning as for median income, but the estimate is also somewhat influenced by collinearity with median income.
+The most important predictors are those with the largest scaled coefficient estimates, incidence rate (+0.426) and median income (-0.284). It is intuitively clear why these would have the largest impact: more cases of cancer mean more deaths, and higher median income may be associated with affording better treatments which reduce mortality rates. The only other scaled coefficient larger than 0.1 in magnitude is the proportion of private coverage (-0.130). This makes sense along the same reasoning as for median income, but the estimate is also somewhat influenced by collinearity with median income.
 
 We calculated the $R^2$ statistics using leave-one-out cross-validation which is 0.4441.
 
