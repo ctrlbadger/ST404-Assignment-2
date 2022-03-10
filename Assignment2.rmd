@@ -102,7 +102,7 @@ In order to develop this model in the future and improve its capabilities we mak
 
 ## Areas that do not conform to the general pattern
 
-Below we see a heatmap of the average residuals according to our model (Fig.1) where we have illustrated the average performance of our model in each state. For states that are yellow and have a negative quantity the model is overfitting and predicting a higher death rate than what was observed, whereas the red states the model is underfitting and thus predicitng a lower quantity than the death rate we observed. We aim to have the average residual for each state close to 0. We further analyse this in section 2.3.
+Below we see a heatmap of the average residuals according to our model (Fig.1) where we have illustrated the average performance of our model in each state. For states that are yellow and have a negative quantity the model is overfitting and predicting a higher death rate than what was observed, whereas in the red states the model is underfitting and thus predicting a lower death rate than observed. We aim to have the average residual for each state close to 0. We further analyse this in section 2.3.
 
 ![Residuals Map of US](map.png)
 
