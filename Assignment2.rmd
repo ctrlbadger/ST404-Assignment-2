@@ -99,7 +99,7 @@ Another issue is that LASSO models are difficult to diagnose. Unlike stepwise re
 In order to develop this model in the future and improve its capabilities we make the following suggestions. For a more complex model with a large number of predictors including the state as a variable will mean each state's unique qualities can be considered by this coefficient, but will greatly increase the complexity of the model. Another improvement is to add different health coverage costs for different states, as for example a low income state with cheap private insurance is likely to also have low death rates, but the model does not account for this.
 
 
-## Areas that do not conform the general pattern
+## Areas that do not conform to the general pattern
 
 Below we see a heatmap of the average residuals according to our model (Fig.1) where we have illustrated the average performance of our model in each state. For states that are yellow and have a negative quantity the model is overfitting and predicting a higher death rate than what was observed, whereas the red states the model is underfitting and thus predicitng a lower quantity than the death rate we observed. We aim to have the average residual for each state close to 0. We further analyse this in section 2.3.
 
