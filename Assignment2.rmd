@@ -488,13 +488,13 @@ ggplot(data=mergedf) + geom_polygon(aes(x=long, y=lat, fill=averageresidual, gro
 
 # Author Contributions
 
-Remus Gong contributed to Findings, Statistical Methodology, LASSO Regression and Appendix.
+Remus Gong contributed to Findings, Statistical Methodology, LASSO Regression, and Appendix.
 
-Sam Glanfield contributed to Findings, Statistical Methodology, Appendix, Stepwise Regression and Heatmap.
+Sam Glanfield contributed to Findings, Statistical Methodology, Appendix, Stepwise Regression, and Heatmap.
 
-Thomas Broadbent contributed to Findings,  Statistical Methodology, RIDGE and LASSO Regression, $R^2$ Cross Validation and Appendix.
+Thomas Broadbent contributed to Findings,  Statistical Methodology, RIDGE and LASSO Regression, $R^2$ Cross Validation, and Appendix.
 
-Frank Or contributed to Findings, Statistical Methodology, and LASSO Regression, Poster.
+Frank Or contributed to Findings, Statistical Methodology, LASSO Regression, and Poster.
 
 \pagebreak
 
