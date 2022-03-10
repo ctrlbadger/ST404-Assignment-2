@@ -80,7 +80,7 @@ We used the __Bayesian Information Criterion(BIC)__ in our analysis, which penal
 ### RIDGE and LASSO Regression
 
 We implemented penalised regression models for RIDGE and LASSO to counteract the multicollinearity issues in the data. RIDGE Regression gave a strong predictive model however all variables were included and many were close to 0.
-The LASSO model contains eight variables which is the simplest model among our approaches and gave similar predictive power. As the purpose of this report is to reveal patterns in the mortality rate, we believed it is best to choose a simple model for stronger explanatory power.
+The LASSO model contains eight variables which is the simplest model among our approaches and gave slightly less predictive power. As the purpose of this report is to reveal patterns in the mortality rate, we believed it is best to choose a simple model for stronger explanatory power.
 
 ### Final Model Choice and Diagnostics
 
