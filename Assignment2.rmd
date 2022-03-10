@@ -84,9 +84,9 @@ The LASSO model contains eight variables which is the simplest model among our a
 
 ### Final Model Choice and Diagnostics
 
-We used residuals plot and QQ plot to diagnose the stepwise regression model. Both plots are satisfactory, agreeing with model assumptions. Performing Leave-one-out cross-validation for the stepwise model gave an $R^2$ value of $0.4621$. Doing the same cross-validation for our Ridge and LASSO model gave us an $R^2$ of $0.4436$ and $0.4441$ respectively.
+We used residuals plot and QQ plot to diagnose the stepwise regression model. Both plots are satisfactory, agreeing with model assumptions. Performing Leave-one-out cross-validation for the stepwise model gave an $R^2$ value of $0.4621$, while the Ridge and LASSO models gave $R^2$ values of $0.4436$ and $0.4441$ respectively.
 
-The stepwise model fits the observed data the best among all our models. The LASSO and the Ridge model is similar in this sense. However, the LASSO model contains the least number of predictor variables and we believed this is the most important criterion. Thus from our analysis briefly outlined above and in the next section we recommend the LASSO model due to its mix of predictive and explanatory power as well as being a simple model.
+The stepwise model fits the observed data the best among all our models, while the LASSO and Ridge models performed similarly but marginally weaker. However, the LASSO model contains the least number of predictor variables and we believe this outweighs the slight loss in predictive accuracy. Thus from our analysis briefly outlined above and in the next section we recommend the LASSO model due to its mix of predictive and explanatory power as well as being a simple model.
 
 ## Limitations of Analysis
 
