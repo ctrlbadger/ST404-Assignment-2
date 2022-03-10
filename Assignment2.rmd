@@ -71,11 +71,11 @@ In order to fulfill the model assumptions, namely linearity, normality, and cons
 ## Modelling Approach
 
 We used Stepwise Regression, RIDGE Regression and LASSO Regression to build our model. We compared the outputs and the variables selections of these models. We also analyse the goodness of fits of these models using Leave-one-out cross validation, $R^2$ statistics and residuals analysis.
-We did not include __Geography__ as it is an id variable. __Binned Income__ was not used in the model as more information was included in __Median Income__.
+We did not include __Geography__ as it is an ID variable. __Binned Income__ was not used in the model as more information was included in __Median Income__.
 
 ### Stepwise Regression
 
-We used the __Bayesian Information Criterion(BIC)__ in our analysis, which penalises additional parameters harder than the  __Akaike Information Criterion(AIC)__, agreeing with parsimony in our modelling. We performed forward, backward and hybrid stepwise regression to avoid local minima. In all of the models that were generated we groups of similar parameters inducing multicollinearity. For example, we see both __Percent Married__ and __Percent Married Households__ in the models and as stepwise methods do not account for multicollinearity this causes increases in the variance of our coefficient estimates and makes the model sensitive to changes, thus reducing drastically the predictive power of the model. In order to address this issue we apply Ridge and LASSO techniques which account for this.
+We used the __Bayesian Information Criterion(BIC)__ in our analysis, which penalises additional parameters harder than the  __Akaike Information Criterion(AIC)__, agreeing with parsimony in our modelling. We performed forward, backward and hybrid stepwise regression to avoid local minima. In all of the models that were generated we see groups of similar parameters inducing multicollinearity. For example, we see both __Percent Married__ and __Percent Married Households__ in the models and as stepwise methods do not account for multicollinearity this causes increases in the variance of our coefficient estimates and makes the model sensitive to changes, thus reducing drastically the predictive power of the model. In order to address this issue we apply Ridge and LASSO techniques which account for this.
 
 ### RIDGE and LASSO Regression
 
@@ -92,7 +92,7 @@ The stepwise model fits the observed data the best among all our models, while t
 
 One limitation of using LASSO regression is that it does not completely handle the problem of multicollinearity, however it reduces the multicollinearity present in the model by a large amount. Often it selects one feature from a group of correlated features, which happens arbitrarily in nature. In our model, this happens on the three health care coverage variables, where Percent Public Coverage was dropped. However, in our case, this is not a severe problem as we focus more on the explanatory power than the predictive power. LASSO regression reduces our model to 8 predictor variables and this leads to a loss of predictive power. At the same time, the log transformed variables are difficult to interpret.
 
-Another issue is that LASSO models are difficult to diagnose. Unlike stepwise regressions, it is difficult to produce hypothesis tests to check the statistical significance of the predictors.
+Another issue is that LASSO models are difficult to diagnose. Unlike stepwise regression, it is difficult to produce hypothesis tests to check the statistical significance of the predictors.
 
 ## Further Improvements to the Model
 
