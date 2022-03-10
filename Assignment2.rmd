@@ -36,7 +36,7 @@ library(ggplot2)
 
 ## Key Findings
 
-Given our preferred model the most important predictors for cancer death rates for a given state were incidence rates, median income and private health care coverage. All predictors for the model are in the table below with the parameter estimate and a scaled model to show the importance of the predictors. This shows that `incidenceRate` and `log medianIncome` followed by `PctPrivateCoverage` have the largest influence over death rates. The table shows in the first row the unscaled model parameters and in the second the scaled model parameters, a larger value indicates the predictor having more affect on death rates.
+Given our preferred model the most important predictors for cancer death rates for a given state were incidence rates, median income and private health care coverage. All predictors for the model are in the table below with the parameter estimate and a scaled model to show the importance of the predictors. This shows that __Incidence Rate__ and __Log Median Income__ followed by __Percent Private Coverage__ have the largest influence over death rates. The table shows in the first row the unscaled model parameters and in the second the scaled model parameters. A larger value indicates the predictor having more affect on death rates.
 
 ```{r, eval=FALSE, include=FALSE}
 lasso.coefs.tab <-cbind(lasso.coefs, lasso.scaled.coefs.ordered)
@@ -44,7 +44,7 @@ colnames(lasso.coefs.tab) <- c("Non-Scaled", "Scaled")
 save(lasso.coefs.tab, file="lasso.coefs.tab.rdata")
 ```
 
-\scriptsize
+\small
 
 ```{r, echo=FALSE}
 load(file="lasso.coefs.tab.rdata")
@@ -62,7 +62,7 @@ Due to the strong collinearity of many variables and thus our choice of regressi
 ### Missing/Incorrect Values and Outliers
 
 We identified 152 missing values in __Percent Employed 16 and Over__. As these values were Missing Completely at Random we imputed them back into our data set with a linear model. We also identified values in __Average Household Size__ that were unreasonably small. We believed this is an error in data entry and we scaled them by 100.
-We removed 'Union County, Florida' and 'Williamsburg City, Virginia' because of their outlier values in __Incidence Rate__.
+We removed 'Union County, Florida' and 'Williamsburg City, Virginia' because of their outlier values in __Incidence Rate__. 
 
 ### Transformations
 
@@ -75,7 +75,7 @@ We did not include __Geography__ as it is an ID variable. __Binned Income__ was 
 
 ### Stepwise Regression
 
-We used the __Bayesian Information Criterion(BIC)__ in our analysis, which penalises additional parameters harder than the  __Akaike Information Criterion(AIC)__, agreeing with parsimony in our modelling. We performed forward, backward and hybrid stepwise regression to avoid local minima. In all of the models that were generated we see groups of similar parameters inducing multicollinearity. For example, we see both __Percent Married__ and __Percent Married Households__ in the models and as stepwise methods do not account for multicollinearity this causes increases in the variance of our coefficient estimates and makes the model sensitive to changes, thus reducing drastically the predictive power of the model. In order to address this issue we apply Ridge and LASSO techniques which account for this.
+We used the __Bayesian Information Criterion(BIC)__ in our analysis, which penalises additional parameters harder than the  __Akaike Information Criterion(AIC)__, agreeing with parsimony in our modelling. We performed forward, backward and hybrid stepwise regression to avoid local minima. In all of the models that were generated we see groups of similar parameters inducing multicollinearity. For example, we see both __Percent Married__ and __Percent Married Households__ in the models and as stepwise methods do not account for multicollinearity this causes increases in the variance of our coefficient estimates and makes the model sensitive to changes, thus reducing drastically the predictive power of the model. In order to address this issue we apply Ridge and LASSO techniques.
 
 ### RIDGE and LASSO Regression
 
@@ -84,7 +84,7 @@ The LASSO model contains eight variables which is the simplest model among our a
 
 ### Final Model Choice and Diagnostics
 
-We used residuals plot and QQ plot to diagnose the stepwise regression model. Both plots are satisfactory, agreeing with model assumptions. Performing Leave-one-out cross-validation for the stepwise model gave an $R^2$ value of $0.4621$, while the Ridge and LASSO models gave $R^2$ values of $0.4436$ and $0.4441$ respectively.
+We used residuals plot and QQ plot to diagnose the stepwise regression model. Both plots are satisfactory, agreeing with model assumptions. Performing Leave-one-out cross-validation for the stepwise model gave an $R^2$ value of $0.4621$, while the Ridge and LASSO models gave $R^2$ values of $0.4436$ and $0.4441$ respectively. (See Appendix 4.2)
 
 The stepwise model fits the observed data the best among all our models, while the LASSO and Ridge models performed similarly but marginally weaker. However, the LASSO model contains the least number of predictor variables and we believe this outweighs the slight loss in predictive accuracy. Thus from our analysis briefly outlined above and in the next section we recommend the LASSO model due to its mix of predictive and explanatory power as well as being a simple model.
 
@@ -119,7 +119,7 @@ load('cancer.rdata')
 
 ### Missing Or Incorrect Values
 
-We saw counties with missing values in Percentage Employed 16 and Over and we concluded that the data is Missing Completely at Random. In order to rectify this we impute this data by fitting a linear regression model of Percentage Employed 16 and Over on the remaining variables to estimate what these values would be. (See Appendix 5.1.1).
+We saw counties with missing values in Percentage Employed 16 and Over and we concluded that the data is Missing Completely at Random. In order to rectify this we impute this data by fitting a linear regression model of Percentage Employed 16 and Over on the remaining variables to estimate what these values would be. (See Appendix 4.1.1).
 
 ```{r impute, include=FALSE}
 # Impute the missing data seen in the data set
@@ -156,7 +156,7 @@ cancer <- filter(cancer, incidenceRate <= 850)
 
 ### Transformations {#transformations1}
 
-We transformed Percent Black by first shifting the values upwards by 0.05, to ensure we have no zero values, then take a log transform. We also transformed Median Income by again taking a log transformation. We performed these transformations to ensure the data was not heavily skewed and allowed for a more accurate model. (See Appendix 5.1.3)
+We transformed Percent Black by first shifting the values upwards by 0.05, to ensure we have no zero values, then take a log transform. We also transformed Median Income by again taking a log transformation. We performed these transformations to ensure the data was not heavily skewed and allowed for a more accurate model. (See Appendix 4.1.3)
 
 ```{r transformationsaaaa, include=FALSE}
 # Log transforming the heavily skewed distributions of PctBlack and medIncome
@@ -194,16 +194,16 @@ hybridoptimalBIC = step(c0,direction="both",
 scope=list("lower"=c0,"upper"=cmax),trace=0,k=log(3045))
 ```
 
-For the model generated we can see from the summary output (See Appendix 5.2.1), with strong evidence, that all the coefficients are different from zero. From the output we would expect multicollinearity in these models due to variables that measure similar or opposite quantities, for example Percent Married and Percent Married Households.
+For the model generated we can see from the summary output (See Appendix 4.2.1), with strong evidence, that all the coefficients are different from zero. From the output we would expect multicollinearity in these models due to variables that measure similar or opposite quantities, for example Percent Married and Percent Married Households.
 
 ```{r summaryAICBIC, include=FALSE}
 # We compute the summaries of the stepwise model
 summary(hybridoptimalBIC)
 ```
 
-We computed the Variance Inflation Factors (VIF) for this model and found that there are numerous values that are at least 5 indicating multicollinearity in the predictors. In particular, we saw a VIF of at least 10 in Percent Married and a VIF of 8 in Percent Married Households. As well as in log(Median Income), Percent Employed 16 and Over, Percent Employers Private Coverage and Percent Private Coverage. Due to this frequent multicollinearity between the predictors in the stepwise model, the stepwise model is not a suitable approach as multicollinearity was not taken into account and thus we proceeded with Ridge and LASSO Regression in the following sections, hoping for a model with reduced multicollinearity.
+We computed the Variance Inflation Factors (VIF) (See Appendix 4.2.1) for this model and found that there are numerous values that are at least 5 indicating multicollinearity in the predictors. In particular, we saw a VIF of at least 10 in Percent Married and a VIF of 8 in Percent Married Households. As well as in log(Median Income), Percent Employed 16 and Over, Percent Employers Private Coverage and Percent Private Coverage. Due to this frequent multicollinearity between the predictors in the stepwise model, the stepwise model is not a suitable approach as multicollinearity was not taken into account and thus we proceeded with Ridge and LASSO Regression in the following sections, hoping for a model with reduced multicollinearity.
 
-To complete the section on stepwise regression we performed leave-one-out cross-validation (in order to compute the $R^2$ of the stepwise models and also the Root Mean Squared Error (See Appendix 5.2.1). This allowed us to compare these models with the Ridge and LASSO models we generate in the next sections. Performing this we see in the stepwise model that we have an $R^2$ value of 0.4623.
+To complete the section on stepwise regression we performed leave-one-out cross-validation (in order to compute the $R^2$ of the stepwise models and also the Root Mean Squared Error (See Appendix 4.2.1). This allowed us to compare these models with the Ridge and LASSO models we generate in the next sections. Performing this we see in the stepwise model that we have an $R^2$ value of 0.4623.
 
 ```{r LOOCVforStepwise, cache=TRUE, include=FALSE}
 library(caret)
@@ -324,7 +324,7 @@ cancer.lasso.dm <- cancer %>%
   data.matrix()
 ```
 
-We used cross-validation from the glmnet library which leaves out a 10th of the data every time. We produced the following plot (Fig. 5) of mean-squared error against log(lambda). We decided to use the 1-standard-error-lambda because this is likely to shrink some predictor variables to zero, performing variable selection. We prefer a simpler model. (See Appendix 5.2.3)
+We used cross-validation from the glmnet library which leaves out a 10th of the data every time. We produced the following plot (Fig. 5) of mean-squared error against log(lambda). We decided to use the 1-standard-error-lambda because this is likely to shrink some predictor variables to zero, performing variable selection. We prefer a simpler model. (See Appendix 4.2.3)
 
 ```{r echo=FALSE, fig.asp=0.5, fig.cap="Mean-squared error against log(lambda)", message=FALSE,warning=FALSE}
 set.seed((934))
@@ -488,16 +488,15 @@ ggplot(data=mergedf) + geom_polygon(aes(x=long, y=lat, fill=averageresidual, gro
 # Author Contributions
 
 Remus Gong contributed to Findings, Statistical Methodology, LASSO Regression and Appendix.
+
 Sam Glanfield contributed to Findings, Statistical Methodology, Appendix, Stepwise Regression and Heatmap.
+
 Thomas Broadbent contributed to Findings,  Statistical Methodology, RIDGE and LASSO Regression, $R^2$ Cross Validation and Appendix.
+
 Frank Or contributed to Findings, Statistical Methodology, and LASSO Regression, Poster.
 
-# References
-
-<div id="refs"></div>
-
-
 \pagebreak
+
 # Appendix
 
 ## Outcomes of EDA
@@ -540,8 +539,7 @@ cancer <- filter(cancer, incidenceRate <= 850)
 # Log transforming the heavily skewed distributions of PctBlack and medIncome
 cancer$logpctblack = log(cancer$PctBlack+0.05)
 cancer$logmedincome = log(cancer$medIncome)
-# Showing improvements in homoscedasticity in PctBlack
-# Similar plots can be produced for medIncome
+# Showing improvements in homoscedasticity in PctBlack and can also be seen in medIncome
 par(mfrow=c(1,2))
 plot(lm(deathRate~PctBlack,data=cancer),1)
 plot(lm(deathRate~logpctblack,data=cancer),1)
@@ -700,7 +698,8 @@ averagedf <- data.frame(region=unique(states$region), averageresidual)
 mergedf <- merge(states, averagedf, by="region")
 statenames <- data.frame(region=tolower(state.name), clong=state.center$x, clat=state.center$y)
 statenames <- merge(statenames, averagedf, by="region")
-statenames$lab <- paste(c(state.abb, 'DC')[match(statenames$region, c(tolower(state.name), 'District of Columbia'))], '\n', statenames$averageresidual, sep="")
+statenames$lab <- paste(c(state.abb, 'DC')[match(statenames$region, c(tolower(state.name), 
+'District of Columbia'))], '\n', statenames$averageresidual, sep="")
 #Produce heatmap of average residual
 ggplot(data=mergedf) + geom_polygon(aes(x=long, y=lat, fill=averageresidual, group=region)) +
   scale_fill_gradient(low="yellow",high="red", name="Residual") +
